@@ -5,7 +5,7 @@ import json
 import re
 from datetime import datetime, timedelta
 
-# Configurações globais da página para visualização moderna e responsiva
+# Configurações globais de página para visualização moderna e responsiva
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -17,7 +17,7 @@ st.set_page_config(
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 
-# Injeção de CSS personalizado e seguro para estilização avançada de alta fidelidade
+# Injeção de CSS personalizado de alta fidelidade para sanar desalinhamentos e aplicar design premium
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
@@ -29,106 +29,108 @@ st.markdown("""
     
     /* Fundo de Tela Moderno Soft */
     .stApp {
-        background: linear-gradient(135deg, #f5f8f6 0%, #eef3ef 100%);
+        background: linear-gradient(135deg, #f8faf9 0%, #f0f4f1 100%);
     }
     
     /* Banner Corporativo Premium */
     .banner-container {
         background: linear-gradient(135deg, #004b23 0%, #002e14 100%);
         color: #ffffff;
-        padding: 40px 30px;
-        border-radius: 20px;
+        padding: 35px 25px;
+        border-radius: 16px;
         text-align: center;
-        margin-bottom: 35px;
-        box-shadow: 0 10px 30px rgba(0, 75, 35, 0.18);
-        border-bottom: 5px solid #d4af37;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 25px rgba(0, 75, 35, 0.12);
+        border-bottom: 4px solid #d4af37;
         position: relative;
         overflow: hidden;
     }
     
-    .banner-container::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 80%);
-        pointer-events: none;
-    }
-    
     .banner-title {
-        font-size: 2.4rem;
+        font-size: 2.1rem;
         font-weight: 800;
-        margin-bottom: 10px;
-        letter-spacing: -1.5px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: 8px;
+        letter-spacing: -1px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.25);
     }
     
     .banner-subtitle {
-        font-size: 1.1rem;
+        font-size: 1rem;
         opacity: 0.9;
         font-weight: 500;
         letter-spacing: 0.5px;
     }
 
-    /* Destaque Ultra Visível para a Guia "Dar Palpite" (3ª Aba - index 2) */
-    button[id*="-tab-2"], div[data-testid="stTabBar"] button:nth-of-type(3) {
+    /* customizando a barra de abas nativa do Streamlit para harmonia visual */
+    div[data-testid="stTabBar"] {
+        background-color: #ffffff;
+        padding: 6px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        margin-bottom: 20px;
+    }
+
+    div[data-testid="stTabBar"] button {
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        color: #555 !important;
+        padding: 8px 16px !important;
+        transition: all 0.25s ease !important;
+    }
+
+    /* Destaque Elegante para a Guia "Dar Palpite" (3ª Aba - index 2) */
+    div[data-testid="stTabBar"] button:nth-of-type(3) {
+        background-color: #eef7f2 !important;
+        color: #004b23 !important;
+        font-weight: 700 !important;
+        border: 1px solid rgba(0, 75, 35, 0.2) !important;
+    }
+
+    div[data-testid="stTabBar"] button:nth-of-type(3)[aria-selected="true"] {
         background: linear-gradient(135deg, #004b23 0%, #007736 100%) !important;
         color: #ffffff !important;
-        font-weight: 800 !important;
-        border-radius: 12px !important;
-        padding: 10px 24px !important;
-        margin: 0 6px !important;
-        border: 2px solid #d4af37 !important;
-        box-shadow: 0 6px 18px rgba(0, 75, 35, 0.35) !important;
-        transform: scale(1.02);
-        transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+        border: 1px solid #d4af37 !important;
     }
 
-    button[id*="-tab-2"]:hover, div[data-testid="stTabBar"] button:nth-of-type(3):hover {
-        transform: translateY(-2px) scale(1.06) !important;
-        box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4) !important;
+    /* Cards de Métricas Premium Unificados */
+    .metrics-wrapper {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
     }
 
-    /* Arredondamento e suavização para as outras abas padrão */
-    div[data-testid="stTabBar"] button {
-        border-radius: 10px !important;
-        transition: all 0.2s ease !important;
-        font-weight: 600 !important;
-    }
-
-    /* Cards de Métricas Premium */
-    .card-metric {
+    .metric-card-premium {
+        flex: 1;
+        min-width: 240px;
         background-color: #ffffff;
-        padding: 22px;
-        border-radius: 16px;
-        border-left: 6px solid #004b23;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 5px solid #004b23;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         text-align: center;
-        margin-bottom: 20px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease;
+    }
+
+    .metric-card-premium:hover {
+        transform: translateY(-2px);
     }
     
-    .card-metric:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
-    
-    .card-val {
-        font-size: 2.1rem;
+    .metric-val-premium {
+        font-size: 1.8rem;
         font-weight: 800;
         color: #004b23;
-        line-height: 1.1;
+        line-height: 1.2;
     }
     
-    .card-lbl {
-        font-size: 0.85rem;
+    .metric-lbl-premium {
+        font-size: 0.8rem;
         color: #666;
         text-transform: uppercase;
         font-weight: 700;
-        letter-spacing: 1px;
-        margin-top: 8px;
+        letter-spacing: 0.8px;
+        margin-top: 6px;
     }
     
     /* Pódio Sleek 3D */
@@ -137,54 +139,54 @@ st.markdown("""
         justify-content: center;
         align-items: flex-end;
         gap: 15px;
-        margin: 30px 0;
+        margin: 25px 0;
         flex-wrap: wrap;
     }
     
     .podium-box {
         background-color: #ffffff;
-        border-radius: 18px;
-        padding: 25px 20px;
+        border-radius: 16px;
+        padding: 22px 18px;
         text-align: center;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-        border: 1px solid rgba(0, 75, 35, 0.05);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0, 75, 35, 0.04);
         flex: 1;
-        min-width: 250px;
+        min-width: 240px;
         transition: transform 0.2s ease;
     }
     
     .podium-box:hover {
-        transform: translateY(-5px);
+        transform: translateY(-4px);
     }
     
     .podium-1 {
-        border-top: 6px solid #d4af37;
-        background: linear-gradient(180deg, #fffef5 0%, #ffffff 100%);
-        box-shadow: 0 12px 35px rgba(212, 175, 55, 0.15);
+        border-top: 5px solid #d4af37;
+        background: linear-gradient(180deg, #fffef6 0%, #ffffff 100%);
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1);
         order: 2;
     }
     
     .podium-2 {
-        border-top: 6px solid #b5c2b7;
+        border-top: 5px solid #b5c2b7;
         order: 1;
     }
     
     .podium-3 {
-        border-top: 6px solid #ca9063;
+        border-top: 5px solid #ca9063;
         order: 3;
     }
     
     .podium-rank-badge {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
-        margin: 0 auto 12px auto;
+        margin: 0 auto 10px auto;
         font-weight: 800;
-        font-size: 1.2rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        font-size: 1.1rem;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
     }
     
     .badge-p1 { background: linear-gradient(135deg, #ffd700, #ffa500); color: white; }
@@ -192,27 +194,27 @@ st.markdown("""
     .badge-p3 { background: linear-gradient(135deg, #d7ccc8, #8d6e63); color: white; }
     
     .podium-name {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: #004b23;
-        margin-top: 5px;
+        margin-top: 4px;
         word-wrap: break-word;
     }
     
     .podium-points {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 800;
         color: #004b23;
-        margin: 8px 0;
+        margin: 6px 0;
     }
 
     /* Tabela de Classificação Premium */
     .table-container {
         background-color: white;
-        border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         overflow: hidden;
-        border: 1px solid rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.04);
         margin-top: 15px;
     }
     
@@ -225,17 +227,17 @@ st.markdown("""
     .premium-table th {
         background-color: #004b23;
         color: white;
-        padding: 16px 20px;
+        padding: 14px 18px;
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     
     .premium-table td {
-        padding: 14px 20px;
-        border-bottom: 1px solid #f0f0f0;
-        font-size: 0.95rem;
+        padding: 12px 18px;
+        border-bottom: 1px solid #f2f2f2;
+        font-size: 0.9rem;
         color: #333;
     }
     
@@ -244,64 +246,64 @@ st.markdown("""
     }
     
     .premium-table tr:hover {
-        background-color: #f8faf8;
+        background-color: #f9fbf9;
     }
 
     /* Cards de Jogos / Feed de Partidas */
     .match-card {
         background-color: #ffffff; 
-        padding: 22px; 
-        border-radius: 16px; 
-        margin-bottom: 16px; 
-        border: 1px solid rgba(0,0,0,0.06); 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        padding: 20px; 
+        border-radius: 14px; 
+        margin-bottom: 14px; 
+        border: 1px solid rgba(0,0,0,0.04); 
+        box-shadow: 0 3px 10px rgba(0,0,0,0.015);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
     .match-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
     }
 
     .badge-open {
-        background-color: rgba(0, 75, 35, 0.08);
+        background-color: rgba(0, 75, 35, 0.06);
         color: #004b23;
-        border: 1px solid rgba(0, 75, 35, 0.15);
+        border: 1px solid rgba(0, 75, 35, 0.1);
     }
     
     .badge-closed {
-        background-color: rgba(217, 4, 41, 0.07);
+        background-color: rgba(217, 4, 41, 0.05);
         color: #d90429;
-        border: 1px solid rgba(217, 4, 41, 0.12);
+        border: 1px solid rgba(217, 4, 41, 0.08);
     }
 
     /* Tickets dos Palpites Lançados (Meus Palpites) */
     .ticket-card {
         background-color: #ffffff;
-        border-radius: 16px;
-        padding: 18px 22px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.015);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         transition: transform 0.2s ease;
-        border: 1px solid rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.04);
     }
 
     .ticket-card:hover {
         transform: translateY(-2px);
     }
 
-    .ticket-pending { border-left: 6px solid #8d99ae; }
-    .ticket-correct { border-left: 6px solid #2b9348; background: linear-gradient(90deg, #f4faf6 0%, #ffffff 100%); }
-    .ticket-wrong { border-left: 6px solid #d90429; background: linear-gradient(90deg, #fff5f5 0%, #ffffff 100%); }
+    .ticket-pending { border-left: 5px solid #8d99ae; }
+    .ticket-correct { border-left: 5px solid #2b9348; background: linear-gradient(90deg, #f5fbf7 0%, #ffffff 100%); }
+    .ticket-wrong { border-left: 5px solid #d90429; background: linear-gradient(90deg, #fff6f6 0%, #ffffff 100%); }
 
     .ticket-game-title {
         font-weight: 700;
-        font-size: 1.1rem;
+        font-size: 1rem;
         color: #1a1a1a;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     .ticket-info-row {
@@ -309,19 +311,19 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 6px;
+        gap: 8px;
+        margin-top: 4px;
     }
 
     .ticket-badge {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        padding: 4px 12px;
+        padding: 3px 10px;
         border-radius: 20px;
         text-transform: uppercase;
     }
 
-    .badge-pending { background-color: #f1f3f5; color: #495057; }
+    .badge-pending { background-color: #eedfdf00; border: 1px solid #ccc; color: #555; }
     .badge-correct { background-color: #d8f3dc; color: #1b4332; }
     .badge-wrong { background-color: #fcd5ce; color: #641212; }
 </style>
@@ -450,27 +452,20 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Definição dinâmica das abas com base na autorização administrativa discreta
+# Lista definitiva de abas estáveis
 abas_nomes = [
     "📊 Classificação Geral", 
     "📅 Jogos & Resultados",
     "📝 Dar Palpite", 
-    "🎯 Meus Palpites"
+    "🎯 Meus Palpites",
+    "⚙️ Painel Admin"
 ]
-
-if st.session_state.get('admin_autenticado', False):
-    abas_nomes.append("⚙️ Painel Admin")
 
 abas_selecionadas = st.tabs(abas_nomes)
 
+# --- ABA 0: CLASSIFICAÇÃO GERAL ---
 with abas_selecionadas[0]:
     st.markdown("<h2 style='text-align: center; color: #004b23; font-weight: 800; margin-bottom: 25px;'>Placar de Líderes</h2>", unsafe_allow_html=True)
-    
-    col_rec, _ = st.columns([1, 4])
-    with col_rec:
-        if st.button("🔄 Recarregar Dados", width="stretch"):
-            st.cache_data.clear()
-            st.rerun()
 
     num_competidores = 0
     lider_nome = "-"
@@ -491,28 +486,29 @@ with abas_selecionadas[0]:
                 lider_nome = str(df_class_sorted.iloc[0][col_nome_ref]).split("@")[0].title()
                 media_pontos = float(df_class_sorted[col_pts_ref].dropna().mean())
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown(f"""
-        <div class="card-metric">
-            <div class="card-val">{num_competidores}</div>
-            <div class="card-lbl">Participantes</div>
+    # Renderização da linha unificada de métricas em HTML para evitar desalinhamento de colunas Streamlit
+    st.markdown(f"""
+    <div class="metrics-wrapper">
+        <div class="metric-card-premium">
+            <div class="metric-val-premium">{num_competidores}</div>
+            <div class="metric-lbl-premium">Participantes</div>
         </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown(f"""
-        <div class="card-metric" style="border-left-color: #d4af37;">
-            <div class="card-val">👑 {lider_nome}</div>
-            <div class="card-lbl">Líder</div>
+        <div class="metric-card-premium" style="border-left-color: #d4af37;">
+            <div class="metric-val-premium">👑 {lider_nome}</div>
+            <div class="metric-lbl-premium">Líder do Ranking</div>
         </div>
-        """, unsafe_allow_html=True)
-    with col3:
-        st.markdown(f"""
-        <div class="card-metric" style="border-left-color: #0077b6;">
-            <div class="card-val">{media_pontos:.1f} pts</div>
-            <div class="card-lbl">Média Geral</div>
+        <div class="metric-card-premium" style="border-left-color: #0077b6;">
+            <div class="metric-val-premium">{media_pontos:.1f} pts</div>
+            <div class="metric-lbl-premium">Média Geral</div>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_rec, _ = st.columns([1.5, 4])
+    with col_rec:
+        if st.button("🔄 Recarregar Dados", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
 
     st.markdown("<br><h3 style='text-align: center; color: #004b23; font-weight: 700; margin-bottom: 10px;'>🏆 Top 3 Competidores</h3>", unsafe_allow_html=True)
     
@@ -540,8 +536,8 @@ with abas_selecionadas[0]:
         </div>
         <div class="podium-box podium-1">
             <div class="podium-rank-badge badge-p1">1º</div>
-            <div class="podium-name" style="font-size: 1.35rem; font-weight: 800;">{p1_nome}</div>
-            <div class="podium-points" style="font-size: 2.2rem; color: #004b23; font-weight: 900;">{p1_pts}</div>
+            <div class="podium-name" style="font-size: 1.25rem; font-weight: 800;">{p1_nome}</div>
+            <div class="podium-points" style="font-size: 2rem; color: #004b23; font-weight: 900;">{p1_pts}</div>
         </div>
         <div class="podium-box podium-3">
             <div class="podium-rank-badge badge-p3">3º</div>
@@ -562,6 +558,7 @@ with abas_selecionadas[0]:
         participantes = df_exibir[col_nome_ref].tolist()
         pontos = [f"{safe_to_int(p)} pts" for p in df_exibir[col_pts_ref].tolist()]
         
+        # Concatenação de string limpa de forma linear para evitar parágrafos de Markdown no parser
         linhas_html = ""
         for i in range(len(posicoes)):
             bg_destaque = "style='background-color: #fffef2; font-weight: bold;'" if i == 0 else ""
@@ -580,6 +577,7 @@ with abas_selecionadas[0]:
     else:
         st.info("Nenhum participante pontuou ainda. Os pontos serão exibidos assim que os primeiros jogos forem finalizados!")
 
+# --- ABA 1: JOGOS & RESULTADOS ---
 with abas_selecionadas[1]:
     st.markdown("<h2 style='color: #004b23; font-weight: 800; margin-bottom: 8px;'>📅 Tabela de Jogos & Resultados</h2>", unsafe_allow_html=True)
     st.write("Acompanhe a classificação cronológica dos jogos, placares cadastrados e limites de bloqueios.")
@@ -619,18 +617,19 @@ with abas_selecionadas[1]:
                     <span class="{classe_badge}" style="font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 20px;">{status_palpites}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
-                    <div style="flex: 1; text-align: right; font-weight: 700; font-size: 1.15rem; color: #333;">{team_m}</div>
-                    <div style="padding: 0 15px; font-size: 1.6rem; font-weight: 900; color: #004b23; min-width: 120px; text-align: center; letter-spacing: 2px;">
+                    <div style="flex: 1; text-align: right; font-weight: 700; font-size: 1.1rem; color: #333;">{team_m}</div>
+                    <div style="padding: 0 15px; font-size: 1.5rem; font-weight: 900; color: #004b23; min-width: 110px; text-align: center; letter-spacing: 2px;">
                         {f"{safe_to_int(p_m)} - {safe_to_int(p_v)}" if pd.notna(p_m) and pd.notna(p_v) and str(p_m).strip() != "" and str(p_v).strip() != "" else "VS"}
                     </div>
-                    <div style="flex: 1; text-align: left; font-weight: 700; font-size: 1.15rem; color: #333;">{team_v}</div>
+                    <div style="flex: 1; text-align: left; font-weight: 700; font-size: 1.1rem; color: #333;">{team_v}</div>
                 </div>
                 <div style="text-align: center; margin-top: 10px; border-top: 1px solid #f5f5f5; padding-top: 8px;">
-                    <span style="font-size: 0.78rem; color: #777; font-weight: 600; text-transform: uppercase;">Estado: {status_oficial}</span>
+                    <span style="font-size: 0.75rem; color: #777; font-weight: 600; text-transform: uppercase;">Estado: {status_oficial}</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
+# --- ABA 2: ENVIAR PALPITE ---
 with abas_selecionadas[2]:
     st.markdown("<h2 style='color: #004b23; font-weight: 800; margin-bottom: 20px;'>Enviar Meu Palpite</h2>", unsafe_allow_html=True)
     
@@ -689,7 +688,7 @@ with abas_selecionadas[2]:
                     index=0
                 )
                 
-                if st.button("Confirmar e Enviar Palpite 🚀", width="stretch"):
+                if st.button("Confirmar e Enviar Palpite 🚀", use_container_width=True):
                     if not email_user or "@" not in email_user:
                         st.error("Por favor, informe um e-mail corporativo válido.")
                     elif len(nome_user) < 3:
@@ -727,6 +726,7 @@ with abas_selecionadas[2]:
                             except Exception as e:
                                 st.error(f"Erro de conexão: {str(e)}")
 
+# --- ABA 3: MEUS PALPITES ---
 with abas_selecionadas[3]:
     st.markdown("<h2 style='color: #004b23; font-weight: 800;'>Meus Palpites Lançados</h2>", unsafe_allow_html=True)
     email_filtro = st.text_input("Digite o seu e-mail corporativo cadastrado:", value="", key="filtro_votos_email")
@@ -799,11 +799,23 @@ with abas_selecionadas[3]:
             else:
                 st.error("Coluna de e-mail de palpites não localizada.")
 
-# Painel Administrativo Secreto e Oculto no fim da lista de abas (renderizado dinamicamente)
-if st.session_state.get('admin_autenticado', False):
-    with abas_selecionadas[4]:
-        st.markdown("<h2 style='color: #004b23; font-weight: 800;'>🔐 Painel de Controle Administrativo</h2>", unsafe_allow_html=True)
+# --- ABA 4: PAINEL ADMIN (Sólida e Protegida por Cofre Digital contra Bugs) ---
+with abas_selecionadas[4]:
+    st.markdown("<h2 style='color: #004b23; font-weight: 800;'>🔐 Painel de Controle Administrativo</h2>", unsafe_allow_html=True)
+    
+    # Verifica autenticação na própria aba para não quebrar o ecossistema de abas do Streamlit
+    if not st.session_state.get('admin_autenticado', False):
+        st.info("Esta área é reservada para coordenadores do bolão. Insira a senha mestra para desbloquear:")
+        senha_digitada = st.text_input("Senha de Acesso do Administrador:", type="password", key="senha_admin_tab_direta")
         
+        if senha_digitada == "feltrim2026":
+            st.session_state['admin_autenticado'] = True
+            st.success("🔑 Acesso administrativo concedido com sucesso!")
+            st.rerun()
+        elif senha_digitada != "":
+            st.error("❌ Senha incorreta! Tente novamente.")
+    else:
+        # Área administrativa completamente desbloqueada e integrada
         st.markdown("### 🏆 Cadastro de Resultados Oficiais")
         lista_atualizacao = list(df_resultados_sorted['Jogo'].unique())
         jogo_escolhido = st.selectbox("Selecione o Jogo para Cadastrar Placar:", lista_atualizacao)
@@ -836,7 +848,7 @@ if st.session_state.get('admin_autenticado', False):
                 index=["🕒 Agendado", "🟡 Ao Vivo", "🟢 Encerrado"].index(status_padrao) if status_padrao in ["🕒 Agendado", "🟡 Ao Vivo", "🟢 Encerrado"] else 0
             )
             
-            if st.button("Salvar Placar Oficial 💾", width="stretch"):
+            if st.button("Salvar Placar Oficial 💾", use_container_width=True):
                 payload_admin = {
                     "action": "atualizarPlacar",
                     "senha": "feltrim2026",
@@ -866,7 +878,7 @@ if st.session_state.get('admin_autenticado', False):
         st.markdown("### ✨ Inicialização Rápida de Partidas")
         st.write("Deseja restaurar ou popular a lista de 56 jogos originais com dias e horários corretos de Brasília?")
         
-        if st.button("✨ Inicializar Todos os 56 Jogos na Planilha", width="stretch"):
+        if st.button("✨ Inicializar Todos os 56 Jogos na Planilha", use_container_width=True):
             payload_init = {
                 "action": "inicializarNovoBolao",
                 "senha": "feltrim2026"
@@ -892,17 +904,10 @@ if st.session_state.get('admin_autenticado', False):
             st.cache_data.clear()
             st.success("Planilha alterada!")
             st.rerun()
-
-# Rodapé minimalista com expander discreto para autorização administrativa
-st.markdown("<br><hr><br>", unsafe_allow_html=True)
-with st.expander("🔒 Área Administrativa"):
-    senha_digitada = st.text_input("Insira a senha mestra do Bolão:", type="password")
-    if senha_digitada == "feltrim2026":
-        st.session_state['admin_autenticado'] = True
-        st.success("Acesso administrativo desbloqueado! A aba 'Painel Admin' foi habilitada no menu superior.")
-        if st.button("Carregar Painel Admin"):
+            
+        if st.button("Sair do Painel Admin 🔒", use_container_width=True):
+            st.session_state['admin_autenticado'] = False
             st.rerun()
-    elif senha_digitada != "":
-        st.error("Senha de Administrador incorreta!")
 
-st.markdown("<p style='text-align: center; color: #888; font-size: 0.85rem;'>🏆 Feltrim Correa - Todos os direitos reservados. Desenvolvimento de TI Integrado Copa 2026.</p>", unsafe_allow_html=True)
+# Rodapé minimalista
+st.markdown("<br><hr><p style='text-align: center; color: #888; font-size: 0.85rem;'>🏆 Feltrim Correa - Todos os direitos reservados. Desenvolvimento de TI Integrado Copa 2026.</p>", unsafe_allow_html=True)
