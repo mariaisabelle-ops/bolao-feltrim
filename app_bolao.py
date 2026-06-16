@@ -1,784 +1,505 @@
 import streamlit as st
 import pandas as pd
-import urllib.parse
 import requests
-import json
+import io
 import re
-import textwrap
-import unicodedata
-
-# =========================================================================
-# ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO DEFINITIVA (APPS SCRIPT ATUALIZADO)
-# =========================================================================
-URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
-# =========================================================================
 
 st.set_page_config(
-    page_title="Bolão Feltrim Correa - Copa 2026",
-    page_icon="🏆",
-    layout="centered",
+    page_title="Feltrim Correa - Bolão Copa 2026",
+    page_icon="⚽",
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Estilização CSS institucional (Verde, Amarelo e Azul-Marinho) totalmente integrada
+# Constantes globais
+URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
+
+# Design System Premium (Verde Corporativo Feltrim & Destaques Ouro)
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
     
-    * { font-family: 'Plus Jakarta Sans', Arial, sans-serif; }
-    .main { background-color: #f4f7f5; }
+    html, body, [data-testid="stAppViewContainer"] {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #fcfdfe;
+    }
     
-    .header-title {
+    .main-title {
+        font-size: 2.8rem;
+        font-weight: 800;
         color: #004b23;
         text-align: center;
-        font-weight: 800;
-        font-size: 2.3rem;
-        margin-bottom: 2px;
-        letter-spacing: -1px;
+        margin-bottom: 0.2rem;
     }
     
-    .header-subtitle {
+    .subtitle {
+        font-size: 1.1rem;
+        color: #556b2f;
         text-align: center;
-        color: #003566;
-        font-size: 1.05rem;
-        margin-bottom: 25px;
-        font-weight: 600;
+        margin-bottom: 2rem;
     }
-
-    /* Abas personalizadas */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+    
+    /* Menu de Navegação Horizontal Customizado */
+    .nav-container {
+        display: flex;
         justify-content: center;
-        background-color: #e8efe9;
-        padding: 6px;
-        border-radius: 12px;
-        border: 1px solid #c2d6c5;
+        gap: 15px;
+        margin-bottom: 2rem;
+        padding: 8px;
+        background-color: #f1f7f3;
+        border-radius: 50px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
     }
     
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent;
-        border-radius: 8px;
-        padding: 8px 14px;
-        color: #004b23;
+    .nav-btn {
+        padding: 10px 24px;
         font-weight: 600;
-        transition: all 0.25s ease;
+        font-size: 0.95rem;
+        color: #38b000;
+        background: transparent;
         border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
     }
     
-    .stTabs [aria-selected="true"] {
-        background-color: #004b23 !important;
-        color: #ffffff !important;
-        box-shadow: 0 4px 10px rgba(0, 75, 35, 0.25);
-    }
-
-    .custom-error-box {
-        background-color: #fdf2f2;
-        border-left: 4px solid #ef4444;
-        color: #9b1c1c;
-        padding: 18px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        font-size: 0.95rem;
-    }
-
-    .custom-info {
-        background-color: #f0f7f4;
-        border-left: 4px solid #004b23;
-        color: #004b23;
-        padding: 16px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        font-size: 0.95rem;
-    }
-
-    /* Cards e Métricas */
-    .metrics-container {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        margin-bottom: 25px;
-    }
-    
-    .metric-box {
-        background-color: white;
-        padding: 14px;
-        border-radius: 14px;
+    /* Cards de Estatísticas */
+    .metric-card {
+        background: #ffffff;
+        border: 1px solid #e1e7e3;
+        border-radius: 16px;
+        padding: 24px;
         text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 75, 35, 0.04);
-        border: 1px solid #e8efe9;
+        box-shadow: 0 4px 12px rgba(0,75,35,0.02);
     }
     
-    .metric-value {
-        font-size: 1.3rem;
+    .metric-val {
+        font-size: 2.2rem;
         font-weight: 800;
         color: #004b23;
+        margin-bottom: 5px;
     }
     
-    .metric-label {
-        font-size: 0.72rem;
-        color: #003566;
-        font-weight: 700;
+    .metric-lbl {
+        font-size: 0.85rem;
+        color: #708090;
         text-transform: uppercase;
-        margin-top: 4px;
+        font-weight: 600;
+        letter-spacing: 1px;
     }
-
-    /* Pódio de Classificação */
-    .podium-row {
+    
+    /* Layout do Pódio de Líderes */
+    .podium-container {
         display: flex;
         align-items: flex-end;
         justify-content: center;
-        gap: 12px;
-        margin-bottom: 30px;
-        padding-top: 15px;
+        gap: 20px;
+        margin: 3rem 0;
+        padding-top: 20px;
     }
     
-    .podium-card {
-        background: white;
-        border-radius: 16px;
-        padding: 16px;
-        text-align: center;
-        box-shadow: 0 10px 20px rgba(0, 75, 35, 0.05);
-        border: 1px solid #e8efe9;
-        flex: 1;
-    }
-    
-    .podium-1 {
-        order: 2;
-        border-top: 5px solid #ffbd00;
-        background: linear-gradient(180deg, #fffdf0 0%, #ffffff 100%);
-        min-height: 160px;
-    }
-    
-    .podium-2 {
-        order: 1;
-        border-top: 5px solid #003566;
-        background: linear-gradient(180deg, #f0f4f8 0%, #ffffff 100%);
-        min-height: 135px;
-    }
-    
-    .podium-3 {
-        order: 3;
-        border-top: 5px solid #004b23;
-        background: linear-gradient(180deg, #f4faf6 0%, #ffffff 100%);
-        min-height: 120px;
-    }
-    
-    .podium-badge { font-size: 1.8rem; margin-bottom: 5px; }
-    
-    .podium-name {
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: #1e293b;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    
-    .podium-pts {
-        font-weight: 800;
-        color: #004b23;
-        font-size: 1.1rem;
-        margin-top: 4px;
-    }
-
-    /* Lista de Classificação */
-    .ranking-list { display: flex; flex-direction: column; gap: 8px; }
-    
-    .ranking-item {
-        background-color: white;
-        padding: 12px 16px;
-        border-radius: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 8px rgba(0, 75, 35, 0.02);
-        border: 1px solid #e8efe9;
-    }
-    
-    .ranking-left { display: flex; align-items: center; gap: 12px; }
-    .ranking-pos { font-size: 0.85rem; font-weight: 800; color: #003566; width: 24px; }
-    
-    .ranking-avatar {
-        background-color: #e8efe9;
-        color: #004b23;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.85rem;
-        border: 1px solid #c2d6c5;
-    }
-    
-    .ranking-name { font-weight: 600; color: #334155; font-size: 0.95rem; }
-    .ranking-score { font-weight: 800; color: #004b23; font-size: 1.05rem; }
-
-    /* Enquetes de Palpites */
-    .poll-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 18px;
-        margin-bottom: 16px;
-        border: 1px solid #e8efe9;
-        box-shadow: 0 4px 12px rgba(0, 75, 35, 0.03);
-    }
-    
-    .poll-header {
-        text-align: center;
-        font-weight: 700;
-        color: #003566;
-        font-size: 0.82rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 14px;
-    }
-    
-    .poll-teams {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    
-    .poll-team-box {
+    .podium-col {
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 40%;
-        text-align: center;
+        width: 180px;
     }
     
-    .poll-team-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; line-height: 1.2; }
-    
-    .poll-vs {
-        font-weight: 800;
-        font-size: 0.95rem;
-        color: #004b23;
-        background-color: #e8efe9;
-        padding: 4px 10px;
-        border-radius: 20px;
-    }
-
-    /* Barras de Progresso Limpas (Sem Código Streamlit Aparente) */
-    .poll-bar-container { margin-bottom: 8px; }
-    
-    .poll-bar-label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #475569;
-        margin-bottom: 3px;
-    }
-    
-    .poll-bar-outer { background-color: #f1f5f9; border-radius: 8px; height: 10px; overflow: hidden; position: relative; }
-    .poll-bar-inner { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
-    
-    .bar-color-m { background-color: #004b23; }
-    .bar-color-draw { background-color: #ffbd00; }
-    .bar-color-v { background-color: #003566; }
-
-    /* Botões de Ação Personalizados */
-    div.stButton > button {
-        background-color: #004b23 !important;
-        color: #ffffff !important;
-        border: 2px solid #ffbd00 !important;
-        font-weight: 700 !important;
-        border-radius: 12px !important;
-        transition: all 0.25s ease !important;
-        padding: 8px 16px !important;
+    .podium-card {
         width: 100%;
+        background: #ffffff;
+        border-radius: 16px 16px 8px 8px;
+        text-align: center;
+        padding: 20px 15px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
-    div.stButton > button:hover {
-        background-color: #ffbd00 !important;
-        color: #004b23 !important;
-        box-shadow: 0 4px 12px rgba(255, 189, 0, 0.35) !important;
+    
+    .p-1st { height: 160px; border-top: 6px solid #ffd700; background: linear-gradient(180deg, #fffdf2 0%, #ffffff 100%); }
+    .p-2nd { height: 130px; border-top: 6px solid #c0c0c0; background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%); }
+    .p-3rd { height: 110px; border-top: 6px solid #cd7f32; background: linear-gradient(180deg, #fffbf7 0%, #ffffff 100%); }
+    
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #004b23;
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 10px rgba(0,75,35,0.15);
     }
-    </style>
-""", unsafe_allow_html=True)
+    
+    /* Enquete Interativa de Voto */
+    .match-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .match-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,75,35,0.04);
+    }
+</style>
+""", unsafe_allowed_html=True)
 
-def remover_acentos(texto):
-    if not texto: return ""
-    return "".join(c for c in unicodedata.normalize('NFD', str(texto)) if unicodedata.category(c) != 'Mn').lower()
+if "spreadsheet_id" not in st.session_state:
+    st.session_state.spreadsheet_id = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg" # Conectado à sua planilha nova
 
+if "current_tab" not in st.session_state:
+    st.session_state.current_tab = "🏆 Classificação"
+
+# Funções de Leitura Segura anti-Crash e Limpeza de Lixo
 def safe_to_int(val):
-    if pd.isna(val):
-        return 0
     try:
+        if pd.isna(val) or str(val).strip() == "" or str(val).lower() == "nan":
+            return 0
         return int(float(val))
-    except (ValueError, TypeError):
+    except:
         return 0
 
-def formatar_nome_time(nome_time):
-    if not nome_time or pd.isna(nome_time): return ""
-    nome_limpo = str(nome_time).strip()
-    nome_limpo = re.sub(r'\(.*?\)', '', nome_limpo)
-    nome_limpo = re.sub(r'[^\w\s\-\.]', '', nome_limpo)
-    return nome_limpo.strip()
+def eh_nome_valido(nome):
+    if not nome or not isinstance(nome, str):
+        return False
+    n_limpo = nome.strip().lower()
+    if "vs" in n_limpo or "⚽" in n_limpo or "timestamp" in n_limpo or "@" in n_limpo:
+        return False
+    if len(nome.strip()) < 2:
+        return False
+    return True
 
-def extrair_data_jogo(col_name):
-    match = re.search(r'\((\d{2})/(\d{2})\)', str(col_name))
-    if match: return int(match.group(1)), int(match.group(2))
-    return 31, 12
-
-def chave_ordenacao_jogo(col_name):
-    dia, mes = extrair_data_jogo(col_name)
-    return (mes, dia)
-
-# ID padrão da nova planilha limpa
-if "sheet_id" not in st.session_state:
-    st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
-
-@st.cache_data(ttl=2)
-def carregar_dados_seguro(sheet_id):
-    df_resp = None
-    df_res = None
-    df_class = None
-    is_private = False
+def ler_aba_sheets(sheet_name):
+    s_id = st.session_state.spreadsheet_id.strip()
+    if not s_id:
+        return pd.DataFrame()
     
-    # 1. Carrega Palpites
+    url = f"https://docs.google.com/spreadsheets/d/{s_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     try:
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet=Palpites"
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            if response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text:
-                is_private = True
-            else:
-                df_resp = pd.read_csv(url)
+        response = requests.get(url, timeout=10)
+        if response.status_code != 200:
+            return pd.DataFrame()
+        
+        # Se Google Sheets retornou redirecionamento para login de privacidade
+        if "<html" in response.text.lower() or "<!doctype" in response.text.lower():
+            return "PRIVADO"
+            
+        df = pd.read_csv(io.StringIO(response.text))
+        # Limpa espaços extras nos nomes de colunas
+        df.columns = [str(c).strip() for c in df.columns]
+        return df
     except Exception:
-        pass
+        return pd.DataFrame()
 
-    # 2. Carrega Resultados
-    try:
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet=Resultados"
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200 and not (response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text):
-            df_res = pd.read_csv(url)
-    except Exception:
-        pass
+st.markdown('<h1 class="main-title">🏆 BOLÃO FELTRIM CORREA</h1>', unsafe_allowed_html=True)
+st.markdown('<p class="subtitle">Acompanhe a classificação, registre seus palpites e dispute a liderança!</p>', unsafe_allowed_html=True)
 
-    # 3. Carrega Classificacao
-    try:
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet=Classificacao"
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200 and not (response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text):
-            df_class = pd.read_csv(url)
-    except Exception:
-        pass
+# Menu de Abas Premium
+tabs = ["🏆 Classificação", "📝 Dar Palpite", "🎯 Ver Palpites", "⚙️ Painel Admin"]
+col_t1, col_t2, col_t3, col_t4 = st.columns(4)
 
-    return df_resp, df_res, df_class, is_private
+with col_t1:
+    if st.button("🏆 CLASSIFICAÇÃO", use_container_width=True, type="primary" if st.session_state.current_tab == "🏆 Classificação" else "secondary"):
+        st.session_state.current_tab = "🏆 Classificação"
+        st.rerun()
+with col_t2:
+    if st.button("📝 DAR PALPITE", use_container_width=True, type="primary" if st.session_state.current_tab == "📝 Dar Palpite" else "secondary"):
+        st.session_state.current_tab = "📝 Dar Palpite"
+        st.rerun()
+with col_t3:
+    if st.button("🎯 VER PALPITES", use_container_width=True, type="primary" if st.session_state.current_tab == "🎯 Ver Palpites" else "secondary"):
+        st.session_state.current_tab = "🎯 Ver Palpites"
+        st.rerun()
+with col_t4:
+    if st.button("⚙️ ADMINISTRADOR", use_container_width=True, type="primary" if st.session_state.current_tab == "⚙️ Painel Admin" else "secondary"):
+        st.session_state.current_tab = "⚙️ Painel Admin"
+        st.rerun()
 
-df_respostas, df_resultados, df_classificacao, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
+st.markdown("<hr style='margin-top:0.5rem; margin-bottom:2rem; border-color:#e1e7e3;'>", unsafe_allowed_html=True)
 
-# Mensagem se a planilha for privada
-if is_private:
-    st.markdown(textwrap.dedent("""
-        <div class="custom-error-box">
-            <h4 style="margin:0 0 8px 0; font-weight:700;">🔒 Planilha Privada ou ID Incorreto</h4>
-            <p style="margin:0;">Mude o compartilhamento da planilha para <strong>"Qualquer pessoa com o link pode ler"</strong> ou altere o ID no Painel Admin abaixo!</p>
+# Carregamento seguro dos dados globais
+df_classificacao = ler_aba_sheets("Classificacao")
+df_resultados = ler_aba_sheets("Resultados")
+
+if isinstance(df_classificacao, str) and df_classificacao == "PRIVADO":
+    st.warning("⚠️ **Conexão com a Planilha Bloqueada!**")
+    st.info("""
+    Para que o site consiga puxar os dados, a sua nova planilha do Google precisa ser aberta para leitura na internet:
+    
+    1. Abra a sua planilha do Google Sheets.
+    2. Clique no botão azul **Compartilhar** no canto superior direito.
+    3. Em **Acesso Geral**, altere de **Restrito** para **"Qualquer pessoa com o link"**.
+    4. Mantenha a permissão como **Leitor**.
+    5. Volte aqui e clique no botão **🔄 Sincronizar Sistema** no Painel Admin ou atualize o navegador.
+    """)
+    st.stop()
+
+# Se estiver vazia ou com falha genérica de carregamento
+if df_classificacao is None or df_classificacao.empty:
+    df_classificacao = pd.DataFrame(columns=["Posição", "Participante", "E-mail Corporativo", "Pontos Acumulados"])
+
+if df_resultados is None or df_resultados.empty:
+    df_resultados = pd.DataFrame(columns=["ID_Jogo", "Jogo", "Placar Real Mandante", "Placar Real Visitante", "Status"])
+
+# Normalizações preventivas de dados
+if "Pontos Acumulados" in df_classificacao.columns:
+    df_classificacao["Pontos Acumulados"] = df_classificacao["Pontos Acumulados"].apply(safe_to_int)
+
+# Filtro de Competidores Válidos na Classificação (Remove Jogos, Cabeçalhos e Lixo vazados no formulário)
+if "Participante" in df_classificacao.columns:
+    df_classificacao = df_classificacao[df_classificacao["Participante"].apply(eh_nome_valido)]
+
+if st.session_state.current_tab == "🏆 Classificação":
+    
+    st.markdown("### 📊 Pódio e Classificação Geral")
+    
+    # KPIs Rápidos
+    total_participantes = len(df_classificacao)
+    lider_atual = "-"
+    pontos_lider = 0
+    media_pontos = 0
+    
+    if total_participantes > 0:
+        df_classificacao_sorted = df_classificacao.sort_values(by="Pontos Acumulados", ascending=False)
+        lider_atual = df_classificacao_sorted.iloc[0]["Participante"]
+        pontos_lider = df_classificacao_sorted.iloc[0]["Pontos Acumulados"]
+        media_pontos = round(df_classificacao_sorted["Pontos Acumulados"].mean(), 1)
+        
+    col_k1, col_k2, col_k3 = st.columns(3)
+    with col_k1:
+        st.markdown(f'<div class="metric-card"><div class="metric-val">{total_participantes}</div><div class="metric-lbl">Participantes</div></div>', unsafe_allowed_html=True)
+    with col_k2:
+        st.markdown(f'<div class="metric-card"><div class="metric-val">👑 {str(lider_atual)[:15]}</div><div class="metric-lbl">Líder ({pontos_lider} pts)</div></div>', unsafe_allowed_html=True)
+    with col_k3:
+        st.markdown(f'<div class="metric-card"><div class="metric-val">{media_pontos} pts</div><div class="metric-lbl">Média Geral</div></div>', unsafe_allowed_html=True)
+        
+    # PÓDIO PREMIUM
+    st.markdown("<br>", unsafe_allowed_html=True)
+    
+    p1_nome, p1_pts = "Aguardando", "0 pts"
+    p2_nome, p2_pts = "Aguardando", "0 pts"
+    p3_nome, p3_pts = "Aguardando", "0 pts"
+    
+    if total_participantes > 0:
+        p1_nome = df_classificacao_sorted.iloc[0]["Participante"]
+        p1_pts = f"{df_classificacao_sorted.iloc[0]['Pontos Acumulados']} pts"
+    if total_participantes > 1:
+        p2_nome = df_classificacao_sorted.iloc[1]["Participante"]
+        p2_pts = f"{df_classificacao_sorted.iloc[1]['Pontos Acumulados']} pts"
+    if total_participantes > 2:
+        p3_nome = df_classificacao_sorted.iloc[2]["Participante"]
+        p3_pts = f"{df_classificacao_sorted.iloc[2]['Pontos Acumulados']} pts"
+        
+    # Estrutura HTML do Pódio
+    st.markdown(f"""
+    <div class="podium-container">
+        <div class="podium-col">
+            <div style="font-size:1.8rem; margin-bottom:8px;">🥈</div>
+            <div class="podium-card p-2nd">
+                <div class="avatar-circle" style="background-color:#9ca3af;">{str(p2_nome)[0].upper()}</div>
+                <div style="font-weight:600; font-size:0.95rem; color:#4b5563;">{str(p2_nome)[:20]}</div>
+                <div style="font-weight:800; font-size:1.1rem; color:#1f2937; margin-top:5px;">{p2_pts}</div>
+            </div>
         </div>
-    """), unsafe_allow_html=True)
-
-lista_jogos_formulario = []
-col_email = "E-mail Corporativo"
-col_nome = "Nome Completo"
-
-if df_respostas is not None and not df_respostas.empty:
-    df_respostas.columns = df_respostas.columns.str.strip()
-    col_email_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['email', 'e-mail'])]
-    if col_email_list: col_email = col_email_list[0]
-    col_nome_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['nome', 'completo'])]
-    if col_nome_list: col_nome = col_nome_list[0]
-    
-    for col in df_respostas.columns:
-        if "vs" in col.lower() or "⚽" in col:
-            lista_jogos_formulario.append(col.strip())
-            
-lista_jogos_formulario.sort(key=chave_ordenacao_jogo)
-
-# Abas principais do app
-tab_ranking, tab_enviar, tab_palpites, tab_jogos = st.tabs([
-    "📊 Classificação", "📝 Dar Palpite", "🎯 Ver Palpites", "⚽ Resultados Reais"
-])
-
-with tab_ranking:
-    st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 5px; text-align: center;'>Classificação Geral</h3>", unsafe_allow_html=True)
-    
-    col_vazia, col_btn_sync = st.columns([4, 1])
-    with col_btn_sync:
-        if st.button("🔄 Recarregar", key="sync_ranking"):
-            st.cache_data.clear()
-            st.rerun()
-
-    if df_classificacao is not None and not df_classificacao.empty:
-        df_classificacao.columns = df_classificacao.columns.str.strip()
-        ranking = df_classificacao.reset_index(drop=True)
-        
-        col_part_ref = "Participante"
-        for c in ranking.columns:
-            if any(x in str(c).lower() for x in ["participante", "nome", "competidor"]):
-                col_part_ref = c
-                break
-                
-        col_pts_ref = "Pontos Acumulados"
-        for c in ranking.columns:
-            if any(x in str(c).lower() for x in ["pontos", "ponto", "acumulado", "score"]):
-                col_pts_ref = c
-                break
-        
-        total_participantes = len(ranking)
-        lider_atual = str(ranking.iloc[0][col_part_ref]).title() if total_participantes > 0 and col_part_ref in ranking.columns else "-"
-        
-        try:
-            media_pontos = int(ranking[col_pts_ref].dropna().mean()) if total_participantes > 0 and col_pts_ref in ranking.columns else 0
-        except Exception:
-            media_pontos = 0
-        
-        st.markdown(textwrap.dedent(f"""
-            <div class="metrics-container">
-                <div class="metric-box">
-                    <div class="metric-value">{total_participantes}</div>
-                    <div class="metric-label">Competidores</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">🏆 {lider_atual.split()[0]}</div>
-                    <div class="metric-label">Líder</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">{media_pontos} pts</div>
-                    <div class="metric-label">Média Geral</div>
-                </div>
+        <div class="podium-col">
+            <div style="font-size:2.2rem; margin-bottom:8px;">👑</div>
+            <div class="podium-card p-1st">
+                <div class="avatar-circle" style="background-color:#d97706; width:60px; height:60px; font-size:1.6rem;">{str(p1_nome)[0].upper()}</div>
+                <div style="font-weight:800; font-size:1.05rem; color:#1e1b4b;">{str(p1_nome)[:20]}</div>
+                <div style="font-weight:800; font-size:1.3rem; color:#b45309; margin-top:5px;">{p1_pts}</div>
             </div>
-        """), unsafe_allow_html=True)
-        
-        p1_nome, p1_pts = "Aguardando", "0 pts"
-        p2_nome, p2_pts = "Aguardando", "0 pts"
-        p3_nome, p3_pts = "Aguardando", "0 pts"
-        
-        if len(ranking) > 0 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
-            p1_nome = str(ranking.iloc[0][col_part_ref]).title()
-            p1_pts = f"{safe_to_int(ranking.iloc[0][col_pts_ref])} pts"
-        if len(ranking) > 1 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
-            p2_nome = str(ranking.iloc[1][col_part_ref]).title()
-            p2_pts = f"{safe_to_int(ranking.iloc[1][col_pts_ref])} pts"
-        if len(ranking) > 2 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
-            p3_nome = str(ranking.iloc[2][col_part_ref]).title()
-            p3_pts = f"{safe_to_int(ranking.iloc[2][col_pts_ref])} pts"
-            
-        st.markdown(textwrap.dedent(f"""
-            <div class="podium-row">
-                <div class="podium-card podium-2">
-                    <div class="podium-badge">🥈</div>
-                    <div class="podium-name" title="{p2_nome}">{p2_nome}</div>
-                    <div class="podium-pts">{p2_pts}</div>
-                </div>
-                <div class="podium-card podium-1">
-                    <div class="podium-badge">🥇</div>
-                    <div class="podium-name" title="{p1_nome}">{p1_nome}</div>
-                    <div class="podium-pts">{p1_pts}</div>
-                </div>
-                <div class="podium-card podium-3">
-                    <div class="podium-badge">🥉</div>
-                    <div class="podium-name" title="{p3_nome}">{p3_nome}</div>
-                    <div class="podium-pts">{p3_pts}</div>
-                </div>
+        </div>
+        <div class="podium-col">
+            <div style="font-size:1.7rem; margin-bottom:8px;">🥉</div>
+            <div class="podium-card p-3rd">
+                <div class="avatar-circle" style="background-color:#b45309;">{str(p3_nome)[0].upper()}</div>
+                <div style="font-weight:600; font-size:0.95rem; color:#78350f;">{str(p3_nome)[:20]}</div>
+                <div style="font-weight:800; font-size:1.1rem; color:#451a03; margin-top:5px;">{p3_pts}</div>
             </div>
-        """), unsafe_allow_html=True)
-        
-        st.markdown('<div class="ranking-list">', unsafe_allow_html=True)
-        for idx, row in ranking.iterrows():
-            posicao = idx + 1
-            if posicao <= 3: continue
-            usuario = str(row[col_part_ref]).title()
-            pontos = safe_to_int(row[col_pts_ref])
-            inicial = usuario[0] if len(usuario) > 0 else "?"
-            st.markdown(textwrap.dedent(f"""
-                <div class="ranking-item">
-                    <div class="ranking-left">
-                        <span class="ranking-pos">#{posicao}</span>
-                        <div class="ranking-avatar">{inicial}</div>
-                        <span class="ranking-name">{usuario}</span>
-                    </div>
-                    <span class="ranking-score">{pontos} pts</span>
-                </div>
-            """), unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        st.info("Aguardando inserção de palpites para carregar a classificação geral!")
-
-with tab_enviar:
-    st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Palpites da Equipe</h3>", unsafe_allow_html=True)
+        </div>
+    </div>
+    """, unsafe_allowed_html=True)
     
-    email_user = st.text_input("E-mail Corporativo:", placeholder="exemplo@feltrim.com.br", key="env_email").strip().lower()
-    nome_user = st.text_input("Nome Completo:", placeholder="Seu nome completo", key="env_nome").strip()
-    
-    if not email_user or "@" not in email_user or not nome_user:
-        st.info("💡 Insira seu Nome e E-mail Corporativo para abrir as votações de palpites!")
-    else:
-        jogos_ativos = []
-        for col_jogo in lista_jogos_formulario:
-            # Regra estrita: remover os jogos que ocorrem na data de hoje (16/06)
-            dia, mes = extrair_data_jogo(col_jogo)
-            if dia == 16 and mes == 6:
-                continue
-                
-            status_jogo = "🕒 Agendado"
-            if df_resultados is not None and not df_resultados.empty:
-                df_resultados.columns = df_resultados.columns.str.strip()
-                match_status = df_resultados[df_resultados['Jogo'].astype(str).str.strip() == col_jogo]
-                if not match_status.empty:
-                    status_jogo = str(match_status.iloc[0]['Status']).strip()
-            
-            # Só exibe para palpite se estiver com status de agendado
-            if "agendado" in status_jogo.lower():
-                jogos_ativos.append(col_jogo)
-                
-        for col_jogo in jogos_ativos:
-            dia, mes = extrair_data_jogo(col_jogo)
-            partes = col_jogo.split('vs') if 'vs' in col_jogo.lower() else col_jogo.split('VS')
-            t1 = formatar_nome_time(partes[0])
-            t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else "Visitante"
-            
-            total_votos_jogo = 0
-            votos_t1 = 0
-            votos_draw = 0
-            votos_t2 = 0
-            
-            if df_respostas is not None and not df_respostas.empty:
-                validos = df_respostas[df_respostas[col_jogo].notna() & (df_respostas[col_jogo].astype(str).str.strip() != '')]
-                total_votos_jogo = len(validos)
-                votos_t1 = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains(t1.lower())]) if t1 else 0
-                votos_draw = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains('empate')])
-                votos_t2 = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains(t2.lower())]) if t2 else 0
-            
-            pct_t1 = int((votos_t1 / total_votos_jogo) * 100) if total_votos_jogo > 0 else 0
-            pct_draw = int((votos_draw / total_votos_jogo) * 100) if total_votos_jogo > 0 else 0
-            pct_t2 = int((votos_t2 / total_votos_jogo) * 100) if total_votos_jogo > 0 else 0
-            
-            st.markdown(textwrap.dedent(f"""
-                <div class="poll-card">
-                    <div class="poll-header">🎯 Escolha quem vai Vencer - {dia:02d}/{mes:02d}</div>
-                    <div class="poll-teams">
-                        <div class="poll-team-box">
-                            <span class="poll-team-name">{t1}</span>
-                        </div>
-                        <span class="poll-vs">VS</span>
-                        <div class="poll-team-box">
-                            <span class="poll-team-name">{t2}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="poll-bar-container">
-                        <div class="poll-bar-label"><span>{t1} Vence ({pct_t1}%)</span><span>{votos_t1} palpites</span></div>
-                        <div class="poll-bar-outer"><div class="poll-bar-inner bar-color-m" style="width: {pct_t1}%;"></div></div>
-                    </div>
-                    <div class="poll-bar-container">
-                        <div class="poll-bar-label"><span>Empate ({pct_draw}%)</span><span>{votos_draw} palpites</span></div>
-                        <div class="poll-bar-outer"><div class="poll-bar-inner bar-color-draw" style="width: {pct_draw}%;"></div></div>
-                    </div>
-                    <div class="poll-bar-container" style="margin-bottom: 20px;">
-                        <div class="poll-bar-label"><span>{t2} Vence ({pct_t2}%)</span><span>{votos_t2} palpites</span></div>
-                        <div class="poll-bar-outer"><div class="poll-bar-inner bar-color-v" style="width: {pct_t2}%;"></div></div>
-                    </div>
-                </div>
-            """), unsafe_allow_html=True)
-            
-            col_btn1, col_btn2, col_btn3 = st.columns(3)
-            with col_btn1:
-                palpite_m_formatado = f"Vitória do {t1}".strip()
-                if st.button(f"Vitória {t1}", key=f"v_t1_{col_jogo}"):
-                    payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": palpite_m_formatado}
-                    try:
-                        r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                        if r.status_code == 200:
-                            st.success("Palpite salvo!")
-                            st.balloons()
-                            st.cache_data.clear()
-                            st.rerun()
-                    except:
-                        st.error("Erro ao registrar voto.")
-                            
-            with col_btn2:
-                if st.button("🤝 Empate", key=f"v_draw_{col_jogo}"):
-                    payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": "🤝 Empate"}
-                    try:
-                        r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                        if r.status_code == 200:
-                            st.success("Palpite salvo!")
-                            st.balloons()
-                            st.cache_data.clear()
-                            st.rerun()
-                    except:
-                        st.error("Erro ao registrar voto.")
-                            
-            with col_btn3:
-                palpite_v_formatado = f"Vitória do {t2}".strip()
-                if st.button(f"Vitória {t2}", key=f"v_t2_{col_jogo}"):
-                    payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": palpite_v_formatado}
-                    try:
-                        r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                        if r.status_code == 200:
-                            st.success("Palpite salvo!")
-                            st.balloons()
-                            st.cache_data.clear()
-                            st.rerun()
-                    except:
-                        st.error("Erro ao registrar voto.")
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-        if len(jogos_ativos) == 0:
-            st.info("🕒 Nenhuma partida agendada aberta no momento. Aguarde liberação do administrador!")
-
-with tab_palpites:
-    st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Consulta de Palpites por Participante</h3>", unsafe_allow_html=True)
-    
-    if df_respostas is not None and not df_respostas.empty:
-        df_respostas.columns = df_respostas.columns.str.strip()
-        df_respostas_filtradas = df_respostas[
-            (df_respostas[col_email].astype(str).str.contains("@", na=True))
-        ]
-        
-        mapa_nomes = df_respostas_filtradas.groupby(col_email)[col_nome].first().to_dict()
-        
-        def obter_nome_exibicao(email_val):
-            nome_completo = mapa_nomes.get(email_val, email_val)
-            if nome_completo == email_val and "@" in str(email_val):
-                return str(email_val).split('@')[0].capitalize()
-            return str(nome_completo).title()
-            
-        usuarios_nomes_map = {email: obter_nome_exibicao(email) for email in df_respostas_filtradas[col_email].unique()}
-        usuarios_ordenados = sorted(usuarios_nomes_map.items(), key=lambda item: item[1])
-        
-        usuario_email_selecionado = st.selectbox(
-            "Selecione o Participante:", 
-            options=[item[0] for item in usuarios_ordenados], 
-            format_func=lambda x: usuarios_nomes_map[x],
-            key="consulta_email"
+    # Tabela Completa de Classificação
+    if total_participantes > 0:
+        st.markdown("#### Lista de Classificação Geral")
+        st.dataframe(
+            df_classificacao_sorted[["Participante", "E-mail Corporativo", "Pontos Acumulados"]].reset_index(drop=True),
+            use_container_width=True,
+            column_config={
+                "Participante": st.column_config.TextColumn("Participante"),
+                "E-mail Corporativo": st.column_config.TextColumn("E-mail Corporativo"),
+                "Pontos Acumulados": st.column_config.NumberColumn("Pontuação Total", format="%d pts")
+            }
         )
+    else:
+        st.info("Nenhum palpite foi processado até o momento. Aguardando finalização dos jogos!")
+
+elif st.session_state.current_tab == "📝 Dar Palpite":
+    st.markdown("### 📝 Dar Palpite na Partida")
+    
+    # Filtra jogos que estão marcados estritamente como "🕒 Agendado"
+    if not df_resultados.empty and "Status" in df_resultados.columns:
+        jogos_voto = df_resultados[df_resultados["Status"].str.contains("Agendado", na=False)]
+    else:
+        jogos_voto = pd.DataFrame()
         
-        if usuario_email_selecionado:
-            palpites_user = df_respostas_filtradas[df_respostas_filtradas[col_email] == usuario_email_selecionado].iloc[-1]
-            for col_name in lista_jogos_formulario:
-                palpite_val = palpites_user[col_name]
-                if pd.isna(palpite_val) or str(palpite_val).strip().lower() in ['nan', 'none', '']:
+    if jogos_voto.empty:
+        st.success("🎉 Todos os jogos cadastrados já começaram, foram encerrados ou estão indisponíveis para palpites!")
+    else:
+        st.markdown("Selecione abaixo o seu nome, e-mail corporativo e registre o seu palpite para cada partida agendada:")
+        
+        # Form de Dados do Participante
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            nome_user = st.text_input("Qual o seu nome completo?", key="voto_nome").strip()
+        with col_f2:
+            email_user = st.text_input("Qual o seu e-mail corporativo?", key="voto_email").strip()
+            
+        st.markdown("<br>", unsafe_allowed_html=True)
+        
+        # Listagem de Enquetes Ativas
+        for idx, row in jogos_voto.iterrows():
+            jogo_id = row["ID_Jogo"]
+            jogo_nome = row["Jogo"]
+            
+            # Limpa o nome do jogo tirando o emoji
+            jogo_exibir = re.sub(r'⚽\s*', '', str(jogo_nome))
+            
+            # Divide os times mandante e visitante
+            partes_times = jogo_exibir.split("vs")
+            time_m = partes_times[0].strip() if len(partes_times) > 0 else "Mandante"
+            time_v = partes_times[1].strip() if len(partes_times) > 1 else "Visitante"
+            
+            st.markdown(f"""
+            <div class="match-box">
+                <div style="font-weight:800; font-size:1.15rem; color:#004b23; margin-bottom:15px; text-align:center;">{jogo_exibir}</div>
+            </div>
+            """, unsafe_allowed_html=True)
+            
+            voto_selecionado = st.radio(
+                "Quem vencerá esta partida?",
+                options=[f"Vitória do {time_m}", "Empate", f"Vitória do {time_v}"],
+                key=f"voto_radio_{jogo_id}",
+                horizontal=True,
+                label_visibility="collapsed"
+            )
+            
+            # Botão individual de Envio
+            if st.button(f"Enviar Palpite: {time_m} vs {time_v}", key=f"btn_voto_{jogo_id}"):
+                if not nome_user or not email_user or "@" not in email_user:
+                    st.error("⚠️ Preencha seu nome e um e-mail corporativo válido antes de palpitar!")
+                elif not eh_nome_valido(nome_user):
+                    st.error("⚠️ Digite um nome de participante real e válido!")
+                else:
+                    with st.spinner("Registrando palpite na planilha..."):
+                        payload = {
+                            "action": "fazerPalpite",
+                            "nome": nome_user,
+                            "email": email_user,
+                            "id_jogo": jogo_nome,
+                            "palpite": voto_selecionado
+                        }
+                        try:
+                            res = requests.post(URL_APPS_SCRIPT, json=payload, timeout=15)
+                            if res.status_code == 200:
+                                st.success(f"⚽ Palpite enviado com sucesso para: {jogo_exibir}!")
+                            else:
+                                st.error("Erro ao enviar palpite. Tente novamente.")
+                        except Exception as e:
+                            st.error(f"Erro de conexão com o banco de dados: {e}")
+
+elif st.session_state.current_tab == "🎯 Ver Palpites":
+    st.markdown("### 🎯 Consultar Palpites Registrados")
+    
+    df_todos_palpites = ler_aba_sheets("Palpites")
+    
+    if df_todos_palpites is None or df_todos_palpites.empty:
+        st.info("Nenhum palpite foi cadastrado na planilha ainda.")
+    else:
+        # Filtra palpites tirando registros com nomes de teste ou inválidos
+        if "Nome Completo" in df_todos_palpites.columns:
+            df_todos_palpites = df_todos_palpites[df_todos_palpites["Nome Completo"].apply(eh_nome_valido)]
+            
+        st.markdown("Pesquise e confira os palpites de cada participante do bolão:")
+        
+        lista_emails = df_todos_palpites["E-mail Corporativo"].unique().tolist()
+        email_selecionado = st.selectbox("Selecione o participante pelo E-mail Corporativo:", options=lista_emails)
+        
+        if email_selecionado:
+            votos_user = df_todos_palpites[df_todos_palpites["E-mail Corporativo"] == email_selecionado].iloc[0]
+            st.markdown(f"#### Palpites de: **{votos_user['Nome Completo']}**")
+            
+            col_esq, col_dir = st.columns(2)
+            metade = len(votos_user.index) // 2
+            
+            for i, col_name in enumerate(votos_user.index):
+                if col_name in ["Timestamp", "E-mail Corporativo", "Nome Completo", "Pontos Acumulados"]:
                     continue
-                
-                partes = col_name.split('vs') if 'vs' in col_name.lower() else col_name.split('VS')
-                t1 = formatar_nome_time(partes[0])
-                t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else ""
-                dia, mes = extrair_data_jogo(col_name)
-                
-                st.markdown(textwrap.dedent(f"""
-                    <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <p style="font-weight: 700; color: #1e293b; margin: 0; font-size: 0.95rem;">{t1} vs {t2} - {dia:02d}/{mes:02d}</p>
-                            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite: <strong style="color: #004b23;">{palpite_val}</strong></p>
-                        </div>
-                    </div>
-                """), unsafe_allow_html=True)
-    else:
-        st.info("Nenhum palpite enviado ainda!")
+                palpite_val = votos_user[col_name]
+                if pd.isna(palpite_val) or str(palpite_val).strip() == "":
+                    palpite_val = "Não palpitou"
+                    
+                target_col = col_esq if i <= metade else col_dir
+                with target_col:
+                    st.markdown(f"**{col_name}**  \n👉 Palpite: *{palpite_val}*  \n<hr style='margin:5px 0; border-color:#e1e7e3;'>", unsafe_allowed_html=True)
 
-with tab_jogos:
-    st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Placares Reais dos Jogos</h3>", unsafe_allow_html=True)
-    if df_resultados is not None and not df_resultados.empty:
-        df_resultados.columns = df_resultados.columns.str.strip()
-        df_resultados_sorted = df_resultados.copy()
-        df_resultados_sorted['Data_Ordenacao'] = df_resultados_sorted['Jogo'].apply(chave_ordenacao_jogo)
-        df_resultados_sorted = df_resultados_sorted.sort_values(by='Data_Ordenacao').reset_index(drop=True)
-        
-        for _, jogo in df_resultados_sorted.iterrows():
-            nome_jogo = jogo['Jogo']
-            p_m = jogo['Placar Real Mandante']
-            p_v = jogo['Placar Real Visitante']
-            status = jogo['Status']
-            
-            p_m_display = str(int(float(p_m))) if pd.notna(p_m) and str(p_m).strip() != "" else ""
-            p_v_display = str(int(float(p_v))) if pd.notna(p_v) and str(p_v).strip() != "" else ""
-            
-            status_clean = str(status).strip().lower()
-            if "encerrado" in status_clean:
-                badge_label = "🟢 Encerrado"
-            elif "andamento" in status_clean or "vivo" in status_clean:
-                badge_label = "🟡 Ao Vivo"
-            else:
-                badge_label = "🕒 Agendado"
-            
-            tem_placar = p_m_display != "" and p_v_display != ""
-            
-            times = str(nome_jogo).split('vs') if 'vs' in str(nome_jogo) else str(nome_jogo).split('VS')
-            time1 = formatar_nome_time(times[0].strip()) if len(times) > 0 else "Mandante"
-            time2 = formatar_nome_time(times[1].strip()) if len(times) > 1 else "Visitante"
-            dia, mes = extrair_data_jogo(nome_jogo)
-            
-            st.markdown(textwrap.dedent(f"""
-                <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: bold; color: #475569;">
-                        <span>🏆 Copa 2026 - {dia:02d}/{mes:02d}</span>
-                        <span>{badge_label}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0;">
-                        <div style="display: flex; align-items: center; gap: 8px; width: 35%;">
-                            <span style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">{time1}</span>
-                        </div>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: #004b23; width: 30%; text-align: center;">
-                            {p_m_display if tem_placar else " - "} VS {p_v_display if tem_placar else " - "}
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px; width: 35%; justify-content: flex-end; text-align: right;">
-                            <span style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">{time2}</span>
-                        </div>
-                    </div>
-                </div>
-            """), unsafe_allow_html=True)
-    else:
-        st.info("Planilha de resultados vazia ou não carregada!")
-
-st.markdown("<br><br>", unsafe_allow_html=True)
-with st.expander("🛠️ Painel de Controle do Administrador"):
-    senha_admin = st.text_input("Senha do Administrador:", type="password", key="senha_admin")
+elif st.session_state.current_tab == "⚙️ Painel Admin":
+    st.markdown("### ⚙️ Painel Administrativo de Resultados")
+    
+    st.markdown("Use esta área para cadastrar os placares reais e controlar os jogos oficiais:")
+    
+    senha_admin = st.text_input("Senha de Administrador do Bolão:", type="password")
+    
     if senha_admin == "feltrim2026":
-        st.success("Acesso Autorizado!")
+        st.success("Acesso administrativo autenticado!")
         
-        st.write("### ⚽ Gravar/Alterar Placar Oficial")
-        if lista_jogos_formulario:
-            jogo_selecionado = st.selectbox("Selecione o Jogo para atualizar:", options=lista_jogos_formulario)
+        if df_resultados.empty:
+            st.info("Nenhuma partida carregada no banco de dados.")
+        else:
+            st.markdown("#### Registrar Placar e Atualizar Status do Jogo")
             
-            partes_jogo = jogo_selecionado.split('vs') if 'vs' in jogo_selecionado.lower() else jogo_selecionado.split('VS')
-            nome_m = formatar_nome_time(partes_jogo[0])
-            nome_v = formatar_nome_time(partes_jogo[1]) if len(partes_jogo) > 1 else "Visitante"
+            lista_jogos = df_resultados["Jogo"].tolist()
+            jogo_para_atualizar = st.selectbox("Selecione a partida:", options=lista_jogos)
             
-            col_gols_m, col_gols_v = st.columns(2)
-            with col_gols_m:
-                gols_m = st.number_input(f"Gols {nome_m}:", min_value=0, max_value=20, value=0, step=1, key="gols_m_admin")
-            with col_gols_v:
-                gols_v = st.number_input(f"Gols {nome_v}:", min_value=0, max_value=20, value=0, step=1, key="gols_v_admin")
+            if jogo_para_atualizar:
+                partida_linha = df_resultados[df_resultados["Jogo"] == jogo_para_atualizar].iloc[0]
                 
-            status_jogo = st.selectbox("Status:", options=["🕒 Agendado", "🟡 Ao Vivo", "🟢 Encerrado"])
-            
-            if st.button("🚀 Salvar Placar e Recalcular"):
-                payload = {
-                    "action": "atualizarPlacar", "senha": "feltrim2026", "jogo": jogo_selecionado,
-                    "placar_m": int(gols_m), "placar_v": int(gols_v), "status": status_jogo
-                }
-                try:
-                    response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                    res_json = response.json()
-                    if response.status_code == 200 and res_json.get("status") == "success":
-                        st.success("Placar salvo e pontos recalculados!")
-                        st.cache_data.clear()
-                        st.rerun()
-                    else:
-                        st.error(f"Erro: {res_json.get('message')}")
-                except Exception as e:
-                    st.error(f"Erro de conexão: {e}")
-                        
-        st.write("---")
-        novo_sheet_id = st.text_input("ID do Google Sheets:", value=st.session_state["sheet_id"])
-        if novo_sheet_id != st.session_state["sheet_id"]:
-            st.session_state["sheet_id"] = novo_sheet_id
-            st.cache_data.clear()
-            st.rerun()
-    elif senha_admin:
-        st.error("Senha incorreta!")
+                col_ad1, col_ad2, col_ad3 = st.columns(3)
+                with col_ad1:
+                    novo_placar_m = st.number_input("Gols Mandante:", min_value=0, max_value=20, value=safe_to_int(partida_linha["Placar Real Mandante"]))
+                with col_ad2:
+                    novo_placar_v = st.number_input("Gols Visitante:", min_value=0, max_value=20, value=safe_to_int(partida_linha["Placar Real Visitante"]))
+                with col_ad3:
+                    novo_status = st.selectbox("Status da Partida:", options=["🕒 Agendado", "🟡 Ao Vivo", "🟢 Encerrado"], index=0)
+                    
+                if st.button("Salvar Resultado Oficial e Sincronizar", use_container_width=True):
+                    with st.spinner("Atualizando resultados e recalculando pontuações..."):
+                        payload = {
+                            "action": "atualizarPlacar",
+                            "senha": senha_admin,
+                            "jogo": jogo_para_atualizar,
+                            "placar_m": int(novo_placar_m),
+                            "placar_v": int(novo_placar_v),
+                            "status": novo_status
+                        }
+                        try:
+                            res = requests.post(URL_APPS_SCRIPT, json=payload, timeout=20)
+                            if res.status_code == 200:
+                                st.success("Placar atualizado e pontos recalculados na planilha!")
+                                st.rerun()
+                            else:
+                                st.error("Falha ao salvar. Verifique o Apps Script.")
+                        except Exception as e:
+                            st.error(f"Erro de conexão: {e}")
