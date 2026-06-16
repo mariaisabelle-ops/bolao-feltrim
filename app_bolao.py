@@ -10,7 +10,7 @@ import unicodedata
 # =========================================================================
 # ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (COLE SEU LINK DO APPS SCRIPT AQUI)
 # =========================================================================
-URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz_your_actual_script_id_here/exec"
+URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyKwMw4soDdr4pW6Wy9wVq_2fE9gHjbD2zpSYRWE6h1vUMZ2gGEB5mPvkRoe7vPyqHv/exec"
 # =========================================================================
 
 st.set_page_config(
