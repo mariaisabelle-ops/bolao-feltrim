@@ -131,6 +131,31 @@ def safe_to_int(val):
     except:
         return 0
 
+def obter_datetime_jogo(nome_jogo, horario_str):
+    """Combina o dia/mês do nome do jogo com o horário da planilha para gerar um datetime."""
+    try:
+        match_data = re.search(r'(\d{2})/(\d{2})', str(nome_jogo))
+        if not match_data:
+            return None
+        dia, mes = int(match_data.group(1)), int(match_data.group(2))
+        
+        # Horário padrão caso esteja em branco
+        horario_limpo = "15:00"
+        if pd.notna(horario_str) and str(horario_str).strip() != "":
+            val = str(horario_str).lower().strip().replace('h', ':')
+            match_hora = re.search(r'(\d{1,2}):(\d{2})', val)
+            if match_hora:
+                horario_limpo = f"{int(match_hora.group(1)):02d}:{int(match_hora.group(2)):02d}"
+            else:
+                match_hora_sola = re.search(r'(\d{1,2})', val)
+                if match_hora_sola:
+                    horario_limpo = f"{int(match_hora_sola.group(1)):02d}:00"
+                    
+        hora, minuto = map(int, horario_limpo.split(':'))
+        return datetime(2026, mes, dia, hora, minuto)
+    except Exception:
+        return None
+
 def chave_ordenacao_jogo(text):
     """Extrai dia e mês do nome do jogo para ordenação cronológica."""
     match = re.search(r'(\d{2})/(\d{2})', str(text))
@@ -231,8 +256,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-tab_ranking, tab_palpites, tab_meus_votos, tab_admin = st.tabs([
+tab_ranking, tab_jogos, tab_palpites, tab_meus_votos, tab_admin = st.tabs([
     "📊 Classificação Geral", 
+    "📅 Jogos & Resultados",
     "📝 Dar Palpite", 
     "🎯 Meus Palpites", 
     "⚙️ Painel Admin"
@@ -364,29 +390,111 @@ with tab_ranking:
     else:
         st.info("Nenhum participante pontuou ainda. Os pontos serão calculados à medida que as partidas forem concluídas!")
 
+with tab_jogos:
+    st.markdown("<h2 style='color: #004b23;'>📅 Tabela de Jogos & Resultados</h2>", unsafe_allow_html=True)
+    st.write("Acompanhe o cronograma completo dos confrontos, horários e os placares oficiais cadastrados.")
+    
+    # Fuso Horário de Brasília (UTC-3)
+    try:
+        agora_brasil = datetime.utcnow() - timedelta(hours=3)
+    except Exception:
+        agora_brasil = datetime.now()
+
+    if df_resultados_sorted.empty:
+        st.info("Nenhum jogo cadastrado na tabela de resultados oficiais.")
+    else:
+        for idx, row in df_resultados_sorted.iterrows():
+            nome_jogo = str(row['Jogo'])
+            status_oficial = str(row.get('Status', '🕒 Agendado'))
+            horario_col = row.get('Horário', '15:00')
+            
+            p_m = row.get('Placar Real Mandante', '')
+            p_v = row.get('Placar Real Visitante', '')
+            
+            team_m = formatar_time_slug(nome_jogo, "mandante")
+            team_v = formatar_time_slug(nome_jogo, "visitante")
+            
+            dt_jogo = obter_datetime_jogo(nome_jogo, horario_col)
+            
+            # Define o status do palpite e badge visual
+            if dt_jogo:
+                limite_palpite = dt_jogo - timedelta(hours=1)
+                tempo_restante = limite_palpite - agora_brasil
+                
+                if agora_brasil >= limite_palpite or "encerrado" in status_oficial.lower() or "vivo" in status_oficial.lower():
+                    status_palpites = "🔒 Palpites Encerrados"
+                    cor_badge = "#d90429"
+                else:
+                    status_palpites = f"🔓 Palpites Abertos (Fecha às {limite_palpite.strftime('%H:%M')} do dia {limite_palpite.strftime('%d/%m')})"
+                    cor_badge = "#004b23"
+                data_exibicao = dt_jogo.strftime("%d/%m às %H:%M")
+            else:
+                status_palpites = "🕒 Agendado"
+                cor_badge = "#666"
+                data_exibicao = "A definir"
+
+            # Card elegante para cada jogo
+            st.markdown(f"""
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 0.85rem; font-weight: bold; color: #555;">📅 {data_exibicao}</span>
+                    <span style="font-size: 0.8rem; font-weight: bold; color: white; background-color: {cor_badge}; padding: 3px 8px; border-radius: 20px;">{status_palpites}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                    <div style="flex: 1; text-align: right; font-weight: bold; font-size: 1.1rem; color: #333;">{team_m}</div>
+                    <div style="padding: 0 20px; font-size: 1.5rem; font-weight: 800; color: #004b23; min-width: 100px; text-align: center;">
+                        {f"{safe_to_int(p_m)} - {safe_to_int(p_v)}" if pd.notna(p_m) and pd.notna(p_v) and str(p_m) != "" and str(p_v) != "" else "vs"}
+                    </div>
+                    <div style="flex: 1; text-align: left; font-weight: bold; font-size: 1.1rem; color: #333;">{team_v}</div>
+                </div>
+                <div style="text-align: center; margin-top: 5px;">
+                    <span style="font-size: 0.8rem; color: #777; font-weight: 600; text-transform: uppercase;">Estado: {status_oficial}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
 with tab_palpites:
     st.markdown("<h2 style='color: #004b23;'>Enviar Meu Palpite</h2>", unsafe_allow_html=True)
     
     email_user = st.text_input("Seu E-mail Corporativo Feltrim Correa:", value="", placeholder="exemplo@feltrim.com.br")
     nome_user = st.text_input("Seu Nome Completo:", value="")
 
+    # Fuso Horário de Brasília (UTC-3)
+    try:
+        agora_brasil = datetime.utcnow() - timedelta(hours=3)
+    except Exception:
+        agora_brasil = datetime.now()
+
     jogos_disponiveis = []
-    # Data de corte para fechar enquetes do dia corrente
-    data_hoje_str = "16/06"
 
     for idx, row in df_resultados_sorted.iterrows():
-        # Blindagem contra status em branco/NaN na planilha
         status_raw = row.get('Status')
-        if pd.isna(status_raw) or str(status_raw).strip() == "":
-            status_jogo = "🕒 Agendado"
-        else:
-            status_jogo = str(status_raw)
-            
+        status_jogo = "🕒 Agendado" if pd.isna(status_raw) or str(status_raw).strip() == "" else str(status_raw)
         nome_jogo = str(row['Jogo'])
+        horario_col = row.get('Horário', '15:00')
         
-        if "agendado" in status_jogo.lower():
-            if data_hoje_str not in nome_jogo:
-                jogos_disponiveis.append(nome_jogo)
+        # Bloqueio inteligente: 1 hora antes com base no Horário e Data cadastrados
+        dt_jogo = obter_datetime_jogo(nome_jogo, horario_col)
+        jogo_bloqueado = False
+        
+        if dt_jogo:
+            limite_palpite = dt_jogo - timedelta(hours=1)
+            if agora_brasil >= limite_palpite:
+                jogo_bloqueado = True
+        else:
+            # Fallback seguro caso não ache hora: bloqueia no dia anterior
+            match_data = re.search(r'(\d{2})/(\d{2})', nome_jogo)
+            if match_data:
+                try:
+                    dia_j, mes_j = int(match_data.group(1)), int(match_data.group(2))
+                    data_limite_jogo = datetime(2026, mes_j, dia_j).date()
+                    if data_limite_jogo <= agora_brasil.date():
+                        jogo_bloqueado = True
+                except:
+                    pass
+
+        if "agendado" in status_jogo.lower() and not jogo_bloqueado:
+            jogos_disponiveis.append(nome_jogo)
 
     if not jogos_disponiveis:
         st.info("Não existem novas partidas abertas para palpites no momento! Todos os confrontos de hoje já foram trancados.")
