@@ -307,7 +307,7 @@ st.markdown("""
     }
 
     .team-color-circle {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         line-height: 1;
     }
     
@@ -353,41 +353,45 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-MAPA_CORES_CIRCULOS = {
-    "brasil": "🟢", "brazil": "🟢",
-    "argentina": "🔵", "frança": "🔵", "franca": "🔵", "france": "🔵",
-    "alemanha": "⚪", "germany": "⚪", "espanha": "🔴", "spain": "🔴",
-    "itália": "🔵", "italia": "🔵", "italy": "🔵", "inglaterra": "⚪", "england": "⚪",
-    "portugal": "🔴", "holanda": "🟠", "países baixos": "🟠", "netherlands": "🟠",
-    "bélgica": "🔴", "belgica": "🔴", "belgium": "🔴", "croácia": "🔴", "croacia": "🔴",
-    "uruguai": "🔵", "colômbia": "🟡", "chile": "🔴", "equador": "🟡", "marrocos": "🔴",
-    "japão": "🔵", "japan": "🔵", "coreia": "🔴", "korea": "🔴", "senegal": "🟢",
-    "eua": "⚪", "usa": "⚪", "estados unidos": "⚪", "méxico": "🟢", "canadá": "🔴",
-    "haiti": "🔵", "paraguai": "🔴", "peru": "🔴", "venezuela": "🟣", "bolívia": "🟢",
-    "república tcheca": "🔴", "republica tcheca": "🔴", "áfrica do sul": "🟢", "africa do sul": "🟢",
-    "suíça": "🔴", "bósnia": "🔵", "catar": "🟣", "escócia": "🔵", "turquia": "🔴",
-    "austrália": "🟡", "costa do marfim": "🟠", "curaçau": "🔵", "suécia": "🟡", "tunísia": "🔴",
-    "irã": "⚪", "nova zelândia": "⚫", "egito": "🔴", "arábia saudita": "🟢", "cabo verde": "🔵",
-    "iraque": "🟢", "noruega": "🔴", "algéria": "🟢", "áustria": "🔴", "jordânia": "🔴",
-    "rd do congo": "🔵", "uzbequistão": "🔵", "gana": "🟡", "panamá": "🔴"
+MAPA_EMOJIS_PAIS = {
+    "brasil": "🇧🇷💚💛", "brazil": "🇧🇷💚💛",
+    "argentina": "🇦🇷💙🤍", "frança": "🇫🇷💙❤️", "franca": "🇫🇷💙❤️", "france": "🇫🇷💙❤️",
+    "alemanha": "🇩🇪🖤❤️", "germany": "🇩🇪🖤❤️", "espanha": "🇪🇸❤️💛", "spain": "🇪🇸❤️💛",
+    "itália": "🇮🇹💚❤️", "italia": "🇮🇹💚❤️", "italy": "🇮🇹💚❤️", "inglaterra": "🇬🇧❤️🤍", "england": "🇬🇧❤️🤍",
+    "portugal": "🇵🇹❤️💚", "holanda": "🇳🇱🧡🤍", "países baixos": "🇳🇱🧡🤍", "netherlands": "🇳🇱🧡🤍",
+    "bélgica": "🇧🇪🖤❤️", "belgica": "🇧🇪🖤❤️", "belgium": "🇧🇪🖤❤️", "croácia": "🇭🇷❤️🤍", "croacia": "🇭🇷❤️🤍",
+    "uruguai": "🇺🇾💙🤍", "colômbia": "🇨🇴💛💙", "chile": "🇨🇱❤️💙", "equador": "🇪🇨💛💙", "marrocos": "🇲🇦❤️💚",
+    "japão": "🇯🇵❤️🤍", "japan": "🇯🇵❤️🤍", "coreia": "🇰🇷❤️💙", "korea": "🇰🇷❤️💙", "senegal": "🇸🇳💚❤️",
+    "eua": "🇺🇸💙❤️", "usa": "🇺🇸💙❤️", "estados unidos": "🇺🇸💙❤️", "méxico": "🇲🇽💚❤️", "canadá": "🇨🇦❤️🤍",
+    "haiti": "🇭🇹💙❤️", "paraguai": "🇵🇾❤️💙", "peru": "🇵🇪❤️🤍", "venezuela": "🇻🇪💛💙", "bolívia": "🇧🇴❤️💚",
+    "república tcheca": "🇨🇿💙❤️", "republica tcheca": "🇨🇿💙❤️", "áfrica do sul": "🇿🇦💚💛", "africa do sul": "🇿🇦💚💛",
+    "suíça": "🇨🇭❤️🤍", "bósnia": "🇧🇦💙💛", "catar": "🇶🇦💜🤍", "escócia": "🇬🇧💙🤍", "turquia": "🇹🇷❤️🤍",
+    "austrália": "🇦🇺💙❤️", "costa do marfim": "🇨🇮🧡💚", "curaçau": "🇨🇼💙💛", "suécia": "🇸🇪💙💛", "tunísia": "🇹🇳❤️🤍",
+    "irã": "🇮🇷💚❤️", "nova zelândia": "🇳🇿💙❤️", "egito": "🇪🇬❤️🖤", "arábia saudita": "🇸🇦💚🤍", "cabo verde": "🇨🇻💙❤️",
+    "iraque": "🇮🇶❤️💚", "noruega": "🇳🇴❤️💙", "algéria": "🇩🇿💚❤️", "áustria": "🇦🇹❤️🤍", "jordânia": "🇯🇴❤️💚",
+    "rd do congo": "🇨🇩💙❤️", "uzbequistão": "🇺🇿💙💚", "gana": "🇬🇭❤️💛", "panamá": "🇵🇦💙❤️"
 }
 
-def obter_circulo_cor(nome_time):
+def obter_emojis_pais(nome_time):
     if not nome_time or pd.isna(nome_time):
-        return "⚪"
+        return "🏳️⚽⚪"
     nome_clean = str(nome_time).strip().lower()
     nome_sem_emoji = re.sub(r'[^\w\s]', '', nome_clean).strip()
     
-    for pais, cor in MAPA_CORES_CIRCULOS.items():
+    for pais, emojis in MAPA_EMOJIS_PAIS.items():
         if pais in nome_sem_emoji:
-            return cor
-    return "⚪"
+            return emojis
+    return "🏳️⚽⚪"
 
 def formatar_nome_time(nome_time):
     if not nome_time or pd.isna(nome_time):
         return ""
-    nome_limpo = re.sub(r'^[^\w\s]+', '', str(nome_time)).strip()
-    return nome_limpo
+    nome_limpo = str(nome_time).strip()
+    # Remove datas de jogos em colunas ex: "(18/06)"
+    nome_limpo = re.sub(r'\(\d{2}/\d{2}\)', '', nome_limpo)
+    # Remove emojis do Google Sheets
+    nome_limpo = re.sub(r'[^\w\s\-\.]', '', nome_limpo)
+    return nome_limpo.strip()
 
 def embelezar_jogo(nome_jogo):
     if not nome_jogo or pd.isna(nome_jogo) or 'vs' not in str(nome_jogo).lower():
@@ -399,11 +403,12 @@ def embelezar_jogo(nome_jogo):
     time1 = formatar_nome_time(partes[0])
     time2 = formatar_nome_time(partes[1]) if len(partes) > 1 else ""
     
-    cor1 = obter_circulo_cor(time1)
-    cor2 = obter_circulo_cor(time2)
+    emojis1 = obter_emojis_pais(time1)
+    emojis2 = obter_emojis_pais(time2)
     
-    return f"{cor1} {time1} vs {time2} {cor2}"
+    return f"{emojis1} {time1} vs {time2} {emojis2}"
 
+# ID Oficial da Planilha Feltrim Correa
 SHEET_ID = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
 if "web_app_url" not in st.session_state:
@@ -444,7 +449,7 @@ def carregar_dados_seguro():
         
     return df_resp, df_res, erro_resp, erro_res
 
-# Carregamento dos dados
+# Executando carregamento de dados
 df_respostas_raw, df_resultados_raw, erro_resp, erro_res = carregar_dados_seguro()
 
 df_respostas = None
@@ -453,12 +458,12 @@ df_resultados = None
 if df_respostas_raw is not None and not df_respostas_raw.empty:
     df_respostas = df_respostas_raw.dropna(how='all')
     
-    # Identificação de email
+    # Identificação automática da coluna de email
     col_email_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['email', 'e-mail', 'usuário', 'username', 'quem', 'participante', 'address'])]
     col_email = col_email_list[0] if col_email_list else df_respostas.columns[1]
     df_respostas = df_respostas.dropna(subset=[col_email])
 
-    # Identificação do Nome Completo
+    # Identificação automática do Nome Completo do competidor
     col_nome_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['nome', 'name', 'completo', 'participante', '👤'])]
     col_nome = col_nome_list[0] if col_nome_list else col_email
 
@@ -467,6 +472,22 @@ if df_resultados_raw is not None and not df_resultados_raw.empty:
     df_resultados = df_resultados[df_resultados['Jogo'].astype(str).str.strip() != ""]
     df_resultados['Jogo'] = df_resultados['Jogo'].astype(str).str.strip()
     df_resultados['Status'] = df_resultados['Status'].fillna('Agendado').astype(str).str.strip()
+elif df_respostas is not None:
+    # Cria uma lista de resultados fictícia em modo de Agendado com base nas perguntas do formulário
+    jogos_extraidos = []
+    for col_name in df_respostas.columns:
+        if "vs" in col_name.lower() or "⚽" in col_name:
+            jogo_formatado = col_name.strip()
+            # Adiciona apenas se não estiver duplicado
+            if jogo_formatado not in [j['Jogo'] for j in jogos_extraidos]:
+                jogos_extraidos.append({
+                    'Jogo': jogo_formatado,
+                    'Placar Real Mandante': None,
+                    'Placar Real Visitante': None,
+                    'Status': 'Agendado'
+                })
+    if jogos_extraidos:
+        df_resultados = pd.DataFrame(jogos_extraidos)
 
 # Renderização do cabeçalho temático do Brasil
 st.write('<h1 class="header-title">🏆 Bolão Feltrim Correa</h1>', unsafe_allow_html=True)
@@ -762,6 +783,17 @@ if df_respostas is not None and not df_respostas.empty:
         st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Placares Reais dos Jogos</h3>", unsafe_allow_html=True)
         
         if df_resultados is not None and not df_resultados.empty:
+            # Avisar o administrador se estivermos no modo "Fallback" (puxando as partidas do Form porque a aba oficial ainda não foi criada)
+            if df_resultados_raw is None or df_resultados_raw.empty:
+                st.markdown("""
+                    <div class="custom-warning">
+                        <strong>📍 Central de Resultados em Modo Automático (Modo de Demonstração):</strong><br>
+                        Como a aba <strong>"🎯 Resultados Oficiais"</strong> não foi encontrada na sua planilha ainda, 
+                        o aplicativo importou temporariamente os jogos direto do formulário para o site não ficar vazio! 
+                        Crie a aba com a tabela para registrar os placares oficiais e disparar o cálculo de pontos.
+                    </div>
+                """, unsafe_allow_html=True)
+
             for _, jogo in df_resultados.iterrows():
                 nome_jogo = jogo['Jogo']
                 p_m = jogo['Placar Real Mandante']
@@ -788,8 +820,8 @@ if df_respostas is not None and not df_respostas.empty:
                 time1 = formatar_nome_time(times[0].strip()) if len(times) > 0 else "Mandante"
                 time2 = formatar_nome_time(times[1].strip()) if len(times) > 1 else "Visitante"
                 
-                cor1 = obter_circulo_cor(time1)
-                cor2 = obter_circulo_cor(time2)
+                emojis1 = obter_emojis_pais(time1)
+                emojis2 = obter_emojis_pais(time2)
                 
                 st.markdown(f"""
                     <div class="match-card">
@@ -799,11 +831,11 @@ if df_respostas is not None and not df_respostas.empty:
                         <div class="match-body">
                             <div class="team-container team-left">
                                 <span class="team-name">{time1}</span>
-                                <span class="team-color-circle">{cor1}</span>
+                                <span class="team-color-circle">{emojis1}</span>
                             </div>
                             {placar_html}
                             <div class="team-container team-right">
-                                <span class="team-color-circle">{cor2}</span>
+                                <span class="team-color-circle">{emojis2}</span>
                                 <span class="team-name">{time2}</span>
                             </div>
                         </div>
@@ -812,8 +844,8 @@ if df_respostas is not None and not df_respostas.empty:
         else:
             st.markdown("""
                 <div class="custom-warning">
-                    <p style="font-weight: 700; margin: 0 0 10px 0; font-size: 1.05rem;">📍 Aba "🎯 Resultados Oficiais" não encontrada!</p>
-                    <p style="margin: 0; font-size: 0.85rem;">Certifique-se de ter criado a aba com o nome correto na sua planilha do Google.</p>
+                    <p style="font-weight: 700; margin: 0 0 10px 0; font-size: 1.05rem;">📍 Nenhuma partida cadastrada!</p>
+                    <p style="margin: 0; font-size: 0.85rem;">Por favor, crie as partidas na aba "🎯 Resultados Oficiais" ou preencha pelo menos um palpite no formulário.</p>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -842,8 +874,8 @@ with st.expander("🛠️ Painel de Diagnóstico do Administrador (Clique para e
             st.error("Aba não encontrada! Verifique o nome 'Form Responses 2'.")
                 
     with col_diag2:
-        st.write("**Aba 'Resultados Oficiais':**")
+        st.write("**Aba 'Resultados Oficiais' no Sheets:**")
         if df_resultados_raw is not None:
-            st.success("Encontrada com sucesso!")
+            st.success("Encontrada e lida com sucesso!")
         else:
-            st.warning("Não encontrada.")
+            st.warning("Não encontrada! Usando fallback inteligente das colunas da 'Form Responses 2'.")
