@@ -4,12 +4,12 @@ import urllib.parse
 import requests
 import json
 import re
+import textwrap
+import unicodedata
 
 # =========================================================================
 # ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (COLE SEU LINK DO APPS SCRIPT AQUI)
 # =========================================================================
-# IMPORTANTE: Substitua o link abaixo pelo link gerado na implantação do Apps Script.
-# Isso ativará de forma permanente a gravação de palpites para todos os participantes!
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyKwMw4soDdr4pW6Wy9wVq_2fE9gHjbD2zpSYRWE6h1vUMZ2gGEB5mPvkRoe7vPyqHv/exec"
 # =========================================================================
 
@@ -20,6 +20,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Custom css for brazil theme branding
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -374,6 +375,15 @@ MAPA_EMOJIS_PAIS = {
     "rd do congo": "🇨🇩💙❤️", "uzbequistão": "🇺🇿💙💚", "gana": "🇬🇭❤️💛", "panamá": "🇵🇦💙❤️"
 }
 
+def remover_acentos(texto):
+    if not texto:
+        return ""
+    # Unicode Normalizer for accents compatibility
+    return "".join(
+        c for c in unicodedata.normalize('NFD', str(texto))
+        if unicodedata.category(c) != 'Mn'
+    ).lower()
+
 def obter_emojis_pais(nome_time):
     if not nome_time or pd.isna(nome_time):
         return "🏳️⚽"
@@ -403,22 +413,21 @@ def normalizar_nome_jogo(nome):
         return f"{parts[0].strip()} vs {parts[1].strip()}"
     return s.strip()
 
-# Inicialização do ID da planilha de controle
 if "sheet_id" not in st.session_state:
     st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
-@st.cache_data(ttl=2)
+@st.cache_data(ttl=5)
 def carregar_dados_seguro(sheet_id):
     df_resp = None
     df_res = None
     is_private = False
     
-    # Busca pela aba de palpites (Form Responses 2)
+    # Busca pelas abas de palpites
     abas_palpites = ["Form Responses 2", "Respostas_Formulario", "Form Responses 1"]
     for aba in abas_palpites:
         try:
             aba_encoded = urllib.parse.quote(aba)
-            url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={aba_encoded}"
+            url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={aba_encoded}"
             response = requests.get(url, timeout=5)
             if response.status_code == 200:
                 if response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text:
@@ -426,6 +435,7 @@ def carregar_dados_seguro(sheet_id):
                     break
                 df_temp = pd.read_csv(url)
                 if df_temp is not None and not df_temp.empty:
+                    df_temp.columns = df_temp.columns.str.strip()
                     df_resp = df_temp
                     break
         except Exception:
@@ -436,11 +446,12 @@ def carregar_dados_seguro(sheet_id):
     for aba in abas_resultados:
         try:
             aba_encoded = urllib.parse.quote(aba)
-            url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={aba_encoded}"
+            url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={aba_encoded}"
             response = requests.get(url, timeout=5)
             if response.status_code == 200 and not (response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text):
                 df_temp = pd.read_csv(url)
                 if df_temp is not None and not df_temp.empty:
+                    df_temp.columns = df_temp.columns.str.strip()
                     df_res = df_temp
                     break
         except Exception:
@@ -455,19 +466,19 @@ st.write('<h1 class="header-title">🏆 Bolão Feltrim Correa</h1>', unsafe_allo
 st.write('<p class="header-subtitle">🇧🇷 Rumo ao Hexa - Classificação em Tempo Real!</p>', unsafe_allow_html=True)
 
 if is_private:
-    st.markdown("""
+    st.markdown(textwrap.dedent("""
         <div class="custom-error-box" style="padding: 18px; border-radius: 12px; margin-bottom: 20px;">
             <h4 style="margin:0 0 8px 0; font-weight:700;">🔒 Acesso Geral da Planilha está Privado</h4>
-            <p style="margin:0 0 12px 0; font-size:0.9rem;">O sistema não consegue ler a planilha no momento. Por favor, ajuste o acesso:</p>
+            <p style="margin:0 0 12px 0; font-size:0.9rem;">O sistema não consegue ler os dados da planilha. Ajuste as permissões no Drive:</p>
             <ol style="margin:0; padding-left:20px; font-size:0.88rem;">
                 <li>Abra sua planilha do Google Drive.</li>
                 <li>No canto superior direito, clique em <strong>Compartilhar</strong>.</li>
-                <li>Em 'Acesso Geral', altere de 'Restrito' para <strong>'Qualquer pessoa com o link'</strong>.</li>
+                <li>Em 'Acesso Geral', mude para <strong>'Qualquer pessoa com o link'</strong>.</li>
                 <li>Garanta que a permissão ao lado está como <strong>'Leitor'</strong> e salve.</li>
             </ol>
+            <p style="margin-top:10px; font-size:0.85rem;"><strong>Nota:</strong> Se você estiver usando uma cópia própria da planilha, insira o ID correto dela no Painel Admin abaixo!</p>
         </div>
-    """, unsafe_allow_html=True)
-    st.stop()
+    """), unsafe_allow_html=True)
 
 df_respostas = None
 df_resultados = None
@@ -475,16 +486,13 @@ df_resultados = None
 if df_respostas_raw is not None and not df_respostas_raw.empty:
     df_respostas = df_respostas_raw.dropna(how='all')
     
-    # Identificar coluna de e-mail de forma flexível
     col_email_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['email', 'e-mail', 'usuário', 'address'])]
     col_email = col_email_list[0] if col_email_list else df_respostas.columns[1]
     df_respostas = df_respostas.dropna(subset=[col_email])
 
-    # Identificar coluna do nome completo de forma flexível
     col_nome_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['nome', 'completo', 'participante', '👤'])]
     col_nome = col_nome_list[0] if col_nome_list else col_email
 
-# Extração dinâmica dos jogos mapeados no Google Forms
 lista_jogos_formulario = []
 if df_respostas is not None:
     for col in df_respostas.columns:
@@ -496,7 +504,7 @@ if df_resultados_raw is not None and not df_resultados_raw.empty:
     df_resultados['Jogo'] = df_resultados['Jogo'].astype(str).str.strip()
     df_resultados['Status'] = df_resultados['Status'].fillna('Agendado').astype(str).str.strip()
 else:
-    # Cria estrutura de backup para os jogos
+    # Cria estrutura de backup para os jogos caso a aba não exista
     jogos_ficticios = []
     for jogo_nome in lista_jogos_formulario:
         jogos_ficticios.append({
@@ -509,7 +517,6 @@ else:
         df_resultados = pd.DataFrame(jogos_ficticios)
 
 if df_respostas is not None and not df_respostas.empty:
-    # Mapeamento do nome de exibição do participante
     mapa_nomes = df_respostas.groupby(col_email)[col_nome].first().to_dict()
 
     def obter_nome_exibicao(email_val):
@@ -518,7 +525,6 @@ if df_respostas is not None and not df_respostas.empty:
             return str(email_val).split('@')[0].capitalize()
         return str(nome_completo).title()
 
-    # Cálculo preciso de acertos de tendências
     def calcular_pontos_participante(row):
         if df_resultados is None or df_resultados.empty:
             return 0
@@ -538,7 +544,9 @@ if df_respostas is not None and not df_respostas.empty:
                     real_v = jogo_oficial.iloc[0]['Placar Real Visitante']
                     status = jogo_oficial.iloc[0]['Status']
                     
-                    if pd.isna(real_m) or pd.isna(real_v) or str(status).strip().lower() != "encerrado":
+                    # Status flexible validation (accepts "🟢 Encerrado", "Encerrado", etc.)
+                    status_clean = str(status).strip().lower()
+                    if pd.isna(real_m) or pd.isna(real_v) or "encerrado" not in status_clean:
                         continue
                     
                     try:
@@ -549,8 +557,13 @@ if df_respostas is not None and not df_respostas.empty:
                     
                     # Identificar o time mandante e visitante para validar acerto de tendência
                     times_split = col_name.split('vs') if 'vs' in col_name.lower() else col_name.split('VS')
-                    time_m = formatar_nome_time(times_split[0]).lower()
-                    time_v = formatar_nome_time(times_split[1]).lower() if len(times_split) > 1 else ""
+                    time_m = formatar_nome_time(times_split[0])
+                    time_v = formatar_nome_time(times_split[1]) if len(times_split) > 1 else ""
+                    
+                    # Unicode cleanup to standard comparison
+                    time_m_clean = remover_acentos(time_m)
+                    time_v_clean = remover_acentos(time_v)
+                    palpite_clean = remover_acentos(palpite_usuario)
                     
                     if val_m > val_v:
                         resultado_real = "mandante"
@@ -559,14 +572,12 @@ if df_respostas is not None and not df_respostas.empty:
                     else:
                         resultado_real = "empate"
                         
-                    palpite_clean = palpite_usuario.lower()
-                    
                     # Se acertou a tendência ganha 10 pontos
                     if resultado_real == "empate" and "empate" in palpite_clean:
                         pontos += 10
-                    elif resultado_real == "mandante" and time_m in palpite_clean:
+                    elif resultado_real == "mandante" and time_m_clean in palpite_clean:
                         pontos += 10
-                    elif resultado_real == "visitante" and time_v in palpite_clean:
+                    elif resultado_real == "visitante" and time_v_clean in palpite_clean:
                         pontos += 10
         return pontos
 
@@ -581,8 +592,12 @@ if df_respostas is not None and not df_respostas.empty:
     for col in lista_jogos_formulario:
         agg_dict[col] = obter_ultimo_nao_nulo
         
-    df_respostas['Timestamp'] = pd.to_datetime(df_respostas['Timestamp'], errors='coerce')
-    df_respostas_consolidadas = df_respostas.sort_values('Timestamp').groupby(col_email).agg(agg_dict).reset_index()
+    # Dynamic timestamp finder
+    col_timestamp_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['timestamp', 'carimbo', 'data', 'hora'])]
+    col_timestamp = col_timestamp_list[0] if col_timestamp_list else df_respostas.columns[0]
+    
+    df_respostas[col_timestamp] = pd.to_datetime(df_respostas[col_timestamp], errors='coerce')
+    df_respostas_consolidadas = df_respostas.sort_values(col_timestamp).groupby(col_email).agg(agg_dict).reset_index()
     df_respostas_consolidadas['Pontos_Calculados'] = df_respostas_consolidadas.apply(calcular_pontos_participante, axis=1)
 
     tab_ranking, tab_enviar, tab_palpites, tab_jogos = st.tabs([
@@ -598,7 +613,7 @@ if df_respostas is not None and not df_respostas.empty:
         lider_atual = obter_nome_exibicao(ranking.iloc[0][col_email]) if total_participantes > 0 else "-"
         media_pontos = int(ranking['Pontos_Calculados'].mean()) if total_participantes > 0 else 0
         
-        st.markdown(f"""
+        st.markdown(textwrap.dedent(f"""
             <div class="metrics-container">
                 <div class="metric-box">
                     <div class="metric-value">{total_participantes}</div>
@@ -613,7 +628,7 @@ if df_respostas is not None and not df_respostas.empty:
                     <div class="metric-label">Média Geral</div>
                 </div>
             </div>
-        """, unsafe_allow_html=True)
+        """), unsafe_allow_html=True)
         
         p1_nome, p1_pts = "Aguardando", "0 pts"
         p2_nome, p2_pts = "Aguardando", "0 pts"
@@ -629,7 +644,7 @@ if df_respostas is not None and not df_respostas.empty:
             p3_nome = obter_nome_exibicao(ranking.iloc[2][col_email])
             p3_pts = f"{int(ranking.iloc[2]['Pontos_Calculados'])} pts"
             
-        st.markdown(f"""
+        st.markdown(textwrap.dedent(f"""
             <div class="podium-row">
                 <div class="podium-card podium-2">
                     <div class="podium-badge">🥈</div>
@@ -647,7 +662,7 @@ if df_respostas is not None and not df_respostas.empty:
                     <div class="podium-pts">{p3_pts}</div>
                 </div>
             </div>
-        """, unsafe_allow_html=True)
+        """), unsafe_allow_html=True)
         
         st.markdown('<div class="ranking-list">', unsafe_allow_html=True)
         for idx, row in ranking.iterrows():
@@ -657,7 +672,7 @@ if df_respostas is not None and not df_respostas.empty:
             usuario = obter_nome_exibicao(row[col_email])
             pontos = int(row['Pontos_Calculados'])
             inicial = usuario[0]
-            st.markdown(f"""
+            st.markdown(textwrap.dedent(f"""
                 <div class="ranking-item">
                     <div class="ranking-left">
                         <span class="ranking-pos">#{posicao}</span>
@@ -666,13 +681,12 @@ if df_respostas is not None and not df_respostas.empty:
                     </div>
                     <span class="ranking-score">{pontos} pts</span>
                 </div>
-            """, unsafe_allow_html=True)
+            """), unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with tab_enviar:
         st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Enquete de Palpites em Tempo Real</h3>", unsafe_allow_html=True)
         
-        # Identificação inicial do usuário participante
         email_user = st.text_input("Insira seu E-mail Corporativo:", placeholder="exemplo@feltrim.com.br", key="env_email").strip().lower()
         nome_user = st.text_input("Insira seu Nome Completo:", placeholder="Seu nome completo aqui", key="env_nome").strip()
         
@@ -682,11 +696,11 @@ if df_respostas is not None and not df_respostas.empty:
             st.info("💡 Digite seu Nome e E-mail corporativo acima para liberar o painel de enquetes!")
         else:
             if gravacao_bloqueada:
-                st.markdown("""
+                st.markdown(textwrap.dedent("""
                     <div class="custom-info" style="border-left-color: #ffbd00; color: #003566; background-color: #fffdf0; margin-bottom: 25px;">
                         ⚠️ <strong>Modo de Demonstração Ativo:</strong> As enquetes abaixo estão liberadas para teste! Para gravar os palpites de verdade na planilha, configure a URL real do seu Apps Script no topo do arquivo <code>app_bolao.py</code> no repositório do GitHub.
                     </div>
-                """, unsafe_allow_html=True)
+                """), unsafe_allow_html=True)
             
             st.markdown("<hr style='margin:20px 0;'>", unsafe_allow_html=True)
             
@@ -708,7 +722,8 @@ if df_respostas is not None and not df_respostas.empty:
                 pct_draw = int((votos_draw / total_votos_jogo) * 100) if total_votos_jogo > 0 else 0
                 pct_t2 = int((votos_t2 / total_votos_jogo) * 100) if total_votos_jogo > 0 else 0
                 
-                st.markdown(f"""
+                # Render using dedent to avoid showing raw html codes inside gray blocks
+                st.markdown(textwrap.dedent(f"""
                     <div class="poll-card">
                         <div class="poll-header">🎯 Enquete de Opinião</div>
                         <div class="poll-teams">
@@ -736,7 +751,7 @@ if df_respostas is not None and not df_respostas.empty:
                             <div class="poll-bar-outer"><div class="poll-bar-inner bar-color-v" style="width: {pct_t2}%;"></div></div>
                         </div>
                     </div>
-                """, unsafe_allow_html=True)
+                """), unsafe_allow_html=True)
                 
                 # Três botões para submeter os palpites na linha de colunas
                 col_btn1, col_btn2, col_btn3 = st.columns(3)
@@ -834,14 +849,14 @@ if df_respostas is not None and not df_respostas.empty:
                     emojis_t1 = obter_emojis_pais(t1)
                     emojis_t2 = obter_emojis_pais(t2)
                     
-                    st.markdown(f"""
+                    st.markdown(textwrap.dedent(f"""
                         <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,75,35,0.01);">
                             <div>
                                 <p style="font-weight: 700; color: #1e293b; margin: 0; font-size: 0.95rem;">{emojis_t1} {t1} vs {t2} {emojis_t2}</p>
                                 <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite enviado: <strong style="color: #004b23;">{palpite_val}</strong></p>
                             </div>
                         </div>
-                    """, unsafe_allow_html=True)
+                    """), unsafe_allow_html=True)
 
     with tab_jogos:
         st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Placares Reais dos Jogos</h3>", unsafe_allow_html=True)
@@ -855,18 +870,15 @@ if df_respostas is not None and not df_respostas.empty:
                 p_m_display = str(int(float(p_m))) if pd.notna(p_m) else ""
                 p_v_display = str(int(float(p_v))) if pd.notna(p_v) else ""
                 
-                if status == "Encerrado":
-                    badge_class = "badge-status status-encerrado"
+                status_clean = str(status).strip().lower()
+                if "encerrado" in status_clean:
                     badge_label = "🟢 Encerrado"
-                elif status == "Em Andamento":
-                    badge_class = "badge-status status-andamento"
+                elif "andamento" in status_clean or "vivo" in status_clean:
                     badge_label = "🟡 Ao Vivo"
                 else:
-                    badge_class = "badge-status status-agendado"
                     badge_label = "🕒 Agendado"
                 
                 tem_placar = p_m_display != "" and p_v_display != ""
-                placar_html = f'<div class="match-score-box"><span>{p_m_display}</span><span>-</span><span>{p_v_display}</span></div>' if tem_placar else '<div class="match-score-box" style="font-size: 1.1rem; color: #003566; font-weight: 600;">VS</div>'
                 
                 times = str(nome_jogo).split('vs') if 'vs' in str(nome_jogo) else str(nome_jogo).split('VS')
                 time1 = formatar_nome_time(times[0].strip()) if len(times) > 0 else "Mandante"
@@ -875,7 +887,7 @@ if df_respostas is not None and not df_respostas.empty:
                 emojis1 = obter_emojis_pais(time1)
                 emojis2 = obter_emojis_pais(time2)
                 
-                st.markdown(f"""
+                st.markdown(textwrap.dedent(f"""
                     <div class="match-card" style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: bold; color: #475569;">
                             <span>⚽ Copa 2026</span>
@@ -895,21 +907,34 @@ if df_respostas is not None and not df_respostas.empty:
                             </div>
                         </div>
                     </div>
-                """, unsafe_allow_html=True)
+                """), unsafe_allow_html=True)
 else:
-    st.markdown("""
+    st.markdown(textwrap.dedent("""
         <div class="custom-info" style="text-align: center; padding: 30px;">
             <p style="font-size: 2.5rem; margin: 0 0 15px 0;">🏆</p>
             <p style="font-weight: 700; font-size: 1.2rem; margin: 0 0 10px 0; color: #004b23;">Bem-vindo ao Bolão Feltrim Correa!</p>
-            <p style="margin: 0; color: #003566;">Insira as respostas oficiais de palpites no Sheets para inicializar a classificação!</p>
+            <p style="margin: 0; color: #003566;">Por favor, insira o ID correto da sua planilha no Painel Admin abaixo para sincronizar as respostas de palpites e placares reais!</p>
         </div>
-    """, unsafe_allow_html=True)
+    """), unsafe_allow_html=True)
 
 st.markdown("---")
 with st.expander("🛠️ Painel de Controle do Administrador"):
     senha_admin = st.text_input("Insira a senha do Administrador:", type="password", key="senha_admin")
     if senha_admin == "feltrim2026":
         st.success("Acesso de Administrador Autorizado!")
+        
+        # Entrada dinâmica de ID da Planilha do Google Sheets do usuário
+        novo_sheet_id = st.text_input(
+            "ID da Planilha do Google Sheets (Cole o ID da sua planilha copiada aqui):", 
+            value=st.session_state["sheet_id"],
+            help="O ID é a sequência de letras e números que fica na URL da sua planilha entre '/d/' e '/edit'."
+        )
+        
+        if novo_sheet_id != st.session_state["sheet_id"]:
+            st.session_state["sheet_id"] = novo_sheet_id
+            st.cache_data.clear()
+            st.rerun()
+            
         st.write("### Status de Configuração")
         st.write(f"**URL do Apps Script Cadastrada:** `{'Configurada' if not gravacao_bloqueada else 'Pendente (Edite o código em app_bolao.py)'}`")
         st.write(f"**Aba Palpites (Form Responses 2) encontrada:** `{'Sim' if df_respostas is not None else 'Não'}`")
