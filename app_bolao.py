@@ -5,7 +5,7 @@ import requests
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
-# Configurações de página do Streamlit
+
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -15,11 +15,12 @@ st.set_page_config(
 
 # Constantes de Configuração Geral
 SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
-
-# URL Oficial enviada pelo Administrador
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
-# 56 Jogos da Copa do Mundo em Ordem Cronológica Real com Horários de São Paulo (UTC-3)
+# Fuso Horário de Brasília (UTC-3)
+agora_brasil = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
+
+# 56 Jogos da Copa do Mundo em Ordem Cronológica Real
 JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ Estados Unidos vs Austrália (11/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "21:30"},
@@ -79,7 +80,6 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Espanha vs Haiti (25/06)", "Horário": "21:30"}
 ]
 
-# Estilização Global Customizada (CSS Integrado de Alta Fidelidade)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
@@ -88,7 +88,7 @@ st.markdown("""
         font-family: 'Poppins', sans-serif;
     }
     
-    /* Configuração Geral do Header */
+    /* Cabeçalho Premium */
     .header-container {
         background: linear-gradient(135deg, #004b23 0%, #007200 100%);
         border-radius: 15px;
@@ -117,27 +117,27 @@ st.markdown("""
         font-weight: 300;
     }
     
-    /* Barra de Fuso Horário */
+    /* Fuso Horário */
     .timezone-bar {
         background-color: #f8f9fa;
         border-left: 5px solid #004b23;
         padding: 10px 20px;
-        border-radius: 4px;
+        border-radius: 6px;
         font-weight: 600;
         font-size: 0.9rem;
         color: #333;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         display: flex;
         align-items: center;
         gap: 10px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    /* Estilização da Tab de Palpite (Destaque Premium) */
+    /* Destacar Especialmente a Guia de Palpite */
     button[data-baseweb="tab"]:nth-child(3) {
         background: linear-gradient(135deg, #004b23 0%, #007200 100%) !important;
         color: white !important;
-        border: 2px solid #d4af37 !important;
+        border: 1.8px solid #d4af37 !important;
         border-radius: 8px !important;
         font-weight: bold !important;
         padding: 8px 16px !important;
@@ -149,45 +149,33 @@ st.markdown("""
         box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4) !important;
     }
 
-    /* Botões Pill-Shape Estilo Premium */
+    /* Botões Pill-Shape Premium */
     .stButton > button {
         background: linear-gradient(135deg, #004b23 0%, #007200 100%) !important;
         color: white !important;
         border: 1.5px solid #d4af37 !important;
         border-radius: 50px !important;
         font-weight: 600 !important;
-        padding: 10px 30px !important;
+        padding: 8px 24px !important;
         font-size: 0.95rem !important;
         box-shadow: 0 4px 12px rgba(0, 75, 35, 0.15) !important;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     }
-    
     .stButton > button:hover {
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 18px rgba(212, 175, 55, 0.3) !important;
         border-color: #ffffff !important;
     }
 
-    /* Botão Secundário */
-    .btn-secondary > .stButton > button {
-        background: white !important;
-        color: #004b23 !important;
-        border: 1.5px solid #004b23 !important;
-    }
-    .btn-secondary > .stButton > button:hover {
-        background: #f1f3f1 !important;
-        color: #007200 !important;
-    }
-
-    /* Cards de Jogos Estilo Esports */
+    /* Cards de Jogos */
     .game-card {
         background: white;
         border-radius: 12px;
-        padding: 20px;
+        padding: 18px;
         border: 1px solid #e1e8e1;
         box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         margin-bottom: 15px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, border-color 0.2s ease;
     }
     .game-card:hover {
         transform: translateY(-3px);
@@ -195,6 +183,7 @@ st.markdown("""
         border-color: #d4af37;
     }
 
+    /* Badges de Status do Jogo */
     .badge-status {
         font-size: 0.75rem;
         font-weight: 700;
@@ -205,25 +194,19 @@ st.markdown("""
         margin-bottom: 10px;
     }
     .badge-agendado { background-color: #e9ecef; color: #495057; }
-    .badge-andamento { background-color: #fff3cd; color: #856404; animation: pulse 1.5s infinite; }
+    .badge-andamento { background-color: #fff3cd; color: #856404; animation: blinker 1.5s infinite; }
     .badge-encerrado { background-color: #d4edda; color: #155724; }
 
-    @keyframes pulse {
-        0 { opacity: 0.6; }
-        50% { opacity: 1; }
-        100% { opacity: 0.6; }
+    @keyframes blinker {
+        50% { opacity: 0.5; }
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Definição e correção da hora local (Brasília UTC-3) de forma naive para evitar erros de comparação
-agora_brasil = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
-
-# Cabeçalho da Empresa
 st.markdown("""
 <div class="header-container">
     <div class="header-title">🏆 Bolão Corporativo Feltrim Correa</div>
-    <div class="header-subtitle">Consulte a classificação, envie palpites de jogos e acompanhe os placares oficiais em tempo real!</div>
+    <div class="header-subtitle">Consulte a classificação oficial, envie seus palpites e acompanhe os placares em tempo real!</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -234,29 +217,26 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-
 @st.cache_data(ttl=15)
 def puxar_planilha_segura(sheet_name):
     """
-    Tenta carregar o CSV de uma aba da planilha do Google.
-    Se falhar, retorna um DataFrame vazio de forma amigável.
+    Carrega o CSV de uma aba específica da planilha Google com tratamento de erros robusto.
     """
     try:
         sheet_encoded = urllib.parse.quote(sheet_name)
         url = f"https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet={sheet_encoded}"
         df = pd.read_csv(url)
-        # Limpar colunas em branco que o Google gera às vezes
         df = df.dropna(how='all', axis=1)
         df.columns = [str(c).strip() for c in df.columns]
         return df
     except Exception:
         return pd.DataFrame()
 
-# Carregamento seguro dos dados
+# Carregamento seguro de dados
 df_resultados_raw = puxar_planilha_segura("Resultados Oficiais")
 df_palpites_raw = puxar_planilha_segura("Palpites")
 
-# Caso o banco de dados no Sheets ainda esteja vazio, monta um DataFrame baseado na constante estática
+# Configuração de Fallback se a planilha estiver inacessível ou vazia
 if df_resultados_raw.empty or 'Jogo' not in df_resultados_raw.columns:
     df_resultados = pd.DataFrame(JOGOS_ESTATICOS)
     df_resultados['Placar Real Mandante'] = ""
@@ -269,46 +249,42 @@ else:
 
 def obter_datetime_jogo(jogo_nome, horario_str):
     """
-    Extrai o dia e mês da string do jogo ex: 'Canadá vs Nova Zelândia (12/06)'
-    Combina com o horário ex: '16:00' para retornar um datetime limpo (naive) em 2026.
+    Analisa a data e o horário e retorna um datetime naive para evitar erros de comparação de fuso.
     """
     try:
         if "(" in jogo_nome and "/" in jogo_nome:
-            parte_data = jogo_nome.split("(")[-1].split(")")[0]  # "12/06"
+            parte_data = jogo_nome.split("(")[-1].split(")")[0]
             dia, mes = map(int, parte_data.split("/"))
-            
             horario_str = str(horario_str).strip()
             if ":" in horario_str:
                 hora, minuto = map(int, horario_str.split(":"))
             else:
-                hora, minuto = 15, 0  # Fallback padrão se não tiver horário cadastrado
-                
+                hora, minuto = 15, 0
             return datetime(2026, mes, dia, hora, minuto)
     except Exception:
         pass
-    return datetime(2026, 6, 25, 23, 59) # Jogo distante em caso de erro
+    return datetime(2026, 6, 25, 23, 59)
 
-# Monta coluna de ordenação
+# Ordenação Cronológica de Jogos
 df_resultados['Data_Ordenacao'] = df_resultados.apply(
-    lambda row: obter_datetime_jogo(row['Jogo'], row['Horário']), axis=1
+    lambda r: obter_datetime_jogo(r['Jogo'], r['Horário']), axis=1
 )
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').copy()
 
 def calcular_pontos_palpite(palpite, placar_m, placar_v):
     """
-    Calcula os pontos obtidos por um palpite com base no resultado real.
+    Cálculo de pontos oficial:
     10 pontos: Acerto exato do placar.
-    5 pontos: Acertou vencedor ou empate, mas errou o placar exato.
-    0 pontos: Qualquer erro de vencedor/empate.
+    5 pontos: Acerto do vencedor/empate com placar errado.
+    0 pontos: Palpite errado.
     """
     try:
         if pd.isna(placar_m) or pd.isna(placar_v) or str(placar_m).strip() == "" or str(placar_v).strip() == "":
-            return None # Jogo ainda sem resultado oficial lançado
+            return None
         
         real_m = int(float(placar_m))
         real_v = int(float(placar_v))
         
-        # Limpar o palpite digitado (ex: "2x1", "2-1", " 2 x 1 ")
         palpite_limpo = str(palpite).lower().replace(" ", "").replace("-", "x")
         if "x" not in palpite_limpo:
             return 0
@@ -317,11 +293,9 @@ def calcular_pontos_palpite(palpite, placar_m, placar_v):
         palp_m = int(float(partes[0]))
         palp_v = int(float(partes[1]))
         
-        # 1. Acerto Exato
         if palp_m == real_m and palp_v == real_v:
             return 10
             
-        # 2. Acerto do Vencedor ou Empate
         status_real = 1 if real_m > real_v else (-1 if real_m < real_v else 0)
         status_palpite = 1 if palp_m > palp_v else (-1 if palp_m < palp_v else 0)
         
@@ -332,14 +306,11 @@ def calcular_pontos_palpite(palpite, placar_m, placar_v):
     except Exception:
         return 0
 
-# Consolidação do ranking
 tabela_ranking = {}
 
 if not df_palpites_raw.empty and len(df_palpites_raw.columns) > 3:
     col_email = ""
     col_nome = ""
-    
-    # Identificar colunas cruciais
     for col in df_palpites_raw.columns:
         if "email" in col.lower() or "e-mail" in col.lower() or "usuário" in col.lower():
             col_email = col
@@ -357,7 +328,6 @@ if not df_palpites_raw.empty and len(df_palpites_raw.columns) > 3:
             if email not in tabela_ranking:
                 tabela_ranking[email] = {"Nome": nome, "Pontos": 0, "Acertos_Exatos": 0, "Acertos_Simples": 0, "Palpites_Feitos": 0}
                 
-            # Loop por cada jogo cadastrado para somar a pontuação
             for j_idx, j_row in df_resultados_sorted.iterrows():
                 jogo_nome = j_row['Jogo']
                 if jogo_nome in df_palpites_raw.columns:
@@ -376,7 +346,6 @@ if not df_palpites_raw.empty and len(df_palpites_raw.columns) > 3:
                             elif pts == 5:
                                 tabela_ranking[email]["Acertos_Simples"] += 1
 
-# Conversão em DataFrame para exibição
 df_ranking = pd.DataFrame.from_dict(tabela_ranking, orient='index')
 if not df_ranking.empty:
     df_ranking = df_ranking.sort_values(by=["Pontos", "Acertos_Exatos", "Nome"], ascending=[False, False, True])
@@ -386,6 +355,7 @@ if not df_ranking.empty:
 else:
     df_ranking = pd.DataFrame(columns=['Posição', 'Nome', 'Pontos', 'Acertos_Exatos', 'Palpites_Feitos'])
 
+# Estrutura de Abas do Aplicativo
 tabs = st.tabs([
     "🏆 Classificação Geral", 
     "📅 Jogos & Resultados", 
@@ -400,11 +370,10 @@ with tabs[0]:
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        total_p = len(df_ranking)
         st.markdown(f"""
         <div style="background-color: #f8f9fa; border-left: 5px solid #004b23; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
             <div style="font-size: 0.9rem; color: #666; text-transform: uppercase;">Participantes</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #004b23; margin-top: 5px;">{total_p}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #004b23; margin-top: 5px;">{len(df_ranking)}</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -426,7 +395,7 @@ with tabs[0]:
 
     st.write("")
     
-    # Exibir pódio com medalhas se houver competidores
+    # Exibir pódio com medalhas circulares elegantes
     if not df_ranking.empty:
         st.markdown("#### 🥇 Top 3 Competidores")
         cols_podio = st.columns(3)
@@ -468,57 +437,35 @@ with tabs[0]:
                 </div>
                 """, unsafe_allow_html=True)
 
-        st.markdown("#### 📋 Classificação Geral")
+        st.markdown("#### 📋 Classificação Completa")
         
-        tabela_html = """
-        <div style='overflow-x: auto;'>
-            <table style='width:100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; background-color: white;'>
-                <thead>
-                    <tr style='background-color: #004b23; color: white; text-align: left; font-weight: 600;'>
-                        <th style='padding: 12px 15px;'>Posição</th>
-                        <th style='padding: 12px 15px;'>Nome Completo</th>
-                        <th style='padding: 12px 15px;'>Pontos Acumulados</th>
-                        <th style='padding: 12px 15px;'>Placares Exatos</th>
-                        <th style='padding: 12px 15px;'>Resultados Simples</th>
-                    </tr>
-                </thead>
-                <tbody>
-        """
-        for index, row in df_ranking.iterrows():
-            fundo = "#ffffff" if index % 2 == 0 else "#f8f9fa"
-            if index == 0:
-                fundo = "#fffbeb"
-            elif index == 1:
-                fundo = "#f9fafb"
-            elif index == 2:
-                fundo = "#fdfaf7"
-                
-            tabela_html += f"""
-            <tr style='background-color: {fundo}; border-bottom: 1px solid #e5e7eb; transition: background-color 0.2s;'>
-                <td style='padding: 12px 15px; font-weight: 700; color: #004b23;'>{row['Posição']}º</td>
-                <td style='padding: 12px 15px; font-weight: 500; color: #374151;'>{row['Nome']}</td>
-                <td style='padding: 12px 15px; font-weight: 700; color: #059669;'>{row['Pontos']} pts</td>
-                <td style='padding: 12px 15px; color: #6b7280;'>🎯 {row['Acertos_Exatos']}</td>
-                <td style='padding: 12px 15px; color: #6b7280;'>⚽ {row['Acertos_Simples']}</td>
-            </tr>
-            """
+        tabela_html = "<div style='overflow-x: auto; margin-top: 15px;'><table style='width:100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.03);'>"
+        tabela_html += "<thead style='background-color: #004b23; color: white; text-align: left;'><tr><th style='padding: 12px; font-weight: 600;'>Posição</th><th style='padding: 12px; font-weight: 600;'>Competidor</th><th style='padding: 12px; font-weight: 600;'>Pontos</th><th style='padding: 12px; font-weight: 600; text-align: center;'>Acertos Exatos</th></tr></thead><tbody>"
+        
+        for idx, row in df_ranking.iterrows():
+            bg_cor = "#ffffff" if idx % 2 == 0 else "#f8f9fa"
+            if idx == 0:
+                bg_cor = "#fffbeb"
+            tabela_html += f"<tr style='background-color: {bg_cor}; border-bottom: 1px solid #eef2ee;'>"
+            tabela_html += f"<td style='padding: 12px; font-weight: 700; color: #004b23;'>{row['Posição']}º</td>"
+            tabela_html += f"<td style='padding: 12px; font-weight: 500; color: #333;'>{row['Nome']}</td>"
+            tabela_html += f"<td style='padding: 12px; font-weight: 700; color: #007200;'>{row['Pontos']} pts</td>"
+            tabela_html += f"<td style='padding: 12px; text-align: center;'>🎯 {row['Acertos_Exatos']}</td>"
+            tabela_html += "</tr>"
+            
         tabela_html += "</tbody></table></div>"
-        
         st.html(tabela_html)
     else:
-        st.info("Aguardando o envio dos primeiros palpites dos colaboradores.")
+        st.info("💡 Nenhum palpite registrado na classificação ainda.")
         
     st.write("")
-    st.markdown('<div class="btn-secondary">', unsafe_allow_html=True)
-    if st.button("🔄 Recarregar Dados da Planilha", key="btn_reload_geral"):
+    if st.button("🔄 Recarregar Dados", key="btn_reload"):
         st.cache_data.clear()
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # ==================== ABA 2: JOGOS & RESULTADOS ====================
 with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
-    st.write("Acompanhe o cronograma de partidas, horários de início e os placares de cada partida oficial.")
     
     for idx, row in df_resultados_sorted.iterrows():
         id_jogo = row['ID_Jogo']
@@ -535,14 +482,14 @@ with tabs[1]:
         if "encerrado" in str(status).lower():
             status_badge = '<span class="badge-status badge-encerrado">🟢 Finalizado</span>'
             placar_exibicao = f"<span style='font-size: 1.6rem; font-weight: 700; color: #004b23;'>{int(float(real_m))} - {int(float(real_v))}</span>"
-        elif "andamento" in str(status).lower():
+        elif "andamento" in str(status).lower() or "vivo" in str(status).lower():
             status_badge = '<span class="badge-status badge-andamento">🟡 Ao Vivo</span>'
             placar_exibicao = f"<span style='font-size: 1.6rem; font-weight: 700; color: #b8860b;'>{int(float(real_m))} - {int(float(real_v))}</span>"
         else:
             status_badge = '<span class="badge-status badge-agendado">🕒 Agendado</span>'
             placar_exibicao = "<span style='font-size: 1.1rem; color: #666; font-style: italic;'>vs</span>"
             
-        aberto_badge = f'<span style="background-color: #d1e7dd; color: #0f5132; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 50px; margin-left: 10px;">📝 Palpites Livres</span>' if palpites_abertos else f'<span style="background-color: #f8d7da; color: #842029; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 50px; margin-left: 10px;">🔒 Palpites Trancados</span>'
+        aberto_badge = '<span style="background-color: #d1e7dd; color: #0f5132; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 50px; margin-left: 10px;">📝 Palpites Livres</span>' if palpites_abertos else '<span style="background-color: #f8d7da; color: #842029; font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 50px; margin-left: 10px;">🔒 Palpites Trancados</span>'
 
         st.markdown(f"""
         <div class="game-card">
@@ -550,10 +497,10 @@ with tabs[1]:
                 <div>
                     {status_badge}
                     {aberto_badge}
-                    <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">📅 Início: <b>{data_jogo.strftime('%d/%m')} às {horario}</b> (Brasília)</div>
+                    <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">📅 Partida: <b>{data_jogo.strftime('%d/%m')} às {horario}</b> (Horário de Brasília)</div>
                     <div style="font-size: 0.8rem; color: #888;">⏱️ Limite para apostas: {limite_palpite.strftime('%d/%m às %H:%M')}</div>
                 </div>
-                <div style="text-align: center; margin-top: 10px; min-width: 150px; background: #fdfdfd; padding: 10px; border-radius: 8px; border: 1px solid #f1f1f1;">
+                <div style="text-align: center; margin-top: 10px; min-width: 150px; background: #fafafa; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
                     <div style="font-size: 0.95rem; font-weight: 600; color: #333; margin-bottom: 5px;">{jogo}</div>
                     <div>{placar_exibicao}</div>
                 </div>
@@ -568,16 +515,15 @@ with tabs[2]:
     if planilha_precisa_inicializar:
         st.error("⚠️ Para conseguir enviar novos palpites, a planilha precisa primeiro ser inicializada no Portal Administrativo.")
     else:
-        st.write("Informe o seu e-mail corporativo cadastrado para filtrar os palpites disponíveis.")
+        st.write("Digite o seu e-mail corporativo cadastrado para filtrar e selecionar as partidas disponíveis.")
         
-        # Inputs fora do formulário para habilitar re-run e filtragem instantânea!
-        user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", "").strip().lower()
-        user_nome = st.text_input("👤 Nome Completo:", "").strip()
+        user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
+        user_nome = st.text_input("👤 Nome Completo:", key="user_nome_input").strip()
         
         if user_email and "@" in user_email and len(user_nome) >= 3:
-            # Localizar palpites já cadastrados para este e-mail
+            # Identificar e carregar palpites já efetuados por este e-mail
             col_email = ""
-            palpites_dados = []
+            palpites_feitos_usuario = []
             for c in df_palpites_raw.columns:
                 if "email" in c.lower() or "e-mail" in c.lower() or "usuário" in c.lower():
                     col_email = c
@@ -587,26 +533,25 @@ with tabs[2]:
                 usuario_existente = df_palpites_raw[df_palpites_raw[col_email].astype(str).str.strip().str.lower() == user_email]
                 if not usuario_existente.empty:
                     linha_user = usuario_existente.iloc[0]
-                    # Preencher vetor de palpites já efetuados
                     for col in df_palpites_raw.columns:
                         if col not in ["Carimbo de data/hora", "E-mail do Usuário", "Nome Completo", "email", "e-mail", col_email]:
                             voto_realizado = str(linha_user[col]).strip()
                             if voto_realizado and voto_realizado != "nan" and voto_realizado != "":
-                                palpites_dados.append(col)
+                                palpites_feitos_usuario.append(col)
 
-            # Filtrar apenas jogos com palpites ainda abertos E que o usuário ainda não palpitou!
+            # Filtrar e remover jogos que o colaborador já palpitou ou que estão fechados/trancados
             jogos_disponiveis = []
             for j_idx, j_row in df_resultados_sorted.iterrows():
                 jogo_nome = j_row['Jogo']
                 limite = j_row['Data_Ordenacao'] - timedelta(hours=1)
                 
-                # Valida se está antes do tempo E se já não possui palpite cadastrado por esse e-mail
+                # Regra: antes do tempo limite, não encerrado E ainda não palpitado
                 if agora_brasil < limite and "encerrado" not in str(j_row['Status']).lower():
-                    if jogo_nome not in palpites_dados:
+                    if jogo_nome not in palpites_feitos_usuario:
                         jogos_disponiveis.append(jogo_nome)
             
             if len(jogos_disponiveis) == 0:
-                st.success("🎉 Você já deu palpite em todos os jogos cronologicamente disponíveis até o momento!")
+                st.success("🎉 Você já deu palpite em todos os jogos cronologicamente disponíveis no momento!")
             else:
                 with st.form("form_palpite_novo"):
                     jogo_selecionado = st.selectbox("⚽ Selecione o Jogo que deseja apostar:", jogos_disponiveis)
@@ -632,9 +577,7 @@ with tabs[2]:
                         }
                         
                         try:
-                            resposta = requests.post(WEB_APP_URL, json=dados_envio, timeout=12)
-                            
-                            # TRATAMENTO DE ERRO DE CONEXÃO ROBUSTO (EVITA CRASH EXPECTING VALUE)
+                            resposta = requests.post(WEB_APP_URL, json=dados_envio, timeout=35)
                             try:
                                 res_json = resposta.json()
                                 if res_json.get("status") == "success":
@@ -644,21 +587,18 @@ with tabs[2]:
                                 else:
                                     st.error(f"Erro ao registrar: {res_json.get('message')}")
                             except ValueError:
-                                # O Google Apps Script retornou HTML (Página de Erro / Redirecionamento de Conta Privada)
-                                st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma página de erro HTML em vez de dados seguros. "
-                                         "Isso geralmente indica que o seu script Web App não está com acesso configurado para 'Qualquer pessoa'.")
-                                with st.expander("🔍 Ver detalhes técnicos da resposta do Google"):
+                                st.error("⚠️ Erro de Resposta: O Google Apps Script não pôde processar o envio. Verifique as configurações de acesso.")
+                                with st.expander("🔍 Ver detalhes técnicos"):
                                     st.code(resposta.text[:1000], language="html")
-                                    
                         except Exception as e:
                             st.error(f"Falha de conexão com a API do Google Sheets. Detalhes: {e}")
         else:
-            st.info("💡 Digite o seu e-mail corporativo completo e seu nome para listar os palpites de jogos em aberto.")
+            st.info("💡 Digite o seu e-mail corporativo completo e seu nome para listar os palpites em aberto.")
 
 # ==================== ABA 4: MEUS PALPITES ====================
 with tabs[3]:
     st.markdown("### 🎟️ Meus Tickets de Apostas")
-    st.write("Digite o seu e-mail corporativo cadastrado para visualizar todo o seu histórico de palpites realizados.")
+    st.write("Digite o seu e-mail corporativo cadastrado para visualizar todo o seu histórico de palpites.")
     
     email_busca = st.text_input("📧 Pesquisar Histórico pelo seu E-mail:", "", key="email_busca_input").strip().lower()
     
@@ -723,44 +663,45 @@ with tabs[3]:
 # ==================== ABA 5: PORTAL ADMIN ====================
 with tabs[4]:
     st.markdown("### 🔑 Controle de Acesso Administrativo")
-    st.write("Insira a senha de administrador do bolão corporativo para ter acesso às funções de gerenciamento de partidas.")
+    st.write("Digite a sua credencial administrativa do bolão para desbloquear as opções de controle e configuração:")
     
     admin_pass = st.text_input("🔑 Senha de Administrador:", type="password", key="senha_admin_field").strip()
     
     if admin_pass == "feltrim2026":
-        st.success("✅ Acesso administrativo liberado com sucesso!")
+        st.success("✅ Acesso administrativo liberado!")
         st.divider()
         
-        # Gerenciamento de inicialização
-        st.markdown("#### ✨ Inicialização Rápida de Partidas")
-        st.write("Caso a sua planilha Google Sheets esteja limpa ou vazia, use o botão de auto-cadastro para carregar todos os 56 jogos:")
+        # Gerenciamento de inicialização em massa (Batch Optimization)
+        st.markdown("#### ✨ Inicialização em Lote de Partidas")
+        st.write("Use o botão abaixo para criar todas as abas e os 56 confrontos na sua planilha do Google Sheets de uma só vez (otimizado para evitar lentidões):")
         
         if st.button("🚀 Inicializar Todos os 56 Jogos na Planilha", key="btn_init_planilha"):
-            with st.spinner("Conectando ao banco de dados e gerando as abas oficiais da Copa..."):
+            with st.spinner("Conectando ao banco de dados e enviando jogos em lote..."):
                 try:
-                    res_init = requests.post(WEB_APP_URL, json={"action": "inicializarNovoBolao", "senha": "feltrim2026"}, timeout=20)
-                    
-                    # TRATAMENTO DE ERRO DE CONEXÃO ROBUSTO (EVITA CRASH EXPECTING VALUE)
+                    res_init = requests.post(
+                        WEB_APP_URL, 
+                        json={"action": "inicializarNovoBolao", "senha": "feltrim2026"}, 
+                        timeout=35
+                    )
                     try:
                         r_json = res_init.json()
                         if r_json.get("status") == "success":
-                            st.success("🎉 Todas as tabelas e os 56 jogos foram criados com sucesso na sua planilha!")
+                            st.success("🎉 Todas as tabelas e os 56 jogos foram criados com gravação em massa super-rápida!")
                             st.cache_data.clear()
                         else:
                             st.error(f"Erro na criação: {r_json.get('message')}")
                     except ValueError:
-                        st.error("⚠️ Erro de Resposta: O Google Apps Script não pôde inicializar os jogos porque retornou uma página de erro HTML.")
-                        with st.expander("🔍 Ver detalhes técnicos do erro retornado pelo Google"):
+                        st.error("⚠️ O Google Apps Script não pôde inicializar. Verifique o link de implantação.")
+                        with st.expander("🔍 Detalhes técnicos"):
                             st.code(res_init.text[:1000], language="html")
-                            
                 except Exception as ex:
                     st.error(f"Erro ao se conectar ao Google Apps Script: {ex}")
                     
         st.divider()
         
-        # Lançamento de placares reais
+        # Cadastro de Resultados Oficiais
         st.markdown("#### 🏆 Cadastro de Resultados Oficiais")
-        st.write("Selecione um jogo para registrar ou atualizar o seu placar final real de jogo:")
+        st.write("Insira e atualize o placar oficial real de cada partida:")
         
         with st.form("form_resultado_oficial"):
             jogo_placar_sel = st.selectbox("Selecione a partida que deseja lançar placar:", df_resultados_sorted['Jogo'].unique())
@@ -787,25 +728,20 @@ with tabs[4]:
                 
                 with st.spinner("Salvando placar e recalculando notas..."):
                     try:
-                        res_p = requests.post(WEB_APP_URL, json=payload_oficial, timeout=12)
-                        
-                        # TRATAMENTO DE ERRO DE CONEXÃO ROBUSTO (EVITA CRASH EXPECTING VALUE)
+                        res_p = requests.post(WEB_APP_URL, json=payload_oficial, timeout=35)
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado para {placar_real_m}x{placar_real_v} com sucesso!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
                                 st.cache_data.clear()
                             else:
                                 st.error(f"Erro: {p_json.get('message')}")
                         except ValueError:
-                            st.error("⚠️ Erro de Resposta: O placar não foi salvo porque a planilha retornou uma página de erro HTML.")
-                            with st.expander("🔍 Ver detalhes do erro retornado pelo Google"):
-                                st.code(res_p.text[:1000], language="html")
-                                
+                            st.error("⚠️ Erro de Resposta: O placar não pôde ser salvo.")
                     except Exception as ex:
                         st.error(f"Falha de comunicação: {ex}")
     else:
         if admin_pass != "":
-            st.error("🔑 Senha incorreta. Acesso negado ao painel administrativo.")
+            st.error("🔑 Senha incorreta. Acesso negado.")
         else:
-            st.info("Painel administrativo restrito. Digite a credencial para obter acesso.")
+            st.info("Painel restrito. Digite a senha administrativa para obter acesso.")
