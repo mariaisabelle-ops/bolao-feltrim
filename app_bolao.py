@@ -20,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom css for brazil theme branding
+# Estilos CSS personalizados para o tema verde e amarelo (Identidade Feltrim Correa)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -51,7 +51,7 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* Tabs Estilizadas em Verde e Amarelo */
+    /* Abas Estilizadas em Verde e Amarelo */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         justify-content: center;
@@ -98,7 +98,7 @@ st.markdown("""
         font-size: 0.95rem;
     }
 
-    /* Grid de Estatísticas */
+    /* Grelha de Estatísticas */
     .metrics-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -192,7 +192,7 @@ st.markdown("""
         margin-top: 4px;
     }
 
-    /* Lista do Leaderboard */
+    /* Lista do Líderes */
     .ranking-list {
         display: flex;
         flex-direction: column;
@@ -249,7 +249,7 @@ st.markdown("""
         font-size: 1.05rem;
     }
 
-    /* Estilo de Cartões de Jogos em Grade de Enquete */
+    /* Estilo de Cartões de Jogos em Formato de Enquete */
     .poll-card {
         background-color: white;
         padding: 20px;
@@ -305,7 +305,7 @@ st.markdown("""
         border-radius: 20px;
     }
 
-    /* Barras de Estatística de Palpites */
+    /* Barras de Estatística de Votos */
     .poll-bar-container {
         margin-bottom: 8px;
     }
@@ -356,6 +356,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Mapeamento estético dos emojis para evitar caracteres territoriais complexos
 MAPA_EMOJIS_PAIS = {
     "brasil": "🇧🇷💚💛", "brazil": "🇧🇷💚💛",
     "argentina": "🇦🇷💙🤍", "frança": "🇫🇷💙❤️", "franca": "🇫🇷💙❤️", "france": "🇫🇷💙❤️",
@@ -422,7 +423,7 @@ def carregar_dados_seguro(sheet_id):
     df_res = None
     is_private = False
     
-    # Lista de abas que podem conter palpites
+    # Lista de abas alternativas de palpites
     abas_palpites = ["Form Responses 2", "Respostas_Formulario", "Form Responses 1"]
     for aba in abas_palpites:
         try:
@@ -441,14 +442,14 @@ def carregar_dados_seguro(sheet_id):
         except Exception:
             pass
 
-    # Lista de abas que podem conter resultados oficiais
+    # Lista de abas alternativas de resultados oficiais
     abas_resultados = ["🎯 Resultados Oficiais", "Resultados Oficiais", "Resultados"]
     for aba in abas_resultados:
         try:
             aba_encoded = urllib.parse.quote(aba)
             url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet={aba_encoded}"
             response = requests.get(url, timeout=5)
-            if response.status_code == 200 and not (response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text):
+            if response.status_code == 200 and not (response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text:
                 df_temp = pd.read_csv(url)
                 if df_temp is not None and not df_temp.empty:
                     df_temp.columns = df_temp.columns.str.strip()
@@ -461,7 +462,7 @@ def carregar_dados_seguro(sheet_id):
 
 df_respostas_raw, df_resultados_raw, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
 
-# Títulos Principais
+# Título do Cabeçalho principal
 st.write('<h1 class="header-title">🏆 Bolão Feltrim Correa</h1>', unsafe_allow_html=True)
 st.write('<p class="header-subtitle">🇧🇷 Rumo ao Hexa - Classificação em Tempo Real!</p>', unsafe_allow_html=True)
 
@@ -542,7 +543,13 @@ else:
     df_resultados = pd.DataFrame(jogos_ficticios)
 
 if df_respostas is not None and not df_respostas.empty:
-    mapa_nomes = df_respostas.groupby(col_email)[col_nome].first().to_dict()
+    # Filtro dinâmico para ignorar nomes corrompidos por jogos de teste na planilha
+    df_respostas_filtradas = df_respostas[
+        (~df_respostas[col_nome].astype(str).str.contains("vs|⚽", case=False, na=True)) & 
+        (df_respostas[col_email].astype(str).str.contains("@", na=True))
+    ]
+    
+    mapa_nomes = df_respostas_filtradas.groupby(col_email)[col_nome].first().to_dict()
 
     def obter_nome_exibicao(email_val):
         nome_completo = mapa_nomes.get(email_val, email_val)
@@ -616,11 +623,11 @@ if df_respostas is not None and not df_respostas.empty:
     for col in lista_jogos_formulario:
         agg_dict[col] = obter_ultimo_nao_nulo
         
-    col_timestamp_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['timestamp', 'carimbo', 'data', 'hora'])]
-    col_timestamp = col_timestamp_list[0] if col_timestamp_list else df_respostas.columns[0]
+    col_timestamp_list = [col for col in df_respostas_filtradas.columns if any(x in str(col).lower() for x in ['timestamp', 'carimbo', 'data', 'hora'])]
+    col_timestamp = col_timestamp_list[0] if col_timestamp_list else df_respostas_filtradas.columns[0]
     
-    df_respostas[col_timestamp] = pd.to_datetime(df_respostas[col_timestamp], errors='coerce')
-    df_respostas_consolidadas = df_respostas.sort_values(col_timestamp).groupby(col_email).agg(agg_dict).reset_index()
+    df_respostas_filtradas[col_timestamp] = pd.to_datetime(df_respostas_filtradas[col_timestamp], errors='coerce')
+    df_respostas_consolidadas = df_respostas_filtradas.sort_values(col_timestamp).groupby(col_email).agg(agg_dict).reset_index()
     df_respostas_consolidadas['Pontos_Calculados'] = df_respostas_consolidadas.apply(calcular_pontos_participante, axis=1)
 
     tab_ranking, tab_enviar, tab_palpites, tab_jogos = st.tabs([
