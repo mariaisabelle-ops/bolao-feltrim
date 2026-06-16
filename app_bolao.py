@@ -15,7 +15,9 @@ st.set_page_config(
 
 # Constantes de Configuração Geral
 SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
-WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyv80f4FfXorF5WcE0-E_9C3OfX5ZOfmE635jJ7eY-A57pYkRAtbYscX_0b9u_w1TzKAg/exec"
+
+# URL Oficial enviada pelo Administrador
+WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
 # 56 Jogos da Copa do Mundo em Ordem Cronológica Real com Horários de São Paulo (UTC-3)
 JOGOS_ESTATICOS = [
@@ -207,7 +209,7 @@ st.markdown("""
     .badge-encerrado { background-color: #d4edda; color: #155724; }
 
     @keyframes pulse {
-        0% { opacity: 0.6; }
+        0 { opacity: 0.6; }
         50% { opacity: 1; }
         100% { opacity: 0.6; }
     }
@@ -379,7 +381,8 @@ df_ranking = pd.DataFrame.from_dict(tabela_ranking, orient='index')
 if not df_ranking.empty:
     df_ranking = df_ranking.sort_values(by=["Pontos", "Acertos_Exatos", "Nome"], ascending=[False, False, True])
     df_ranking.reset_index(drop=True, inplace=True)
-    df_ranking.insert(0, 'Posição', range(1, len(df_ranking) + 1))
+    if 'Posição' not in df_ranking.columns:
+        df_ranking.insert(0, 'Posição', range(1, len(df_ranking) + 1))
 else:
     df_ranking = pd.DataFrame(columns=['Posição', 'Nome', 'Pontos', 'Acertos_Exatos', 'Palpites_Feitos'])
 
