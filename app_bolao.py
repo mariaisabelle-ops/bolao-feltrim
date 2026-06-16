@@ -10,7 +10,7 @@ import unicodedata
 # =========================================================================
 # ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (COLE SEU LINK DO APPS SCRIPT AQUI)
 # =========================================================================
-URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyKwMw4soDdr4pW6Wy9wVq_2fE9gHjbD2zpSYRWE6h1vUMZ2gGEB5mPvkRoe7vPyqHv/exec"
+URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz_your_actual_script_id_here/exec"
 # =========================================================================
 
 st.set_page_config(
@@ -378,7 +378,6 @@ MAPA_EMOJIS_PAIS = {
 def remover_acentos(texto):
     if not texto:
         return ""
-    # Unicode Normalizer for accents compatibility
     return "".join(
         c for c in unicodedata.normalize('NFD', str(texto))
         if unicodedata.category(c) != 'Mn'
@@ -413,6 +412,7 @@ def normalizar_nome_jogo(nome):
         return f"{parts[0].strip()} vs {parts[1].strip()}"
     return s.strip()
 
+# Inicialização de estado seguro para o ID da planilha
 if "sheet_id" not in st.session_state:
     st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
@@ -422,7 +422,7 @@ def carregar_dados_seguro(sheet_id):
     df_res = None
     is_private = False
     
-    # Busca pelas abas de palpites
+    # Lista de abas que podem conter palpites
     abas_palpites = ["Form Responses 2", "Respostas_Formulario", "Form Responses 1"]
     for aba in abas_palpites:
         try:
@@ -441,7 +441,7 @@ def carregar_dados_seguro(sheet_id):
         except Exception:
             pass
 
-    # Busca pela aba de resultados reais (Resultados Oficiais)
+    # Lista de abas que podem conter resultados oficiais
     abas_resultados = ["🎯 Resultados Oficiais", "Resultados Oficiais", "Resultados"]
     for aba in abas_resultados:
         try:
@@ -461,7 +461,7 @@ def carregar_dados_seguro(sheet_id):
 
 df_respostas_raw, df_resultados_raw, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
 
-# Títulos do Cabeçalho principal
+# Títulos Principais
 st.write('<h1 class="header-title">🏆 Bolão Feltrim Correa</h1>', unsafe_allow_html=True)
 st.write('<p class="header-subtitle">🇧🇷 Rumo ao Hexa - Classificação em Tempo Real!</p>', unsafe_allow_html=True)
 
@@ -500,11 +500,37 @@ if df_respostas is not None:
             lista_jogos_formulario.append(col.strip())
 
 if df_resultados_raw is not None and not df_resultados_raw.empty:
-    df_resultados = df_resultados_raw.dropna(subset=['Jogo'], how='any')
-    df_resultados['Jogo'] = df_resultados['Jogo'].astype(str).str.strip()
-    df_resultados['Status'] = df_resultados['Status'].fillna('Agendado').astype(str).str.strip()
+    df_resultados_raw.columns = df_resultados_raw.columns.str.strip()
+    
+    # Normalização robusta contra mudanças de maiúsculas/minúsculas nas colunas
+    mapeamento_colunas = {}
+    for col in df_resultados_raw.columns:
+        col_lower = col.lower()
+        if 'jogo' in col_lower and 'id' not in col_lower:
+            mapeamento_colunas[col] = 'Jogo'
+        elif 'mandante' in col_lower:
+            mapeamento_colunas[col] = 'Placar Real Mandante'
+        elif 'visitante' in col_lower:
+            mapeamento_colunas[col] = 'Placar Real Visitante'
+        elif 'status' in col_lower:
+            mapeamento_colunas[col] = 'Status'
+            
+    df_resultados_raw = df_resultados_raw.rename(columns=mapeamento_colunas)
+    
+    if 'Jogo' in df_resultados_raw.columns:
+        df_resultados = df_resultados_raw.dropna(subset=['Jogo'], how='any')
+        df_resultados['Jogo'] = df_resultados['Jogo'].astype(str).str.strip()
+        
+        # Garante que colunas de placar e status existem mesmo que não criadas
+        for col_nec in ['Placar Real Mandante', 'Placar Real Visitante', 'Status']:
+            if col_nec not in df_resultados.columns:
+                df_resultados[col_nec] = None
+        df_resultados['Status'] = df_resultados['Status'].fillna('Agendado').astype(str).str.strip()
+    else:
+        # Fallback de segurança se coluna "Jogo" não for localizada
+        df_resultados = pd.DataFrame(columns=['Jogo', 'Placar Real Mandante', 'Placar Real Visitante', 'Status'])
 else:
-    # Cria estrutura de backup para os jogos caso a aba não exista
+    # Cria estrutura de backup para os jogos baseados nos palpites coletados
     jogos_ficticios = []
     for jogo_nome in lista_jogos_formulario:
         jogos_ficticios.append({
@@ -513,8 +539,7 @@ else:
             'Placar Real Visitante': None,
             'Status': 'Agendado'
         })
-    if jogos_ficticios:
-        df_resultados = pd.DataFrame(jogos_ficticios)
+    df_resultados = pd.DataFrame(jogos_ficticios)
 
 if df_respostas is not None and not df_respostas.empty:
     mapa_nomes = df_respostas.groupby(col_email)[col_nome].first().to_dict()
@@ -544,7 +569,6 @@ if df_respostas is not None and not df_respostas.empty:
                     real_v = jogo_oficial.iloc[0]['Placar Real Visitante']
                     status = jogo_oficial.iloc[0]['Status']
                     
-                    # Status flexible validation (accepts "🟢 Encerrado", "Encerrado", etc.)
                     status_clean = str(status).strip().lower()
                     if pd.isna(real_m) or pd.isna(real_v) or "encerrado" not in status_clean:
                         continue
@@ -560,7 +584,7 @@ if df_respostas is not None and not df_respostas.empty:
                     time_m = formatar_nome_time(times_split[0])
                     time_v = formatar_nome_time(times_split[1]) if len(times_split) > 1 else ""
                     
-                    # Unicode cleanup to standard comparison
+                    # Unicode cleanup para comparação segura de texto
                     time_m_clean = remover_acentos(time_m)
                     time_v_clean = remover_acentos(time_v)
                     palpite_clean = remover_acentos(palpite_usuario)
@@ -581,7 +605,7 @@ if df_respostas is not None and not df_respostas.empty:
                         pontos += 10
         return pontos
 
-    # Consolidar os palpites pegando o último palpite não-vazio enviado para cada coluna (evita perdas em envios avulsos)
+    # Consolidar palpites pegando o último registro enviado por participante
     def obter_ultimo_nao_nulo(series):
         validos = series.dropna()
         validos = validos[validos.astype(str).str.strip().str.lower() != 'nan']
@@ -592,7 +616,6 @@ if df_respostas is not None and not df_respostas.empty:
     for col in lista_jogos_formulario:
         agg_dict[col] = obter_ultimo_nao_nulo
         
-    # Dynamic timestamp finder
     col_timestamp_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['timestamp', 'carimbo', 'data', 'hora'])]
     col_timestamp = col_timestamp_list[0] if col_timestamp_list else df_respostas.columns[0]
     
@@ -698,7 +721,7 @@ if df_respostas is not None and not df_respostas.empty:
             if gravacao_bloqueada:
                 st.markdown(textwrap.dedent("""
                     <div class="custom-info" style="border-left-color: #ffbd00; color: #003566; background-color: #fffdf0; margin-bottom: 25px;">
-                        ⚠️ <strong>Modo de Demonstração Ativo:</strong> As enquetes abaixo estão liberadas para teste! Para gravar os palpites de verdade na planilha, configure a URL real do seu Apps Script no topo do arquivo <code>app_bolao.py</code> no repositório do GitHub.
+                        ⚠️ <strong>Modo de Demonstração Ativo:</strong> As enquetes abaixo estão liberadas para teste! Para gravar de verdade na planilha, configure a URL real do seu Apps Script no topo do código do app.
                     </div>
                 """), unsafe_allow_html=True)
             
@@ -712,7 +735,7 @@ if df_respostas is not None and not df_respostas.empty:
                 emojis_t1 = obter_emojis_pais(t1)
                 emojis_t2 = obter_emojis_pais(t2)
                 
-                # Computando porcentagens reais baseadas no banco de dados da planilha
+                # Computando estatísticas de palpites enviadas
                 total_votos_jogo = len(df_respostas[df_respostas[col_jogo].notna() & (df_respostas[col_jogo] != '')])
                 votos_t1 = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains(t1.lower())]) if t1 else 0
                 votos_draw = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains('empate')])
@@ -722,7 +745,6 @@ if df_respostas is not None and not df_respostas.empty:
                 pct_draw = int((votos_draw / total_votos_jogo) * 100) if total_votos_jogo > 0 else 0
                 pct_t2 = int((votos_t2 / total_votos_jogo) * 100) if total_votos_jogo > 0 else 0
                 
-                # Render using dedent to avoid showing raw html codes inside gray blocks
                 st.markdown(textwrap.dedent(f"""
                     <div class="poll-card">
                         <div class="poll-header">🎯 Enquete de Opinião</div>
@@ -753,7 +775,6 @@ if df_respostas is not None and not df_respostas.empty:
                     </div>
                 """), unsafe_allow_html=True)
                 
-                # Três botões para submeter os palpites na linha de colunas
                 col_btn1, col_btn2, col_btn3 = st.columns(3)
                 
                 with col_btn1:
@@ -771,17 +792,17 @@ if df_respostas is not None and not df_respostas.empty:
                             try:
                                 response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
                                 if response.status_code == 200:
-                                    st.success(f"Voto computado com sucesso!")
+                                    st.success(f"Voto computado!")
                                     st.balloons()
                                     st.cache_data.clear()
                                     st.rerun()
-                            except Exception as ex:
-                                st.error("Falha ao computar o voto.")
+                            except Exception:
+                                st.error("Erro de conexão.")
                                 
                 with col_btn2:
                     if st.button("🤝 Empate", key=f"v_draw_{col_jogo}"):
                         if gravacao_bloqueada:
-                            st.success("🤝 Empate simulado com sucesso! (Ative o Apps Script para gravar real)")
+                            st.success("🤝 Empate simulado! (Ative o Apps Script para gravar real)")
                             st.balloons()
                         else:
                             payload = {
@@ -797,8 +818,8 @@ if df_respostas is not None and not df_respostas.empty:
                                     st.balloons()
                                     st.cache_data.clear()
                                     st.rerun()
-                            except Exception as ex:
-                                st.error("Falha ao computar o voto.")
+                            except Exception:
+                                st.error("Erro de conexão.")
                                 
                 with col_btn3:
                     if st.button(f"Vitória do {t2}", key=f"v_t2_{col_jogo}"):
@@ -815,12 +836,12 @@ if df_respostas is not None and not df_respostas.empty:
                             try:
                                 response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
                                 if response.status_code == 200:
-                                    st.success(f"Voto computado com sucesso!")
+                                    st.success(f"Voto computado!")
                                     st.balloons()
                                     st.cache_data.clear()
                                     st.rerun()
-                            except Exception as ex:
-                                st.error("Falha ao computar o voto.")
+                            except Exception:
+                                st.error("Erro de conexão.")
                 st.markdown("<br>", unsafe_allow_html=True)
 
     with tab_palpites:
@@ -850,10 +871,10 @@ if df_respostas is not None and not df_respostas.empty:
                     emojis_t2 = obter_emojis_pais(t2)
                     
                     st.markdown(textwrap.dedent(f"""
-                        <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,75,35,0.01);">
+                        <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <p style="font-weight: 700; color: #1e293b; margin: 0; font-size: 0.95rem;">{emojis_t1} {t1} vs {t2} {emojis_t2}</p>
-                                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite enviado: <strong style="color: #004b23;">{palpite_val}</strong></p>
+                                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite: <strong style="color: #004b23;">{palpite_val}</strong></p>
                             </div>
                         </div>
                     """), unsafe_allow_html=True)
@@ -888,7 +909,7 @@ if df_respostas is not None and not df_respostas.empty:
                 emojis2 = obter_emojis_pais(time2)
                 
                 st.markdown(textwrap.dedent(f"""
-                    <div class="match-card" style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: bold; color: #475569;">
                             <span>⚽ Copa 2026</span>
                             <span>{badge_label}</span>
@@ -923,11 +944,10 @@ with st.expander("🛠️ Painel de Controle do Administrador"):
     if senha_admin == "feltrim2026":
         st.success("Acesso de Administrador Autorizado!")
         
-        # Entrada dinâmica de ID da Planilha do Google Sheets do usuário
         novo_sheet_id = st.text_input(
-            "ID da Planilha do Google Sheets (Cole o ID da sua planilha copiada aqui):", 
+            "ID da Planilha do Google Sheets:", 
             value=st.session_state["sheet_id"],
-            help="O ID é a sequência de letras e números que fica na URL da sua planilha entre '/d/' e '/edit'."
+            help="O ID é a sequência de letras e números que fica na URL da sua planilha."
         )
         
         if novo_sheet_id != st.session_state["sheet_id"]:
