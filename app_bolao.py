@@ -6,22 +6,20 @@ import json
 import re
 import textwrap
 import unicodedata
-from datetime import datetime
 
 # =========================================================================
-# ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (COLE SUA URL DO WEB APP DO APPS SCRIPT AQUI)
+# ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (URL DO APPS SCRIPT GERADA APÓS O DEPLOY)
 # =========================================================================
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 # =========================================================================
 
 st.set_page_config(
-    page_title="Bolão Feltrim Correa - Copa 2026",
+    page_title="Bolao Feltrim Correa - Copa 2026",
     page_icon="🏆",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Estilização visual premium Verde & Amarelo da Feltrim Correa
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -67,7 +65,7 @@ st.markdown("""
     
     .stTabs [aria-selected="true"] {
         background-color: #004b23 !important;
-        color: #ffbd00 !important;
+        color: #ffffff !important;
         box-shadow: 0 4px 10px rgba(0, 75, 35, 0.25);
     }
 
@@ -246,7 +244,6 @@ st.markdown("""
         text-align: center;
     }
     
-    .poll-team-flag { font-size: 1.8rem; margin-bottom: 6px; }
     .poll-team-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; line-height: 1.2; }
     
     .poll-vs {
@@ -294,33 +291,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-MAPA_EMOJIS_PAIS = {
-    "brasil": "🇧🇷💚", "frança": "🇫🇷💙", "franca": "🇫🇷💙", "alemanha": "🇩🇪🖤", 
-    "espanha": "🇪🇸❤️", "itália": "🇮🇹💚", "italia": "🇮🇹💚", "inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿❤️", 
-    "portugal": "🇵🇹❤️", "holanda": "🇳🇱🧡", "bélgica": "🇧🇪🖤", "belgica": "🇧🇪🖤", 
-    "croácia": "🇭🇷❤️", "croacia": "🇭🇷❤️", "uruguai": "🇺🇾💙", "colômbia": "🇨🇴💛", 
-    "marrocos": "🇲🇦❤️", "japão": "🇯🇵❤️", "coreia": "🇰🇷❤️", "senegal": "🇸🇳💚", 
-    "estados unidos": "🇺🇸💙", "méxico": "🇲🇽💚", "canadá": "🇨🇦❤️", "haiti": "🇭🇹💙", 
-    "paraguai": "🇵🇾❤️", "suíça": "🇨🇭❤️", "bósnia": "🇧🇦💙", "catar": "🇶🇦💜", 
-    "escócia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿💙", "turquia": "🇹🇷❤️", "austrália": "🇦🇺💙", "costa do marfim": "🇨🇮🧡", 
-    "curaçau": "🇨🇼💙", "suécia": "🇸🇪💙", "tunísia": "🇹🇳❤️", "irã": "🇮🇷💚", 
-    "nova zelândia": "🇳🇿💙", "egito": "🇪🇬❤️", "arábia saudita": "🇸🇦💚", "cabo verde": "🇨🇻💙", 
-    "iraque": "🇮🇶❤️", "noruega": "🇳🇴❤️", "algéria": "🇩🇿💚", "áustria": "🇦🇹❤️", 
-    "jordânia": "🇯🇴❤️", "rd do congo": "🇨🇩💙", "uzbequistão": "🇺🇿💙", "gana": "🇬🇭❤️", 
-    "panamá": "🇵🇦💙", "equador": "🇪🇨💛"
-}
-
 def remover_acentos(texto):
     if not texto: return ""
     return "".join(c for c in unicodedata.normalize('NFD', str(texto)) if unicodedata.category(c) != 'Mn').lower()
-
-def obter_emojis_pais(nome_time):
-    if not nome_time or pd.isna(nome_time): return "🏳️"
-    nome_clean = remover_acentos(nome_time)
-    for pais, emojis in MAPA_EMOJIS_PAIS.items():
-        if remover_acentos(pais) in nome_clean:
-            return emojis
-    return "🏳️"
 
 def formatar_nome_time(nome_time):
     if not nome_time or pd.isna(nome_time): return ""
@@ -338,7 +311,6 @@ def chave_ordenacao_jogo(col_name):
     dia, mes = extrair_data_jogo(col_name)
     return (mes, dia)
 
-# Gerenciamento dinâmico de planilha
 if "sheet_id" not in st.session_state:
     st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
@@ -370,7 +342,7 @@ def carregar_dados_seguro(sheet_id):
     except Exception:
         pass
 
-    # 3. Carrega Classificação Oficial
+    # 3. Carrega Classificacao
     try:
         url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&sheet=Classificacao"
         response = requests.get(url, timeout=5)
@@ -383,12 +355,11 @@ def carregar_dados_seguro(sheet_id):
 
 df_respostas, df_resultados, df_classificacao, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
 
-# Mensagem de alerta de planilha privada
 if is_private:
     st.markdown(textwrap.dedent("""
         <div class="custom-error-box">
             <h4 style="margin:0 0 8px 0; font-weight:700;">🔒 Planilha Privada ou ID Incorreto</h4>
-            <p style="margin:0;">Altere o compartilhamento da planilha para <strong>"Qualquer pessoa com o link pode ler"</strong> ou altere o ID da planilha no Painel Admin no rodapé!</p>
+            <p style="margin:0;">Mude o compartilhamento da planilha para <strong>"Qualquer pessoa com o link pode ler"</strong> ou altere o ID no Painel Admin abaixo!</p>
         </div>
     """), unsafe_allow_html=True)
 
@@ -414,12 +385,11 @@ tab_ranking, tab_enviar, tab_palpites, tab_jogos = st.tabs([
 ])
 
 with tab_ranking:
-    st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 5px; text-align: center;'>Tabela de Classificação Geral</h3>", unsafe_allow_html=True)
+    st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 5px; text-align: center;'>Classificação Geral</h3>", unsafe_allow_html=True)
     
-    # Botão de Sincronização no topo
     col_vazia, col_btn_sync = st.columns([4, 1])
     with col_btn_sync:
-        if st.button("🔄 Recarregar"):
+        if st.button("🔄 Recarregar", key="sync_ranking"):
             st.cache_data.clear()
             st.rerun()
 
@@ -430,7 +400,6 @@ with tab_ranking:
         total_participantes = len(ranking)
         lider_atual = str(ranking.iloc[0]['Participante']).title() if total_participantes > 0 else "-"
         
-        # Tentativa de ler pontuação média de forma segura
         col_pontos = [col for col in ranking.columns if "ponto" in col.lower() or "acumulado" in col.lower()]
         nome_col_pontos = col_pontos[0] if col_pontos else ranking.columns[-1]
         media_pontos = int(ranking[nome_col_pontos].mean()) if total_participantes > 0 else 0
@@ -442,8 +411,8 @@ with tab_ranking:
                     <div class="metric-label">Competidores</div>
                 </div>
                 <div class="metric-box">
-                    <div class="metric-value">🥇 {lider_atual.split()[0]}</div>
-                    <div class="metric-label">Líder Atual</div>
+                    <div class="metric-value">🏆 {lider_atual.split()[0]}</div>
+                    <div class="metric-label">Líder</div>
                 </div>
                 <div class="metric-box">
                     <div class="metric-value">{media_pontos} pts</div>
@@ -505,40 +474,37 @@ with tab_ranking:
             """), unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
-        st.info("Aguardando o cálculo ou inserção dos primeiros dados de palpites na planilha para montar a classificação!")
+        st.info("Aguardando inserção de dados de palpites na planilha para montar a classificação!")
 
 with tab_enviar:
     st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Palpites da Equipe</h3>", unsafe_allow_html=True)
     
-    email_user = st.text_input("E-mail Corporativo:", placeholder="exemplo@feltrimcorrea.com.br", key="env_email").strip().lower()
+    email_user = st.text_input("E-mail Corporativo:", placeholder="exemplo@feltrim.com.br", key="env_email").strip().lower()
     nome_user = st.text_input("Nome Completo:", placeholder="Seu nome completo", key="env_nome").strip()
     
-    gravacao_bloqueada = "abcdefgh" in URL_APPS_SCRIPT or URL_APPS_SCRIPT == ""
+    gravacao_bloqueada = "your_actual_script_id_here" in URL_APPS_SCRIPT or URL_APPS_SCRIPT == ""
     
     if not email_user or "@" not in email_user or not nome_user:
-        st.info("💡 Insira o seu Nome Completo e E-mail Corporativo para abrir o seu painel de enquetes!")
+        st.info("💡 Insira seu Nome e E-mail Corporativo para abrir o seu painel de palpites!")
     else:
         if gravacao_bloqueada:
             st.markdown(textwrap.dedent("""
                 <div class="custom-info" style="border-left-color: #ffbd00; color: #003566; background-color: #fffdf0;">
-                    ⚠️ <strong>Modo Demo:</strong> Preencha o Apps Script no topo do arquivo do site para permitir gravação real de palpites!
+                    ⚠️ <strong>Modo Demo:</strong> Preencha a URL do Apps Script no topo do arquivo para salvar palpites reais!
                 </div>
             """), unsafe_allow_html=True)
         
-        # Filtro de jogos ativos (Apenas status = "Agendado")
         jogos_ativos = []
         for col_jogo in lista_jogos_formulario:
             status_jogo = "🕒 Agendado"
             
-            # Detecta de forma dinâmica o status do jogo na planilha
             if df_resultados is not None and not df_resultados.empty:
                 df_resultados.columns = df_resultados.columns.str.strip()
                 match_status = df_resultados[df_resultados['Jogo'].astype(str).str.strip() == col_jogo]
                 if not match_status.empty:
                     status_jogo = str(match_status.iloc[0]['Status']).strip()
             
-            # Bloqueio dinâmico para remover jogos que não estão Agendados
-            if "agendado" in status_jogo.lower() and "16/06" not in col_jogo:
+            if "agendado" in status_jogo.lower():
                 jogos_ativos.append(col_jogo)
                 
         for col_jogo in jogos_ativos:
@@ -547,10 +513,6 @@ with tab_enviar:
             t1 = formatar_nome_time(partes[0])
             t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else "Visitante"
             
-            emojis_t1 = obter_emojis_pais(t1)
-            emojis_t2 = obter_emojis_pais(t2)
-            
-            # Computar estatísticas reais de votos do jogo
             total_votos_jogo = 0
             votos_t1 = 0
             votos_draw = 0
@@ -572,12 +534,10 @@ with tab_enviar:
                     <div class="poll-header">🎯 Escolha quem vai Vencer - {dia:02d}/{mes:02d}</div>
                     <div class="poll-teams">
                         <div class="poll-team-box">
-                            <span class="poll-team-flag">{emojis_t1}</span>
                             <span class="poll-team-name">{t1}</span>
                         </div>
                         <span class="poll-vs">VS</span>
                         <div class="poll-team-box">
-                            <span class="poll-team-flag">{emojis_t2}</span>
                             <span class="poll-team-name">{t2}</span>
                         </div>
                     </div>
@@ -609,7 +569,7 @@ with tab_enviar:
                         try:
                             r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
                             if r.status_code == 200:
-                                st.success("Palpite salvo com sucesso!")
+                                st.success("Palpite salvo!")
                                 st.balloons()
                                 st.cache_data.clear()
                                 st.rerun()
@@ -626,7 +586,7 @@ with tab_enviar:
                         try:
                             r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
                             if r.status_code == 200:
-                                st.success("Palpite salvo com sucesso!")
+                                st.success("Palpite salvo!")
                                 st.balloons()
                                 st.cache_data.clear()
                                 st.rerun()
@@ -644,7 +604,7 @@ with tab_enviar:
                         try:
                             r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
                             if r.status_code == 200:
-                                st.success("Palpite salvo com sucesso!")
+                                st.success("Palpite salvo!")
                                 st.balloons()
                                 st.cache_data.clear()
                                 st.rerun()
@@ -653,7 +613,7 @@ with tab_enviar:
             st.markdown("<br>", unsafe_allow_html=True)
             
         if len(jogos_ativos) == 0:
-            st.info("🕒 No momento, todas as partidas em andamento ou iniciadas foram bloqueadas. Aguarde novos jogos agendados!")
+            st.info("🕒 Todas as partidas em andamento ou finalizadas foram bloqueadas. Aguarde novos jogos agendados!")
 
 with tab_palpites:
     st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Consulta de Palpites por Participante</h3>", unsafe_allow_html=True)
@@ -692,15 +652,13 @@ with tab_palpites:
                 partes = col_name.split('vs') if 'vs' in col_name.lower() else col_name.split('VS')
                 t1 = formatar_nome_time(partes[0])
                 t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else ""
-                emojis_t1 = obter_emojis_pais(t1)
-                emojis_t2 = obter_emojis_pais(t2)
                 dia, mes = extrair_data_jogo(col_name)
                 
                 st.markdown(textwrap.dedent(f"""
                     <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="font-weight: 700; color: #1e293b; margin: 0; font-size: 0.95rem;">{emojis_t1} {t1} vs {t2} {emojis_t2} - {dia:02d}/{mes:02d}</p>
-                            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite de vitória: <strong style="color: #004b23;">{palpite_val}</strong></p>
+                            <p style="font-weight: 700; color: #1e293b; margin: 0; font-size: 0.95rem;">{t1} vs {t2} - {dia:02d}/{mes:02d}</p>
+                            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite: <strong style="color: #004b23;">{palpite_val}</strong></p>
                         </div>
                     </div>
                 """), unsafe_allow_html=True)
@@ -737,9 +695,6 @@ with tab_jogos:
             times = str(nome_jogo).split('vs') if 'vs' in str(nome_jogo) else str(nome_jogo).split('VS')
             time1 = formatar_nome_time(times[0].strip()) if len(times) > 0 else "Mandante"
             time2 = formatar_nome_time(times[1].strip()) if len(times) > 1 else "Visitante"
-            
-            emojis1 = obter_emojis_pais(time1)
-            emojis2 = obter_emojis_pais(time2)
             dia, mes = extrair_data_jogo(nome_jogo)
             
             st.markdown(textwrap.dedent(f"""
@@ -750,7 +705,6 @@ with tab_jogos:
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0;">
                         <div style="display: flex; align-items: center; gap: 8px; width: 35%;">
-                            <span>{emojis1}</span>
                             <span style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">{time1}</span>
                         </div>
                         <div style="font-size: 1.2rem; font-weight: 800; color: #004b23; width: 30%; text-align: center;">
@@ -758,7 +712,6 @@ with tab_jogos:
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; width: 35%; justify-content: flex-end; text-align: right;">
                             <span style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">{time2}</span>
-                            <span>{emojis2}</span>
                         </div>
                     </div>
                 </div>
