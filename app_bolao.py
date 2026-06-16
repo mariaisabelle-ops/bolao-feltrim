@@ -13,7 +13,6 @@ import re
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbz_your_actual_script_id_here/exec"
 # =========================================================================
 
-# Configuração da página e do tema
 st.set_page_config(
     page_title="Bolão Feltrim Correa - Copa 2026",
     page_icon="🏆",
@@ -455,7 +454,6 @@ df_respostas_raw, df_resultados_raw, is_private = carregar_dados_seguro(st.sessi
 st.write('<h1 class="header-title">🏆 Bolão Feltrim Correa</h1>', unsafe_allow_html=True)
 st.write('<p class="header-subtitle">🇧🇷 Rumo ao Hexa - Classificação em Tempo Real!</p>', unsafe_allow_html=True)
 
-# Tratamento de erro para Planilha Privada
 if is_private:
     st.markdown("""
         <div class="custom-error-box" style="padding: 18px; border-radius: 12px; margin-bottom: 20px;">
@@ -493,7 +491,6 @@ if df_respostas is not None:
         if "vs" in col.lower() or "⚽" in col:
             lista_jogos_formulario.append(col.strip())
 
-# Configurar aba de resultados oficiais (ou fallback dinâmico)
 if df_resultados_raw is not None and not df_resultados_raw.empty:
     df_resultados = df_resultados_raw.dropna(subset=['Jogo'], how='any')
     df_resultados['Jogo'] = df_resultados['Jogo'].astype(str).str.strip()
@@ -679,18 +676,18 @@ if df_respostas is not None and not df_respostas.empty:
         email_user = st.text_input("Insira seu E-mail Corporativo:", placeholder="exemplo@feltrim.com.br", key="env_email").strip().lower()
         nome_user = st.text_input("Insira seu Nome Completo:", placeholder="Seu nome completo aqui", key="env_nome").strip()
         
-        # Validação do status de gravação
         gravacao_bloqueada = "your_actual_script_id_here" in URL_APPS_SCRIPT or URL_APPS_SCRIPT == ""
         
-        if gravacao_bloqueada:
-            st.markdown("""
-                <div class="custom-info" style="border-left-color: #ef4444; color: #9b1c1c; background-color: #fdf2f2;">
-                    🔒 <strong>Envios temporariamente suspensos:</strong> O administrador precisa colar a URL real do Apps Script no topo do arquivo <code>app_bolao.py</code> no repositório do GitHub para abrir a temporada de palpites!
-                </div>
-            """, unsafe_allow_html=True)
-        elif not email_user or "@" not in email_user or not nome_user:
+        if not email_user or "@" not in email_user or not nome_user:
             st.info("💡 Digite seu Nome e E-mail corporativo acima para liberar o painel de enquetes!")
         else:
+            if gravacao_bloqueada:
+                st.markdown("""
+                    <div class="custom-info" style="border-left-color: #ffbd00; color: #003566; background-color: #fffdf0; margin-bottom: 25px;">
+                        ⚠️ <strong>Modo de Demonstração Ativo:</strong> As enquetes abaixo estão liberadas para teste! Para gravar os palpites de verdade na planilha, configure a URL real do seu Apps Script no topo do arquivo <code>app_bolao.py</code> no repositório do GitHub.
+                    </div>
+                """, unsafe_allow_html=True)
+            
             st.markdown("<hr style='margin:20px 0;'>", unsafe_allow_html=True)
             
             for col_jogo in lista_jogos_formulario:
@@ -701,7 +698,7 @@ if df_respostas is not None and not df_respostas.empty:
                 emojis_t1 = obter_emojis_pais(t1)
                 emojis_t2 = obter_emojis_pais(t2)
                 
-                # Computando porcentagens reais da galera baseado nos votos
+                # Computando porcentagens reais baseadas no banco de dados da planilha
                 total_votos_jogo = len(df_respostas[df_respostas[col_jogo].notna() & (df_respostas[col_jogo] != '')])
                 votos_t1 = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains(t1.lower())]) if t1 else 0
                 votos_draw = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains('empate')])
@@ -741,62 +738,74 @@ if df_respostas is not None and not df_respostas.empty:
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Três botões para submeter os palpites
+                # Três botões para submeter os palpites na linha de colunas
                 col_btn1, col_btn2, col_btn3 = st.columns(3)
                 
                 with col_btn1:
                     if st.button(f"Vitória do {t1}", key=f"v_t1_{col_jogo}"):
-                        payload = {
-                            "email": email_user,
-                            "nome": nome_user,
-                            "id_jogo": col_jogo,
-                            "palpite": f"Vitória do {t1}"
-                        }
-                        try:
-                            response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                            if response.status_code == 200:
-                                st.success(f"Voto computado com sucesso!")
-                                st.balloons()
-                                st.cache_data.clear()
-                                st.rerun()
-                        except Exception as ex:
-                            st.error("Falha ao computar o voto.")
-                            
+                        if gravacao_bloqueada:
+                            st.success(f"🎉 Voto simulado para o {t1}! (Ative o Apps Script para gravar real)")
+                            st.balloons()
+                        else:
+                            payload = {
+                                "email": email_user,
+                                "nome": nome_user,
+                                "id_jogo": col_jogo,
+                                "palpite": f"Vitória do {t1}"
+                            }
+                            try:
+                                response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+                                if response.status_code == 200:
+                                    st.success(f"Voto computado com sucesso!")
+                                    st.balloons()
+                                    st.cache_data.clear()
+                                    st.rerun()
+                            except Exception as ex:
+                                st.error("Falha ao computar o voto.")
+                                
                 with col_btn2:
                     if st.button("🤝 Empate", key=f"v_draw_{col_jogo}"):
-                        payload = {
-                            "email": email_user,
-                            "nome": nome_user,
-                            "id_jogo": col_jogo,
-                            "palpite": "🤝 Empate"
-                        }
-                        try:
-                            response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                            if response.status_code == 200:
-                                st.success("Voto para Empate computado!")
-                                st.balloons()
-                                st.cache_data.clear()
-                                st.rerun()
-                        except Exception as ex:
-                            st.error("Falha ao computar o voto.")
-                            
+                        if gravacao_bloqueada:
+                            st.success("🤝 Empate simulado com sucesso! (Ative o Apps Script para gravar real)")
+                            st.balloons()
+                        else:
+                            payload = {
+                                "email": email_user,
+                                "nome": nome_user,
+                                "id_jogo": col_jogo,
+                                "palpite": "🤝 Empate"
+                            }
+                            try:
+                                response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+                                if response.status_code == 200:
+                                    st.success("Voto para Empate computado!")
+                                    st.balloons()
+                                    st.cache_data.clear()
+                                    st.rerun()
+                            except Exception as ex:
+                                st.error("Falha ao computar o voto.")
+                                
                 with col_btn3:
                     if st.button(f"Vitória do {t2}", key=f"v_t2_{col_jogo}"):
-                        payload = {
-                            "email": email_user,
-                            "nome": nome_user,
-                            "id_jogo": col_jogo,
-                            "palpite": f"Vitória do {t2}"
-                        }
-                        try:
-                            response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                            if response.status_code == 200:
-                                st.success(f"Voto computado com sucesso!")
-                                st.balloons()
-                                st.cache_data.clear()
-                                st.rerun()
-                        except Exception as ex:
-                            st.error("Falha ao computar o voto.")
+                        if gravacao_bloqueada:
+                            st.success(f"🎉 Voto simulado para o {t2}! (Ative o Apps Script para gravar real)")
+                            st.balloons()
+                        else:
+                            payload = {
+                                "email": email_user,
+                                "nome": nome_user,
+                                "id_jogo": col_jogo,
+                                "palpite": f"Vitória do {t2}"
+                            }
+                            try:
+                                response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+                                if response.status_code == 200:
+                                    st.success(f"Voto computado com sucesso!")
+                                    st.balloons()
+                                    st.cache_data.clear()
+                                    st.rerun()
+                            except Exception as ex:
+                                st.error("Falha ao computar o voto.")
                 st.markdown("<br>", unsafe_allow_html=True)
 
     with tab_palpites:
