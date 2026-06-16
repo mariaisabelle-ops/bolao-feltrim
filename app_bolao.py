@@ -8,7 +8,7 @@ import textwrap
 import unicodedata
 
 # =========================================================================
-# ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (INSIRA A URL GERADA DO SEU DEPLOY DO APPS SCRIPT)
+# ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO DEFINITIVA (APPS SCRIPT ATUALIZADO)
 # =========================================================================
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 # =========================================================================
@@ -20,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Estilização CSS completa e blindada para o tema Verde e Amarelo institucional
+# Estilização CSS institucional (Verde, Amarelo e Azul-Marinho) totalmente integrada
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -45,7 +45,7 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* Abas customizadas */
+    /* Abas personalizadas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         justify-content: center;
@@ -91,6 +91,7 @@ st.markdown("""
         font-size: 0.95rem;
     }
 
+    /* Cards e Métricas */
     .metrics-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -180,7 +181,7 @@ st.markdown("""
         margin-top: 4px;
     }
 
-    /* Ranking Item */
+    /* Lista de Classificação */
     .ranking-list { display: flex; flex-direction: column; gap: 8px; }
     
     .ranking-item {
@@ -214,7 +215,7 @@ st.markdown("""
     .ranking-name { font-weight: 600; color: #334155; font-size: 0.95rem; }
     .ranking-score { font-weight: 800; color: #004b23; font-size: 1.05rem; }
 
-    /* Estilo de Cartão de Palpites/Votos */
+    /* Enquetes de Palpites */
     .poll-card {
         background-color: white;
         padding: 20px;
@@ -260,6 +261,7 @@ st.markdown("""
         border-radius: 20px;
     }
 
+    /* Barras de Progresso Limpas (Sem Código Streamlit Aparente) */
     .poll-bar-container { margin-bottom: 8px; }
     
     .poll-bar-label {
@@ -278,7 +280,7 @@ st.markdown("""
     .bar-color-draw { background-color: #ffbd00; }
     .bar-color-v { background-color: #003566; }
 
-    /* Botões Premium */
+    /* Botões de Ação Personalizados */
     div.stButton > button {
         background-color: #004b23 !important;
         color: #ffffff !important;
@@ -301,6 +303,14 @@ def remover_acentos(texto):
     if not texto: return ""
     return "".join(c for c in unicodedata.normalize('NFD', str(texto)) if unicodedata.category(c) != 'Mn').lower()
 
+def safe_to_int(val):
+    if pd.isna(val):
+        return 0
+    try:
+        return int(float(val))
+    except (ValueError, TypeError):
+        return 0
+
 def formatar_nome_time(nome_time):
     if not nome_time or pd.isna(nome_time): return ""
     nome_limpo = str(nome_time).strip()
@@ -317,7 +327,7 @@ def chave_ordenacao_jogo(col_name):
     dia, mes = extrair_data_jogo(col_name)
     return (mes, dia)
 
-# ID padrão da nova planilha do Google
+# ID padrão da nova planilha limpa
 if "sheet_id" not in st.session_state:
     st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
@@ -362,7 +372,7 @@ def carregar_dados_seguro(sheet_id):
 
 df_respostas, df_resultados, df_classificacao, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
 
-# Mensagem informativa amigável se a planilha for privada
+# Mensagem se a planilha for privada
 if is_private:
     st.markdown(textwrap.dedent("""
         <div class="custom-error-box">
@@ -388,7 +398,7 @@ if df_respostas is not None and not df_respostas.empty:
             
 lista_jogos_formulario.sort(key=chave_ordenacao_jogo)
 
-# Abas Principais da Interface do Usuário
+# Abas principais do app
 tab_ranking, tab_enviar, tab_palpites, tab_jogos = st.tabs([
     "📊 Classificação", "📝 Dar Palpite", "🎯 Ver Palpites", "⚽ Resultados Reais"
 ])
@@ -406,7 +416,6 @@ with tab_ranking:
         df_classificacao.columns = df_classificacao.columns.str.strip()
         ranking = df_classificacao.reset_index(drop=True)
         
-        # Mapeamento ultra-seguro de nomes de colunas para blindar contra KeyError
         col_part_ref = "Participante"
         for c in ranking.columns:
             if any(x in str(c).lower() for x in ["participante", "nome", "competidor"]):
@@ -421,7 +430,11 @@ with tab_ranking:
         
         total_participantes = len(ranking)
         lider_atual = str(ranking.iloc[0][col_part_ref]).title() if total_participantes > 0 and col_part_ref in ranking.columns else "-"
-        media_pontos = int(ranking[col_pts_ref].mean()) if total_participantes > 0 and col_pts_ref in ranking.columns else 0
+        
+        try:
+            media_pontos = int(ranking[col_pts_ref].dropna().mean()) if total_participantes > 0 and col_pts_ref in ranking.columns else 0
+        except Exception:
+            media_pontos = 0
         
         st.markdown(textwrap.dedent(f"""
             <div class="metrics-container">
@@ -440,20 +453,19 @@ with tab_ranking:
             </div>
         """), unsafe_allow_html=True)
         
-        # Renderização amigável de pódio mesmo se houver menos de 3 competidores
         p1_nome, p1_pts = "Aguardando", "0 pts"
         p2_nome, p2_pts = "Aguardando", "0 pts"
         p3_nome, p3_pts = "Aguardando", "0 pts"
         
         if len(ranking) > 0 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
             p1_nome = str(ranking.iloc[0][col_part_ref]).title()
-            p1_pts = f"{int(ranking.iloc[0][col_pts_ref])} pts"
+            p1_pts = f"{safe_to_int(ranking.iloc[0][col_pts_ref])} pts"
         if len(ranking) > 1 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
             p2_nome = str(ranking.iloc[1][col_part_ref]).title()
-            p2_pts = f"{int(ranking.iloc[1][col_pts_ref])} pts"
+            p2_pts = f"{safe_to_int(ranking.iloc[1][col_pts_ref])} pts"
         if len(ranking) > 2 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
             p3_nome = str(ranking.iloc[2][col_part_ref]).title()
-            p3_pts = f"{int(ranking.iloc[2][col_pts_ref])} pts"
+            p3_pts = f"{safe_to_int(ranking.iloc[2][col_pts_ref])} pts"
             
         st.markdown(textwrap.dedent(f"""
             <div class="podium-row">
@@ -480,7 +492,7 @@ with tab_ranking:
             posicao = idx + 1
             if posicao <= 3: continue
             usuario = str(row[col_part_ref]).title()
-            pontos = int(row[col_pts_ref])
+            pontos = safe_to_int(row[col_pts_ref])
             inicial = usuario[0] if len(usuario) > 0 else "?"
             st.markdown(textwrap.dedent(f"""
                 <div class="ranking-item">
@@ -494,7 +506,7 @@ with tab_ranking:
             """), unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
-        st.info("Aguardando inserção de dados de palpites na planilha para montar a classificação!")
+        st.info("Aguardando inserção de palpites para carregar a classificação geral!")
 
 with tab_enviar:
     st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Palpites da Equipe</h3>", unsafe_allow_html=True)
@@ -502,29 +514,24 @@ with tab_enviar:
     email_user = st.text_input("E-mail Corporativo:", placeholder="exemplo@feltrim.com.br", key="env_email").strip().lower()
     nome_user = st.text_input("Nome Completo:", placeholder="Seu nome completo", key="env_nome").strip()
     
-    gravacao_bloqueada = "your_actual_script_id_here" in URL_APPS_SCRIPT or URL_APPS_SCRIPT == ""
-    
     if not email_user or "@" not in email_user or not nome_user:
-        st.info("💡 Insira seu Nome e E-mail Corporativo para abrir o seu painel de palpites!")
+        st.info("💡 Insira seu Nome e E-mail Corporativo para abrir as votações de palpites!")
     else:
-        if gravacao_bloqueada:
-            st.markdown(textwrap.dedent("""
-                <div class="custom-info" style="border-left-color: #ffbd00; color: #003566; background-color: #fffdf0;">
-                    ⚠️ <strong>Modo Demo:</strong> Preencha a URL do Apps Script no topo do arquivo para salvar palpites reais!
-                </div>
-            """), unsafe_allow_html=True)
-        
         jogos_ativos = []
         for col_jogo in lista_jogos_formulario:
+            # Regra estrita: remover os jogos que ocorrem na data de hoje (16/06)
+            dia, mes = extrair_data_jogo(col_jogo)
+            if dia == 16 and mes == 6:
+                continue
+                
             status_jogo = "🕒 Agendado"
-            
             if df_resultados is not None and not df_resultados.empty:
                 df_resultados.columns = df_resultados.columns.str.strip()
                 match_status = df_resultados[df_resultados['Jogo'].astype(str).str.strip() == col_jogo]
                 if not match_status.empty:
                     status_jogo = str(match_status.iloc[0]['Status']).strip()
             
-            # Só exibe na aba de votação jogos que estão marcados estritamente como "🕒 Agendado"
+            # Só exibe para palpite se estiver com status de agendado
             if "agendado" in status_jogo.lower():
                 jogos_ativos.append(col_jogo)
                 
@@ -582,59 +589,47 @@ with tab_enviar:
             with col_btn1:
                 palpite_m_formatado = f"Vitória do {t1}".strip()
                 if st.button(f"Vitória {t1}", key=f"v_t1_{col_jogo}"):
-                    if gravacao_bloqueada:
-                        st.success("🎉 Voto de vitória simulado com sucesso!")
-                        st.balloons()
-                    else:
-                        payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": palpite_m_formatado}
-                        try:
-                            r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                            if r.status_code == 200:
-                                st.success("Palpite salvo!")
-                                st.balloons()
-                                st.cache_data.clear()
-                                st.rerun()
-                        except:
-                            st.error("Erro ao registrar voto.")
+                    payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": palpite_m_formatado}
+                    try:
+                        r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+                        if r.status_code == 200:
+                            st.success("Palpite salvo!")
+                            st.balloons()
+                            st.cache_data.clear()
+                            st.rerun()
+                    except:
+                        st.error("Erro ao registrar voto.")
                             
             with col_btn2:
                 if st.button("🤝 Empate", key=f"v_draw_{col_jogo}"):
-                    if gravacao_bloqueada:
-                        st.success("🤝 Empate simulado!")
-                        st.balloons()
-                    else:
-                        payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": "🤝 Empate"}
-                        try:
-                            r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                            if r.status_code == 200:
-                                st.success("Palpite saved!")
-                                st.balloons()
-                                st.cache_data.clear()
-                                st.rerun()
-                        except:
-                            st.error("Erro ao registrar voto.")
+                    payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": "🤝 Empate"}
+                    try:
+                        r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+                        if r.status_code == 200:
+                            st.success("Palpite salvo!")
+                            st.balloons()
+                            st.cache_data.clear()
+                            st.rerun()
+                    except:
+                        st.error("Erro ao registrar voto.")
                             
             with col_btn3:
                 palpite_v_formatado = f"Vitória do {t2}".strip()
                 if st.button(f"Vitória {t2}", key=f"v_t2_{col_jogo}"):
-                    if gravacao_bloqueada:
-                        st.success("🎉 Voto de vitória simulado com sucesso!")
-                        st.balloons()
-                    else:
-                        payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": palpite_v_formatado}
-                        try:
-                            r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                            if r.status_code == 200:
-                                st.success("Palpite salvo!")
-                                st.balloons()
-                                st.cache_data.clear()
-                                st.rerun()
-                        except:
-                            st.error("Erro ao registrar voto.")
+                    payload = {"action": "fazerPalpite", "email": email_user, "nome": nome_user, "id_jogo": col_jogo, "palpite": palpite_v_formatado}
+                    try:
+                        r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+                        if r.status_code == 200:
+                            st.success("Palpite salvo!")
+                            st.balloons()
+                            st.cache_data.clear()
+                            st.rerun()
+                    except:
+                        st.error("Erro ao registrar voto.")
             st.markdown("<br>", unsafe_allow_html=True)
             
         if len(jogos_ativos) == 0:
-            st.info("🕒 Todas as partidas em andamento ou finalizadas foram bloqueadas. Aguarde novos jogos agendados!")
+            st.info("🕒 Nenhuma partida agendada aberta no momento. Aguarde liberação do administrador!")
 
 with tab_palpites:
     st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Consulta de Palpites por Participante</h3>", unsafe_allow_html=True)
@@ -763,24 +758,21 @@ with st.expander("🛠️ Painel de Controle do Administrador"):
             status_jogo = st.selectbox("Status:", options=["🕒 Agendado", "🟡 Ao Vivo", "🟢 Encerrado"])
             
             if st.button("🚀 Salvar Placar e Recalcular"):
-                if gravacao_bloqueada:
-                    st.error("Configure a URL do Apps Script no topo do arquivo do site para salvar.")
-                else:
-                    payload = {
-                        "action": "atualizarPlacar", "senha": "feltrim2026", "jogo": jogo_selecionado,
-                        "placar_m": int(gols_m), "placar_v": int(gols_v), "status": status_jogo
-                    }
-                    try:
-                        response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-                        res_json = response.json()
-                        if response.status_code == 200 and res_json.get("status") == "success":
-                            st.success("Placar salvo e pontos recalculados!")
-                            st.cache_data.clear()
-                            st.rerun()
-                        else:
-                            st.error(f"Erro: {res_json.get('message')}")
-                    except Exception as e:
-                        st.error(f"Erro de conexão: {e}")
+                payload = {
+                    "action": "atualizarPlacar", "senha": "feltrim2026", "jogo": jogo_selecionado,
+                    "placar_m": int(gols_m), "placar_v": int(gols_v), "status": status_jogo
+                }
+                try:
+                    response = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+                    res_json = response.json()
+                    if response.status_code == 200 and res_json.get("status") == "success":
+                        st.success("Placar salvo e pontos recalculados!")
+                        st.cache_data.clear()
+                        st.rerun()
+                    else:
+                        st.error(f"Erro: {res_json.get('message')}")
+                except Exception as e:
+                    st.error(f"Erro de conexão: {e}")
                         
         st.write("---")
         novo_sheet_id = st.text_input("ID do Google Sheets:", value=st.session_state["sheet_id"])
