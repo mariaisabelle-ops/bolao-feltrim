@@ -5,6 +5,7 @@ import json
 import re
 from datetime import datetime, timedelta
 
+# Configurações globais da página
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -20,21 +21,21 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
     
-    /* Fontes Globais */
+    /* Configuração de Fonte Global */
     html, body, [class*="st-"] {
         font-family: 'Montserrat', sans-serif;
     }
     
-    /* Configuração de Fundo */
+    /* Fundo da Aplicação */
     .stApp {
         background: linear-gradient(135deg, #f4f7f5 0%, #e9efe8 100%);
     }
     
-    /* Banner do Topo */
+    /* Banner Corporativo do Bolão */
     .banner-container {
         background: linear-gradient(135deg, #004b23 0%, #003b1c 100%);
         color: #ffffff;
-        padding: 30px;
+        padding: 35px 25px;
         border-radius: 16px;
         text-align: center;
         margin-bottom: 30px;
@@ -43,7 +44,7 @@ st.markdown("""
     }
     
     .banner-title {
-        font-size: 2.2rem;
+        font-size: 2.3rem;
         font-weight: 800;
         margin-bottom: 8px;
         letter-spacing: -1px;
@@ -80,7 +81,7 @@ st.markdown("""
         margin-top: 5px;
     }
     
-    /* Pódios do Ranking */
+    /* Podiuns de Liderança */
     .podium-box {
         background-color: #ffffff;
         border-radius: 16px;
@@ -122,17 +123,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def safe_to_int(val):
-    """Converte valores de pontuação de forma blindada contra NaNs."""
+    """Converte com segurança valores para inteiros, prevenindo erros de float ou NaNs."""
     try:
         if pd.isna(val) or val is None or str(val).strip() == "":
             return ""
         return int(float(val))
-    except:
+    except Exception:
         return ""
 
 def obter_datetime_jogo(nome_jogo, horario_str):
-    """Combina o dia/mês do nome do jogo com o horário da planilha para gerar um datetime."""
+    """Gera um objeto datetime combinando a data descrita no nome do jogo com o horário de início."""
     try:
+        # Busca no formato (DD/MM) no título do jogo
         match_data = re.search(r'(\d{2})/(\d{2})', str(nome_jogo))
         if not match_data:
             return None
@@ -155,7 +157,7 @@ def obter_datetime_jogo(nome_jogo, horario_str):
         return None
 
 def chave_ordenacao_jogo(text):
-    """Extrai dia e mês do nome do jogo para ordenação cronológica."""
+    """Gera tupla de ordenação cronológica a partir do nome do jogo para ordenar o DataFrame."""
     match = re.search(r'(\d{2})/(\d{2})', str(text))
     if match:
         dia, mes = int(match.group(1)), int(match.group(2))
@@ -163,7 +165,7 @@ def chave_ordenacao_jogo(text):
     return (12, 31)
 
 def formatar_time_slug(nome_completo_jogo, time_tipo="mandante"):
-    """Isola os nomes dos times limpando marcações de data ou emoticons."""
+    """Isola os nomes limpos de mandantes e visitantes tirando marcações adicionais."""
     limpo = str(nome_completo_jogo).replace("⚽", "").strip()
     partes = re.split(r'\s+vs\s+', limpo, flags=re.IGNORECASE)
     if len(partes) >= 2:
@@ -175,7 +177,7 @@ def formatar_time_slug(nome_completo_jogo, time_tipo="mandante"):
 
 @st.cache_data(ttl=5)
 def fetch_spreadsheet_data(sheet_id, sheet_name):
-    """Busca dados no Google Sheets tolerando bloqueios e variações de cabeçalhos."""
+    """Puxa dados das abas do Google Sheets com tratamento de erros integrado."""
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     try:
         df = pd.read_csv(url)
@@ -183,23 +185,21 @@ def fetch_spreadsheet_data(sheet_id, sheet_name):
             return None
         df.columns = [str(c).strip() for c in df.columns]
         return df
-    except:
+    except Exception:
         return None
 
-# Recupera ID ativo da sessão
+# Recupera ID ativo do Bolão
 if 'spreadsheet_id' not in st.session_state:
     st.session_state['spreadsheet_id'] = DEFAULT_SPREADSHEET_ID
 
 sheet_id = st.session_state['spreadsheet_id']
 
-# Leitura com Fallbacks inteligentes caso o usuário mude os nomes das abas
+# Leitura e Fallback inteligente de Abas
 df_palpites = fetch_spreadsheet_data(sheet_id, "Palpites")
 if df_palpites is None or df_palpites.empty:
     df_palpites = fetch_spreadsheet_data(sheet_id, "Respostas_Formulario")
 
 df_resultados = fetch_spreadsheet_data(sheet_id, "Resultados")
-if df_resultados is None or df_resultados.empty:
-    df_resultados = fetch_spreadsheet_data(sheet_id, "🎯 Resultados Oficiais")
 if df_resultados is None or df_resultados.empty:
     df_resultados = fetch_spreadsheet_data(sheet_id, "Resultados Oficiais")
 
@@ -207,13 +207,12 @@ df_classificacao = fetch_spreadsheet_data(sheet_id, "Classificacao")
 if df_classificacao is None or df_classificacao.empty:
     df_classificacao = fetch_spreadsheet_data(sheet_id, "Classificação")
 
-# Se os resultados não puderem ser lidos, exibe painel de orientação amigável
 if df_resultados is None:
     st.warning("⚠️ **Acesso à Planilha Não Configurado ou Privado**")
     st.info("""
-    Para que o sistema exiba os dados corretamente, siga os passos abaixo:
-    1. Compartilhe a sua planilha Google no modo **"Qualquer pessoa com o link pode ler"** (como Leitor).
-    2. Certifique-se de que o ID inserido abaixo está correto.
+    Para que o sistema exiba os dados, certifique-se de que:
+    1. Compartilhou a sua planilha no modo **"Qualquer pessoa com o link pode ler"** (Leitor).
+    2. Registrou o ID correto da planilha no painel administrativo abaixo.
     """)
     
     with st.expander("🔑 Painel de Configuração Inicial"):
@@ -227,6 +226,7 @@ if df_resultados is None:
     st.stop()
 
 if df_resultados.empty:
+    # Cria estrutura de fallback segura para evitar quebras do Pandas
     df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante', 'Horário'])
 else:
     if 'Jogo' not in df_resultados.columns:
@@ -236,7 +236,7 @@ else:
     if 'Horário' not in df_resultados.columns:
         df_resultados['Horário'] = "15:00"
 
-# Ordenação Cronológica Segura (Evitando NaNs)
+# Ordenação Cronológica de Segurança
 if not df_resultados.empty:
     df_resultados_sorted = df_resultados.copy()
     df_resultados_sorted = df_resultados_sorted.dropna(subset=['Jogo'])
@@ -370,6 +370,7 @@ with tab_ranking:
     if df_classificacao is not None and num_competidores > 0:
         df_exibir = df_class_sorted.copy()
         
+        # Previne o erro "cannot insert Posição, already exists"
         if 'Posição' in df_exibir.columns:
             df_exibir = df_exibir.drop(columns=['Posição'])
             
@@ -391,9 +392,9 @@ with tab_ranking:
 
 with tab_jogos:
     st.markdown("<h2 style='color: #004b23;'>📅 Tabela de Jogos & Resultados</h2>", unsafe_allow_html=True)
-    st.write("Acompanhe o cronograma completo dos confrontos, horários e os placares oficiais cadastrados.")
+    st.write("Acompanhe os confrontos na ordem cronológica de acontecimento e visualize os placares oficiais cadastrados.")
     
-    # Fuso Horário de Brasília (UTC-3) de forma totalmente dinâmica
+    # Fuso Horário de Brasília de forma automatizada (UTC-3)
     try:
         agora_brasil = datetime.utcnow() - timedelta(hours=3)
     except Exception:
@@ -415,7 +416,7 @@ with tab_jogos:
             
             dt_jogo = obter_datetime_jogo(nome_jogo, horario_col)
             
-            # Bloqueio automático inteligente: 1 hora antes com base no horário de Brasília
+            # Bloqueio automático de 1h antes com base no horário de Brasília
             if dt_jogo:
                 limite_palpite = dt_jogo - timedelta(hours=1)
                 
@@ -423,7 +424,7 @@ with tab_jogos:
                     status_palpites = "🔒 Palpites Encerrados"
                     cor_badge = "#d90429"
                 else:
-                    status_palpites = f"🔓 Palpites Abertos (Fecha às {limite_palpite.strftime('%H:%M')} de {limite_palpite.strftime('%d/%m')})"
+                    status_palpites = f"🔓 Palpites Abertos (Até às {limite_palpite.strftime('%H:%M')} de {limite_palpite.strftime('%d/%m')})"
                     cor_badge = "#004b23"
                 data_exibicao = dt_jogo.strftime("%d/%m às %H:%M")
             else:
@@ -431,7 +432,6 @@ with tab_jogos:
                 cor_badge = "#666"
                 data_exibicao = "A definir"
 
-            # Renderização de card de jogo de alta fidelidade
             st.markdown(f"""
             <div style="background-color: #ffffff; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -457,7 +457,7 @@ with tab_palpites:
     email_user = st.text_input("Seu E-mail Corporativo Feltrim Correa:", value="", placeholder="exemplo@feltrim.com.br")
     nome_user = st.text_input("Seu Nome Completo:", value="")
 
-    # Fuso Horário de Brasília (UTC-3)
+    # Fuso Horário de Brasília
     try:
         agora_brasil = datetime.utcnow() - timedelta(hours=3)
     except Exception:
@@ -471,7 +471,7 @@ with tab_palpites:
         nome_jogo = str(row['Jogo'])
         horario_col = row.get('Horário', '15:00')
         
-        # Bloqueio automático: 1 hora antes de cada jogo
+        # Bloqueio automático de 1 hora antes de cada jogo
         dt_jogo = obter_datetime_jogo(nome_jogo, horario_col)
         jogo_bloqueado = False
         
@@ -480,7 +480,6 @@ with tab_palpites:
             if agora_brasil >= limite_palpite:
                 jogo_bloqueado = True
         else:
-            # Fallback seguro caso não ache hora: bloqueia no dia anterior
             match_data = re.search(r'(\d{2})/(\d{2})', nome_jogo)
             if match_data:
                 try:
@@ -488,17 +487,14 @@ with tab_palpites:
                     data_limite_jogo = datetime(2026, mes_j, dia_j).date()
                     if data_limite_jogo <= agora_brasil.date():
                         jogo_bloqueado = True
-                except:
+                except Exception:
                     pass
 
         if "agendado" in status_jogo.lower() and not jogo_bloqueado:
             jogos_disponiveis.append(nome_jogo)
 
     if not jogos_disponiveis:
-        st.info("Não existem novas partidas abertas para palpites no momento! Todos os confrontos de hoje já foram trancados.")
-        if not df_resultados_sorted.empty:
-            with st.expander("🔍 Ver situação das partidas atuais (Diagnóstico)"):
-                st.write(df_resultados_sorted[['Jogo', 'Status']])
+        st.info("Não existem novas partidas abertas para palpites no momento! Todos os confrontos ativos já foram trancados.")
     else:
         st.markdown("<br>", unsafe_allow_html=True)
         st.write("---")
@@ -679,7 +675,7 @@ with tab_admin:
                         
         st.write("---")
         st.markdown("### ✨ Inicialização Rápida de Partidas")
-        st.write("Se a sua nova planilha está vazia e você precisa carregar todos os 56 jogos oficiais da Copa de uma só vez, utilize o botão abaixo:")
+        st.write("Se a sua nova planilha está vazia e você precisa carregar todos os 56 jogos oficiais da Copa em ordem cronológica de uma só vez, utilize o botão abaixo:")
         
         if st.button("✨ Inicializar Todos os 56 Jogos na Planilha", use_container_width=True):
             payload_init = {
@@ -688,7 +684,7 @@ with tab_admin:
             }
             with st.spinner("Criando as abas e cadastrando os 56 confrontos na planilha Google..."):
                 try:
-                    response = requests.post(URL_APPS_SCRIPT, json=payload_init, timeout=20)
+                    response = requests.post(URL_APPS_SCRIPT, json=payload_init, timeout=25)
                     if response.status_code == 200:
                         res_json = response.json()
                         if res_json.get("status") == "success":
