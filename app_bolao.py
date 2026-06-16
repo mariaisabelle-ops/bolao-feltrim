@@ -5,6 +5,7 @@ import json
 import re
 from datetime import datetime
 
+# Configuração de Página Inicial de Alta Fidelidade
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -12,26 +13,26 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Constantes Globais de Integração Permanentes
+# Integração Nativa e Direta com o Ecossistema do Cliente
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 
-# Estilização CSS Customizada para visual elegante e corporativo
+# Estilização CSS Isolada e Altamente Segura (Evita colapso de abas e inputs)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
     
-    /* Configurações Globais de Tipografia */
-    html, body, [class*="css"] {
+    /* Fontes Globais */
+    html, body, [class*="st-"] {
         font-family: 'Montserrat', sans-serif;
     }
     
-    /* Cores Institucionais e Fundos */
+    /* Configuração de Fundo */
     .stApp {
         background: linear-gradient(135deg, #f4f7f5 0%, #e9efe8 100%);
     }
     
-    /* Banner de Boas-vindas */
+    /* Banner do Topo */
     .banner-container {
         background: linear-gradient(135deg, #004b23 0%, #003b1c 100%);
         color: #ffffff;
@@ -44,7 +45,7 @@ st.markdown("""
     }
     
     .banner-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: 800;
         margin-bottom: 8px;
         letter-spacing: -1px;
@@ -55,76 +56,41 @@ st.markdown("""
         opacity: 0.9;
     }
     
-    /* Abas de Navegação Personalizadas */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background-color: rgba(0, 75, 35, 0.05);
-        padding: 8px;
-        border-radius: 12px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #ffffff;
-        border-radius: 8px;
-        color: #004b23;
-        font-weight: 600;
-        border: 1px solid rgba(0, 75, 35, 0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: #ffb703;
-        color: #000000;
-        border-color: #ffb703;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background-color: #004b23 !important;
-        color: #ffffff !important;
-        font-weight: 700;
-        box-shadow: 0 4px 12px rgba(0, 75, 35, 0.2);
-    }
-    
-    /* Cards de Informação e Métricas */
+    /* Cards de Métricas */
     .card-metric {
         background-color: #ffffff;
-        padding: 24px;
-        border-radius: 16px;
+        padding: 20px;
+        border-radius: 12px;
         border-left: 5px solid #004b23;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         text-align: center;
-        transition: transform 0.2s ease;
-    }
-    
-    .card-metric:hover {
-        transform: translateY(-3px);
+        margin-bottom: 15px;
     }
     
     .card-val {
-        font-size: 2.2rem;
+        font-size: 1.8rem;
         font-weight: 800;
         color: #004b23;
     }
     
     .card-lbl {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: #666;
         text-transform: uppercase;
         font-weight: 600;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         margin-top: 5px;
     }
     
-    /* Pódios e Listas */
+    /* Pódios do Ranking */
     .podium-box {
         background-color: #ffffff;
         border-radius: 16px;
-        padding: 24px;
+        padding: 20px;
         text-align: center;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.05);
         border: 1px solid rgba(0, 75, 35, 0.08);
+        margin-bottom: 15px;
     }
     
     .podium-1 {
@@ -141,23 +107,24 @@ st.markdown("""
     }
     
     .podium-name {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: #004b23;
-        margin-top: 10px;
+        margin-top: 8px;
+        word-wrap: break-word;
     }
     
     .podium-points {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 800;
         color: #004b23;
-        margin: 8px 0;
+        margin: 5px 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
 def safe_to_int(val):
-    """Converte qualquer tipo de dado de forma segura para inteiro, tratando NaNs."""
+    """Converte valores de forma segura tratando NaNs ou vazios."""
     try:
         if pd.isna(val) or val is None:
             return 0
@@ -166,7 +133,7 @@ def safe_to_int(val):
         return 0
 
 def extract_date_key(text):
-    """Extrai chave de ordenação de data (Mês, Dia) do título de uma partida."""
+    """Retorna chave cronológica ordenada por Mês e Dia."""
     match = re.search(r'(\d{2})/(\d{2})', str(text))
     if match:
         day, month = int(match.group(1)), int(match.group(2))
@@ -174,7 +141,7 @@ def extract_date_key(text):
     return (12, 31)
 
 def formatar_time_slug(nome_completo_jogo, time_tipo="mandante"):
-    """Extrai o nome limpo do time mandante ou visitante."""
+    """Isola os nomes dos times limpando marcações de data ou emoticons."""
     limpo = str(nome_completo_jogo).replace("⚽", "").strip()
     partes = re.split(r'\s+vs\s+', limpo, flags=re.IGNORECASE)
     if len(partes) >= 2:
@@ -186,50 +153,46 @@ def formatar_time_slug(nome_completo_jogo, time_tipo="mandante"):
 
 @st.cache_data(ttl=15)
 def fetch_spreadsheet_data(sheet_id, sheet_name):
-    """Busca dados de uma aba específica garantindo tolerância contra planilhas privadas."""
+    """Busca dados no Google Sheets tolerando bloqueios de permissão do Drive."""
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     try:
         df = pd.read_csv(url)
-        # Se o retorno parecer HTML (página de login do Google), a planilha está privada
+        # Se retornar HTML, o documento está restrito/privado
         if df.empty or (df.columns.size > 0 and str(df.columns[0]).startswith("<!DOCTYPE")):
             return None
-        # Limpar cabeçalhos removendo espaços em branco extras
         df.columns = [str(c).strip() for c in df.columns]
         return df
-    except Exception as e:
+    except:
         return None
 
-# Controle de Sessão para Armazenar ID da Planilha Ativa
 if 'spreadsheet_id' not in st.session_state:
     st.session_state['spreadsheet_id'] = DEFAULT_SPREADSHEET_ID
 
 sheet_id = st.session_state['spreadsheet_id']
 
-# Carregamento de Tabelas Cruciais do Banco de Dados
 df_palpites = fetch_spreadsheet_data(sheet_id, "Palpites")
 df_resultados = fetch_spreadsheet_data(sheet_id, "Resultados")
 df_classificacao = fetch_spreadsheet_data(sheet_id, "Classificacao")
 
-# Exibe aviso de configuração se a planilha estiver inacessível
+# Exibição do aviso de conexão se a planilha não puder ser lida
 if df_resultados is None:
     st.warning("⚠️ **Acesso à Planilha Não Configurado ou Privado**")
     st.info("""
-    Para que o sistema exiba os dados, certifique-se de que:
-    1. Você compartilhou a sua planilha no modo **"Qualquer pessoa com o link pode ler"** (como Leitor).
-    2. Registrou o ID correto da planilha no painel do administrador abaixo.
+    Para que o sistema exiba os dados corretamente, siga os passos abaixo:
+    1. Compartilhe a sua planilha Google no modo **"Qualquer pessoa com o link pode ler"** (como Leitor).
+    2. Certifique-se de que o ID inserido no painel de configurações iniciais abaixo está correto.
     """)
     
-    with St.expander("🔑 Painel de Configuração Inicial"):
-        novo_id = st.text_input("ID da Planilha Google (Cole o link ou ID):", value=sheet_id)
+    with st.expander("🔑 Painel de Configuração Inicial"):
+        novo_id = st.text_input("ID da Planilha Google (Cole o ID ou o link completo):", value=sheet_id)
         if st.button("Gravar Nova Planilha"):
-            # Extrai ID do link caso o usuário cole a URL completa
             id_match = re.search(r'/d/([a-zA-Z0-9-_]+)', novo_id)
             final_id = id_match.group(1) if id_match else novo_id
             st.session_state['spreadsheet_id'] = final_id
+            st.cache_data.clear()
             st.rerun()
     st.stop()
 
-# Blindagem total contra ValueError de tamanho de Index do Pandas
 if df_resultados.empty:
     df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante'])
 else:
@@ -238,21 +201,21 @@ else:
     if 'Status' not in df_resultados.columns:
         df_resultados['Status'] = "🕒 Agendado"
 
-# Ordenação Cronológica de Partidas de forma segura
+# Ordenação Cronológica Segura (Evitando NaNs)
 df_resultados = df_resultados.dropna(subset=['Jogo'])
 df_resultados['Jogo'] = df_resultados['Jogo'].astype(str)
 df_resultados['Data_Ordenacao'] = df_resultados['Jogo'].apply(extract_date_key)
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').drop(columns=['Data_Ordenacao'])
 
-# Renderização do Banner de Boas-vindas
+# Renderização Estável do Banner Principal
 st.markdown("""
 <div class="banner-container">
     <div class="banner-title">🏆 BOLÃO CORPORATIVO FELTRIM CORREA</div>
-    <div class="banner-subtitle">Acompanhe seus pontos, lance palpites e dispute a liderança em tempo real!</div>
+    <div class="banner-subtitle">Acompanhe seus pontos, lance palpites e dispute o topo do ranking em tempo real!</div>
 </div>
 """, unsafe_allow_html=True)
 
-# Abas Principais de Navegação do App
+# Abas de Navegação Dinâmica (Otimizadas - Sem quebras ou ocultação de inputs)
 tab_ranking, tab_palpites, tab_meus_votos, tab_admin = st.tabs([
     "📊 Classificação Geral", 
     "📝 Dar Palpite", 
@@ -269,18 +232,18 @@ with tab_ranking:
             st.cache_data.clear()
             st.rerun()
 
-    # Métricas Globais do Bolão
+    # Variáveis Padrão para Métricas
     num_competidores = 0
     lider_nome = "-"
     media_pontos = 0.0
 
-    # Validação do DataFrame de Classificação
+    # Processamento Seguro das Notas de Classificação
     if df_classificacao is not None and not df_classificacao.empty:
         col_nome_ref = next((c for c in df_classificacao.columns if "participante" in str(c).lower() or "nome" in str(c).lower()), None)
         col_pts_ref = next((c for c in df_classificacao.columns if "pontos" in str(c).lower() or "acumulados" in str(c).lower()), None)
         
         if col_nome_ref and col_pts_ref:
-            # Filtrar nomes indesejados (cabeçalhos vazados ou jogos salvos por erro)
+            # Filtro Inteligente: Elimina cabeçalhos e nomes de jogos vazados de formulários antigos
             df_classificacao_clean = df_classificacao[
                 df_classificacao[col_nome_ref].astype(str).str.contains("vs|⚽|Timestamp|E-mail", case=False) == False
             ]
@@ -291,7 +254,7 @@ with tab_ranking:
                 lider_nome = str(df_class_sorted.iloc[0][col_nome_ref]).split("@")[0].title()
                 media_pontos = float(df_class_sorted[col_pts_ref].dropna().mean())
 
-    # Exibição dos Painéis de Métricas
+    # Blocos Horizontais de Métricas
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown(f"""
@@ -340,40 +303,41 @@ with tab_ranking:
     with col_p2:
         st.markdown(f"""
         <div class="podium-box podium-2">
-            <div style="font-size: 2.5rem;">🥈</div>
+            <div style="font-size: 2.2rem;">🥈</div>
             <div class="podium-name">{p2_nome}</div>
             <div class="podium-points">{p2_pts}</div>
-            <div style="font-weight: bold; color: #666;">2º Lugar</div>
+            <div style="font-weight: bold; color: #666; font-size: 0.85rem;">2º Lugar</div>
         </div>
         """, unsafe_allow_html=True)
         
     with col_p1:
         st.markdown(f"""
         <div class="podium-box podium-1">
-            <div style="font-size: 3.5rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));">👑</div>
-            <div class="podium-name" style="font-size: 1.3rem;">{p1_nome}</div>
-            <div class="podium-points" style="font-size: 2.2rem; color: #004b23;">{p1_pts}</div>
-            <div style="font-weight: bold; color: #ffb703; font-size: 1.1rem;">Líder</div>
+            <div style="font-size: 3rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));">👑</div>
+            <div class="podium-name" style="font-size: 1.2rem;">{p1_nome}</div>
+            <div class="podium-points" style="font-size: 2rem; color: #004b23;">{p1_pts}</div>
+            <div style="font-weight: bold; color: #ffb703; font-size: 1rem;">Líder</div>
         </div>
         """, unsafe_allow_html=True)
         
     with col_p3:
         st.markdown(f"""
         <div class="podium-box podium-3">
-            <div style="font-size: 2.5rem;">🥉</div>
+            <div style="font-size: 2.2rem;">🥉</div>
             <div class="podium-name">{p3_nome}</div>
             <div class="podium-points">{p3_pts}</div>
-            <div style="font-weight: bold; color: #666;">3º Lugar</div>
+            <div style="font-weight: bold; color: #666; font-size: 0.85rem;">3º Lugar</div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
+    # Lista Geral Ordenada da Competição
     st.markdown("<h3 style='color: #004b23;'>Lista Geral de Classificação</h3>", unsafe_allow_html=True)
     if df_classificacao is not None and num_competidores > 0:
         df_exibir = df_class_sorted.copy()
         
-        # Blindagem contra duplicidade de inserção de coluna
+        # Blindagem contra duplicidade na inserção de colunas de posição
         if 'Posição' in df_exibir.columns:
             df_exibir = df_exibir.drop(columns=['Posição'])
             
@@ -391,7 +355,7 @@ with tab_ranking:
             hide_index=True
         )
     else:
-        st.info("Nenhum participante pontuou ainda. Os pontos aparecerão assim que os jogos terminarem!")
+        st.info("Nenhum participante pontuou ainda. Os pontos serão calculados à medida que as partidas forem concluídas!")
 
 with tab_palpites:
     st.markdown("<h2 style='color: #004b23;'>Enviar Meu Palpite</h2>", unsafe_allow_html=True)
@@ -400,7 +364,7 @@ with tab_palpites:
     nome_user = st.text_input("Seu Nome Completo:", value="")
 
     jogos_disponiveis = []
-    # Data de corte para travar votos retroativos
+    # Data de corte para fechar enquetes do dia corrente
     data_hoje_str = "16/06"
 
     for idx, row in df_resultados_sorted.iterrows():
@@ -412,7 +376,7 @@ with tab_palpites:
                 jogos_disponiveis.append(nome_jogo)
 
     if not jogos_disponiveis:
-        st.info("Não há novos jogos abertos para palpites no momento! Todos os jogos de hoje já foram trancados.")
+        st.info("Não existem novas partidas abertas para palpites no momento! Todos os confrontos de hoje já foram trancados.")
     else:
         st.markdown("<br>", unsafe_allow_html=True)
         st.write("---")
@@ -437,9 +401,9 @@ with tab_palpites:
             
             if st.button("Confirmar e Enviar Palpite 🚀", use_container_width=True):
                 if not email_user or "@" not in email_user:
-                    st.error("Por favor, insira um e-mail corporativo válido para registrar o seu palpite.")
+                    st.error("Por favor, informe um e-mail corporativo válido para registrar o palpite.")
                 elif len(nome_user) < 3:
-                    st.error("Por favor, preencha o seu nome completo.")
+                    st.error("Por favor, insira o seu nome completo.")
                 else:
                     palpite_post = ""
                     if "Empate" in voto_opcao:
@@ -457,20 +421,20 @@ with tab_palpites:
                         "palpite": palpite_post
                     }
                     
-                    with st.spinner("Registrando seu palpite na planilha..."):
+                    with st.spinner("Registrando o palpite na planilha..."):
                         try:
                             response = requests.post(URL_APPS_SCRIPT, json=payload, timeout=10)
                             if response.status_code == 200:
                                 res_json = response.json()
                                 if res_json.get("status") == "success":
-                                    st.success(f"Excelente, {nome_user}! Seu palpite para '{jogo_selecionado}' foi gravado com sucesso!")
+                                    st.success(f"Excelente, {nome_user}! Palpite para '{jogo_selecionado}' registrado com sucesso!")
                                     st.cache_data.clear()
                                 else:
                                     st.error(f"Erro no registro: {res_json.get('message')}")
                             else:
-                                st.error("Erro de comunicação com o servidor. Tente novamente em instantes.")
+                                st.error("Erro na resposta do servidor. Tente novamente em instantes.")
                         except Exception as e:
-                            st.error(f"Falha na rede: {str(e)}")
+                            st.error(f"Erro técnico de rede: {str(e)}")
 
 with tab_meus_votos:
     st.markdown("<h2 style='color: #004b23;'>Meus Palpites Lançados</h2>", unsafe_allow_html=True)
@@ -519,9 +483,9 @@ with tab_meus_votos:
                     else:
                         st.info("Nenhum palpite individual registrado nas colunas da planilha.")
             else:
-                st.error("Estrutura da aba 'Palpites' incorreta. Coluna de E-mail não localizada.")
+                st.error("Estrutura da aba 'Palpites' incorreta. Coluna de e-mail não encontrada.")
         else:
-            st.info("Ainda não existem palpites de competidores salvos na planilha.")
+            st.info("Ainda não existem palpites registrados por competidores na planilha.")
 
 with tab_admin:
     st.markdown("<h2 style='color: #004b23;'>🔐 Painel de Controle Administrativo</h2>", unsafe_allow_html=True)
@@ -575,21 +539,21 @@ with tab_admin:
                     "status": novo_status
                 }
                 
-                with st.spinner("Atualizando planilha e recalculando ranking..."):
+                with st.spinner("Atualizando resultados e recalculando posições do ranking..."):
                     try:
                         response = requests.post(URL_APPS_SCRIPT, json=payload_admin, timeout=10)
                         if response.status_code == 200:
                             res_json = response.json()
                             if res_json.get("status") == "success":
-                                st.success(f"Placar oficial gravado! {team_m} {novo_placar_m} x {novo_placar_v} {team_v} ({novo_status})")
+                                st.success(f"Placar gravado! {team_m} {novo_placar_m} x {novo_placar_v} {team_v} ({novo_status})")
                                 st.cache_data.clear()
                                 st.rerun()
                             else:
-                                st.error(f"Erro no Apps Script: {res_json.get('message')}")
+                                st.error(f"Falha de resposta no servidor: {res_json.get('message')}")
                         else:
-                            st.error("Erro técnico ao conectar no Apps Script da Planilha.")
+                            st.error("Erro técnico de comunicação no servidor do Apps Script.")
                     except Exception as e:
-                        st.error(f"Erro de conexão: {str(e)}")
+                        st.error(f"Erro técnico de rede: {str(e)}")
                         
         st.write("---")
         st.markdown("### ⚙️ Troca de Planilha Ativa")
@@ -597,7 +561,7 @@ with tab_admin:
         if st.button("Gravar Alteração de Planilha"):
             st.session_state['spreadsheet_id'] = st_id_input
             st.cache_data.clear()
-            st.success("Planilha atualizada com sucesso na sessão!")
+            st.success("Planilha atualizada com sucesso nesta sessão do app!")
             st.rerun()
     elif senha_admin != "":
         st.error("Senha de Administrador incorreta!")
