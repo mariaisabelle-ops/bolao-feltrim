@@ -71,6 +71,32 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
 
+    /* Destaque Ultra Visível para a Guia "Dar Palpite" (3ª Aba - index 2) */
+    button[id*="-tab-2"], div[data-testid="stTabBar"] button:nth-of-type(3) {
+        background: linear-gradient(135deg, #004b23 0%, #007736 100%) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        border-radius: 12px !important;
+        padding: 10px 24px !important;
+        margin: 0 6px !important;
+        border: 2px solid #d4af37 !important;
+        box-shadow: 0 6px 18px rgba(0, 75, 35, 0.35) !important;
+        transform: scale(1.02);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease !important;
+    }
+
+    button[id*="-tab-2"]:hover, div[data-testid="stTabBar"] button:nth-of-type(3):hover {
+        transform: translateY(-2px) scale(1.06) !important;
+        box-shadow: 0 8px 24px rgba(212, 175, 55, 0.4) !important;
+        background: linear-gradient(135deg, #005c2b 0%, #009643 100%) !important;
+    }
+
+    /* Arredondamento e suavização para as outras abas padrão */
+    div[data-testid="stTabBar"] button {
+        border-radius: 10px !important;
+        transition: all 0.2s ease !important;
+    }
+
     .card-metric {
         background-color: #ffffff;
         padding: 22px;
@@ -349,28 +375,22 @@ if df_resultados is None:
             st.rerun()
     st.stop()
 
-if df_resultados.empty:
-    # Cria estrutura de fallback segura para evitar quebras do Pandas
-    df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante', 'Horário'])
+# Blindagem absoluta de estrutura
+if df_resultados.empty or 'Jogo' not in df_resultados.columns:
+    df_resultados_sorted = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante', 'Horário'])
 else:
-    if 'Jogo' not in df_resultados.columns:
-        df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante', 'Horário'])
-    if 'Status' not in df_resultados.columns:
-        df_resultados['Status'] = "🕒 Agendado"
-    if 'Horário' not in df_resultados.columns:
-        df_resultados['Horário'] = "15:00"
-
-# Ordenação Cronológica de Segurança
-if not df_resultados.empty:
     df_resultados_sorted = df_resultados.copy()
     df_resultados_sorted = df_resultados_sorted.dropna(subset=['Jogo'])
     df_resultados_sorted['Jogo'] = df_resultados_sorted['Jogo'].astype(str)
     df_resultados_sorted = df_resultados_sorted[df_resultados_sorted['Jogo'].str.strip() != ""]
     
+    if 'Status' not in df_resultados_sorted.columns:
+        df_resultados_sorted['Status'] = "🕒 Agendado"
+    if 'Horário' not in df_resultados_sorted.columns:
+        df_resultados_sorted['Horário'] = "15:00"
+        
     df_resultados_sorted['Data_Ordenacao'] = df_resultados_sorted['Jogo'].apply(chave_ordenacao_jogo)
     df_resultados_sorted = df_resultados_sorted.sort_values(by='Data_Ordenacao').drop(columns=['Data_Ordenacao'])
-else:
-    df_resultados_sorted = df_resultados.copy()
 
 # Renderiza banner principal corporativo
 st.markdown("""
@@ -380,7 +400,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Tabs Principais do Aplicativo
+# Tabs Principais do Aplicativo com Dar Palpite Destacado via CSS
 tab_ranking, tab_jogos, tab_palpites, tab_meus_votos, tab_admin = st.tabs([
     "📊 Classificação Geral", 
     "📅 Jogos & Resultados",
@@ -394,7 +414,7 @@ with tab_ranking:
     
     col_rec, col_vazio = st.columns([1, 4])
     with col_rec:
-        if st.button("🔄 Recarregar Dados", use_container_width=True):
+        if st.button("🔄 Recarregar Dados", width="stretch"):
             st.cache_data.clear()
             st.rerun()
 
@@ -488,7 +508,7 @@ with tab_ranking:
         participantes = df_exibir[col_nome_ref].tolist()
         pontos = [f"{safe_to_int(p)} pts" for p in df_exibir[col_pts_ref].tolist()]
         
-        # Monta a tabela elegante em formato HTML linear (evita o bug de espaçamento do markdown)
+        # Monta a tabela elegante em formato HTML linear para evitar erros de renderização Markdown
         linhas_html = ""
         for i in range(len(posicoes)):
             bg_destaque = "style='background-color: #fffef2; font-weight: bold;'" if i == 0 else ""
@@ -665,7 +685,7 @@ with tab_palpites:
                     index=0
                 )
                 
-                if st.button("Confirmar e Enviar Palpite 🚀", use_container_width=True):
+                if st.button("Confirmar e Enviar Palpite 🚀", width="stretch"):
                     if not email_user or "@" not in email_user:
                         st.error("Por favor, informe um e-mail corporativo válido para registrar o palpite.")
                     elif len(nome_user) < 3:
@@ -796,7 +816,7 @@ with tab_admin:
                 index=["🕒 Agendado", "🟡 Ao Vivo", "🟢 Encerrado"].index(status_padrao) if status_padrao in ["🕒 Agendado", "🟡 Ao Vivo", "🟢 Encerrado"] else 0
             )
             
-            if st.button("Salvar Placar Oficial 💾", use_container_width=True):
+            if st.button("Salvar Placar Oficial 💾", width="stretch"):
                 payload_admin = {
                     "action": "atualizarPlacar",
                     "senha": "feltrim2026",
@@ -826,7 +846,7 @@ with tab_admin:
         st.markdown("### ✨ Inicialização Rápida de Partidas")
         st.write("Se a sua nova planilha está vazia e você precisa carregar todos os 56 jogos oficiais da Copa em ordem cronológica de uma só vez, utilize o botão abaixo:")
         
-        if st.button("✨ Inicializar Todos os 56 Jogos na Planilha", use_container_width=True):
+        if st.button("✨ Inicializar Todos os 56 Jogos na Planilha", width="stretch"):
             payload_init = {
                 "action": "inicializarNovoBolao",
                 "senha": "feltrim2026"
@@ -853,7 +873,7 @@ with tab_admin:
         if st.button("Gravar Alteração de Planilha"):
             st.session_state['spreadsheet_id'] = st_id_input
             st.cache_data.clear()
-            st.success("Planilha atualizada com sucesso nesta sessão do app!")
+            st.success("Planilha updated successfully!")
             st.rerun()
     elif senha_admin != "":
         st.error("Senha de Administrador incorreta!")
