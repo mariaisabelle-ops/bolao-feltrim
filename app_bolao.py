@@ -8,18 +8,19 @@ import textwrap
 import unicodedata
 
 # =========================================================================
-# ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (URL DO APPS SCRIPT GERADA APÓS O DEPLOY)
+# ⚙️ CONFIGURAÇÃO DE INTEGRAÇÃO (INSIRA A URL GERADA DO SEU DEPLOY DO APPS SCRIPT)
 # =========================================================================
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 # =========================================================================
 
 st.set_page_config(
-    page_title="Bolao Feltrim Correa - Copa 2026",
+    page_title="Bolão Feltrim Correa - Copa 2026",
     page_icon="🏆",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
+# Estilização CSS completa e blindada para o tema Verde e Amarelo institucional
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -44,6 +45,7 @@ st.markdown("""
         font-weight: 600;
     }
 
+    /* Abas customizadas */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         justify-content: center;
@@ -119,6 +121,7 @@ st.markdown("""
         margin-top: 4px;
     }
 
+    /* Pódio de Classificação */
     .podium-row {
         display: flex;
         align-items: flex-end;
@@ -177,6 +180,7 @@ st.markdown("""
         margin-top: 4px;
     }
 
+    /* Ranking Item */
     .ranking-list { display: flex; flex-direction: column; gap: 8px; }
     
     .ranking-item {
@@ -210,6 +214,7 @@ st.markdown("""
     .ranking-name { font-weight: 600; color: #334155; font-size: 0.95rem; }
     .ranking-score { font-weight: 800; color: #004b23; font-size: 1.05rem; }
 
+    /* Estilo de Cartão de Palpites/Votos */
     .poll-card {
         background-color: white;
         padding: 20px;
@@ -273,6 +278,7 @@ st.markdown("""
     .bar-color-draw { background-color: #ffbd00; }
     .bar-color-v { background-color: #003566; }
 
+    /* Botões Premium */
     div.stButton > button {
         background-color: #004b23 !important;
         color: #ffffff !important;
@@ -311,6 +317,7 @@ def chave_ordenacao_jogo(col_name):
     dia, mes = extrair_data_jogo(col_name)
     return (mes, dia)
 
+# ID padrão da nova planilha do Google
 if "sheet_id" not in st.session_state:
     st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
@@ -355,6 +362,7 @@ def carregar_dados_seguro(sheet_id):
 
 df_respostas, df_resultados, df_classificacao, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
 
+# Mensagem informativa amigável se a planilha for privada
 if is_private:
     st.markdown(textwrap.dedent("""
         <div class="custom-error-box">
@@ -380,6 +388,7 @@ if df_respostas is not None and not df_respostas.empty:
             
 lista_jogos_formulario.sort(key=chave_ordenacao_jogo)
 
+# Abas Principais da Interface do Usuário
 tab_ranking, tab_enviar, tab_palpites, tab_jogos = st.tabs([
     "📊 Classificação", "📝 Dar Palpite", "🎯 Ver Palpites", "⚽ Resultados Reais"
 ])
@@ -397,12 +406,22 @@ with tab_ranking:
         df_classificacao.columns = df_classificacao.columns.str.strip()
         ranking = df_classificacao.reset_index(drop=True)
         
-        total_participantes = len(ranking)
-        lider_atual = str(ranking.iloc[0]['Participante']).title() if total_participantes > 0 else "-"
+        # Mapeamento ultra-seguro de nomes de colunas para blindar contra KeyError
+        col_part_ref = "Participante"
+        for c in ranking.columns:
+            if any(x in str(c).lower() for x in ["participante", "nome", "competidor"]):
+                col_part_ref = c
+                break
+                
+        col_pts_ref = "Pontos Acumulados"
+        for c in ranking.columns:
+            if any(x in str(c).lower() for x in ["pontos", "ponto", "acumulado", "score"]):
+                col_pts_ref = c
+                break
         
-        col_pontos = [col for col in ranking.columns if "ponto" in col.lower() or "acumulado" in col.lower()]
-        nome_col_pontos = col_pontos[0] if col_pontos else ranking.columns[-1]
-        media_pontos = int(ranking[nome_col_pontos].mean()) if total_participantes > 0 else 0
+        total_participantes = len(ranking)
+        lider_atual = str(ranking.iloc[0][col_part_ref]).title() if total_participantes > 0 and col_part_ref in ranking.columns else "-"
+        media_pontos = int(ranking[col_pts_ref].mean()) if total_participantes > 0 and col_pts_ref in ranking.columns else 0
         
         st.markdown(textwrap.dedent(f"""
             <div class="metrics-container">
@@ -421,19 +440,20 @@ with tab_ranking:
             </div>
         """), unsafe_allow_html=True)
         
+        # Renderização amigável de pódio mesmo se houver menos de 3 competidores
         p1_nome, p1_pts = "Aguardando", "0 pts"
         p2_nome, p2_pts = "Aguardando", "0 pts"
         p3_nome, p3_pts = "Aguardando", "0 pts"
         
-        if len(ranking) > 0:
-            p1_nome = str(ranking.iloc[0]['Participante']).title()
-            p1_pts = f"{int(ranking.iloc[0][nome_col_pontos])} pts"
-        if len(ranking) > 1:
-            p2_nome = str(ranking.iloc[1]['Participante']).title()
-            p2_pts = f"{int(ranking.iloc[1][nome_col_pontos])} pts"
-        if len(ranking) > 2:
-            p3_nome = str(ranking.iloc[2]['Participante']).title()
-            p3_pts = f"{int(ranking.iloc[2][nome_col_pontos])} pts"
+        if len(ranking) > 0 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
+            p1_nome = str(ranking.iloc[0][col_part_ref]).title()
+            p1_pts = f"{int(ranking.iloc[0][col_pts_ref])} pts"
+        if len(ranking) > 1 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
+            p2_nome = str(ranking.iloc[1][col_part_ref]).title()
+            p2_pts = f"{int(ranking.iloc[1][col_pts_ref])} pts"
+        if len(ranking) > 2 and col_part_ref in ranking.columns and col_pts_ref in ranking.columns:
+            p3_nome = str(ranking.iloc[2][col_part_ref]).title()
+            p3_pts = f"{int(ranking.iloc[2][col_pts_ref])} pts"
             
         st.markdown(textwrap.dedent(f"""
             <div class="podium-row">
@@ -459,8 +479,8 @@ with tab_ranking:
         for idx, row in ranking.iterrows():
             posicao = idx + 1
             if posicao <= 3: continue
-            usuario = str(row['Participante']).title()
-            pontos = int(row[nome_col_pontos])
+            usuario = str(row[col_part_ref]).title()
+            pontos = int(row[col_pts_ref])
             inicial = usuario[0] if len(usuario) > 0 else "?"
             st.markdown(textwrap.dedent(f"""
                 <div class="ranking-item">
@@ -504,6 +524,7 @@ with tab_enviar:
                 if not match_status.empty:
                     status_jogo = str(match_status.iloc[0]['Status']).strip()
             
+            # Só exibe na aba de votação jogos que estão marcados estritamente como "🕒 Agendado"
             if "agendado" in status_jogo.lower():
                 jogos_ativos.append(col_jogo)
                 
@@ -586,7 +607,7 @@ with tab_enviar:
                         try:
                             r = requests.post(URL_APPS_SCRIPT, data=json.dumps(payload), headers={"Content-Type": "application/json"})
                             if r.status_code == 200:
-                                st.success("Palpite salvo!")
+                                st.success("Palpite saved!")
                                 st.balloons()
                                 st.cache_data.clear()
                                 st.rerun()
