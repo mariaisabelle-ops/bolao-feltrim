@@ -13,11 +13,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Integração Nativa e Direta com o Ecossistema do Cliente
+# Configurações de Conectividade com o Google Sheets do Cliente
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 
-# Estilização CSS Isolada e Altamente Segura (Evita colapso de abas e inputs)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
@@ -124,7 +123,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def safe_to_int(val):
-    """Converte valores de forma segura tratando NaNs ou vazios."""
+    """Converte valores de pontuação de forma blindada contra NaNs."""
     try:
         if pd.isna(val) or val is None:
             return 0
@@ -132,12 +131,12 @@ def safe_to_int(val):
     except:
         return 0
 
-def extract_date_key(text):
-    """Retorna chave cronológica ordenada por Mês e Dia."""
+def chave_ordenacao_jogo(text):
+    """Extrai dia e mês do nome do jogo para ordenação cronológica."""
     match = re.search(r'(\d{2})/(\d{2})', str(text))
     if match:
-        day, month = int(match.group(1)), int(match.group(2))
-        return (month, day)
+        dia, mes = int(match.group(1)), int(match.group(2))
+        return (mes, dia)
     return (12, 31)
 
 def formatar_time_slug(nome_completo_jogo, time_tipo="mandante"):
@@ -151,13 +150,12 @@ def formatar_time_slug(nome_completo_jogo, time_tipo="mandante"):
             return re.sub(r'\s*\(\d{2}/\d{2}\)', '', partes[1]).strip()
     return limpo
 
-@st.cache_data(ttl=15)
+@st.cache_data(ttl=10)
 def fetch_spreadsheet_data(sheet_id, sheet_name):
-    """Busca dados no Google Sheets tolerando bloqueios de permissão do Drive."""
+    """Busca dados no Google Sheets tolerando bloqueios e variações de cabeçalhos."""
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     try:
         df = pd.read_csv(url)
-        # Se retornar HTML, o documento está restrito/privado
         if df.empty or (df.columns.size > 0 and str(df.columns[0]).startswith("<!DOCTYPE")):
             return None
         df.columns = [str(c).strip() for c in df.columns]
@@ -165,22 +163,34 @@ def fetch_spreadsheet_data(sheet_id, sheet_name):
     except:
         return None
 
+# Recupera ID ativo da sessão
 if 'spreadsheet_id' not in st.session_state:
     st.session_state['spreadsheet_id'] = DEFAULT_SPREADSHEET_ID
 
 sheet_id = st.session_state['spreadsheet_id']
 
+# Leitura com Fallbacks inteligentes caso o usuário mude os nomes das abas
 df_palpites = fetch_spreadsheet_data(sheet_id, "Palpites")
-df_resultados = fetch_spreadsheet_data(sheet_id, "Resultados")
-df_classificacao = fetch_spreadsheet_data(sheet_id, "Classificacao")
+if df_palpites is None or df_palpites.empty:
+    df_palpites = fetch_spreadsheet_data(sheet_id, "Respostas_Formulario")
 
-# Exibição do aviso de conexão se a planilha não puder ser lida
+df_resultados = fetch_spreadsheet_data(sheet_id, "Resultados")
+if df_resultados is None or df_resultados.empty:
+    df_resultados = fetch_spreadsheet_data(sheet_id, "🎯 Resultados Oficiais")
+if df_resultados is None or df_resultados.empty:
+    df_resultados = fetch_spreadsheet_data(sheet_id, "Resultados Oficiais")
+
+df_classificacao = fetch_spreadsheet_data(sheet_id, "Classificacao")
+if df_classificacao is None or df_classificacao.empty:
+    df_classificacao = fetch_spreadsheet_data(sheet_id, "Classificação")
+
+# Se os resultados não puderem ser lidos, exibe painel de orientação amigável
 if df_resultados is None:
     st.warning("⚠️ **Acesso à Planilha Não Configurado ou Privado**")
     st.info("""
     Para que o sistema exiba os dados corretamente, siga os passos abaixo:
     1. Compartilhe a sua planilha Google no modo **"Qualquer pessoa com o link pode ler"** (como Leitor).
-    2. Certifique-se de que o ID inserido no painel de configurações iniciais abaixo está correto.
+    2. Certifique-se de que o ID inserido abaixo está correto.
     """)
     
     with st.expander("🔑 Painel de Configuração Inicial"):
@@ -193,6 +203,7 @@ if df_resultados is None:
             st.rerun()
     st.stop()
 
+# Garante que as colunas existam e não quebrem o index
 if df_resultados.empty:
     df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante'])
 else:
@@ -202,12 +213,17 @@ else:
         df_resultados['Status'] = "🕒 Agendado"
 
 # Ordenação Cronológica Segura (Evitando NaNs)
-df_resultados = df_resultados.dropna(subset=['Jogo'])
-df_resultados['Jogo'] = df_resultados['Jogo'].astype(str)
-df_resultados['Data_Ordenacao'] = df_resultados['Jogo'].apply(extract_date_key)
-df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').drop(columns=['Data_Ordenacao'])
+if not df_resultados.empty:
+    df_resultados_sorted = df_resultados.copy()
+    df_resultados_sorted = df_resultados_sorted.dropna(subset=['Jogo'])
+    df_resultados_sorted['Jogo'] = df_resultados_sorted['Jogo'].astype(str)
+    df_resultados_sorted = df_resultados_sorted[df_resultados_sorted['Jogo'].str.strip() != ""]
+    
+    df_resultados_sorted['Data_Ordenacao'] = df_resultados_sorted['Jogo'].apply(chave_ordenacao_jogo)
+    df_resultados_sorted = df_resultados_sorted.sort_values(by='Data_Ordenacao').drop(columns=['Data_Ordenacao'])
+else:
+    df_resultados_sorted = df_resultados.copy()
 
-# Renderização Estável do Banner Principal
 st.markdown("""
 <div class="banner-container">
     <div class="banner-title">🏆 BOLÃO CORPORATIVO FELTRIM CORREA</div>
@@ -215,7 +231,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Abas de Navegação Dinâmica (Otimizadas - Sem quebras ou ocultação de inputs)
 tab_ranking, tab_palpites, tab_meus_votos, tab_admin = st.tabs([
     "📊 Classificação Geral", 
     "📝 Dar Palpite", 
@@ -232,18 +247,15 @@ with tab_ranking:
             st.cache_data.clear()
             st.rerun()
 
-    # Variáveis Padrão para Métricas
     num_competidores = 0
     lider_nome = "-"
     media_pontos = 0.0
 
-    # Processamento Seguro das Notas de Classificação
     if df_classificacao is not None and not df_classificacao.empty:
         col_nome_ref = next((c for c in df_classificacao.columns if "participante" in str(c).lower() or "nome" in str(c).lower()), None)
         col_pts_ref = next((c for c in df_classificacao.columns if "pontos" in str(c).lower() or "acumulados" in str(c).lower()), None)
         
         if col_nome_ref and col_pts_ref:
-            # Filtro Inteligente: Elimina cabeçalhos e nomes de jogos vazados de formulários antigos
             df_classificacao_clean = df_classificacao[
                 df_classificacao[col_nome_ref].astype(str).str.contains("vs|⚽|Timestamp|E-mail", case=False) == False
             ]
@@ -254,7 +266,6 @@ with tab_ranking:
                 lider_nome = str(df_class_sorted.iloc[0][col_nome_ref]).split("@")[0].title()
                 media_pontos = float(df_class_sorted[col_pts_ref].dropna().mean())
 
-    # Blocos Horizontais de Métricas
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown(f"""
@@ -279,8 +290,6 @@ with tab_ranking:
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    # Construção Visual do Pódio Premium
     st.markdown("<h3 style='text-align: center; color: #004b23; margin-bottom: 20px;'>🏆 Top 3 Competidores</h3>", unsafe_allow_html=True)
     
     col_p2, col_p1, col_p3 = st.columns([1, 1.2, 1])
@@ -313,7 +322,7 @@ with tab_ranking:
     with col_p1:
         st.markdown(f"""
         <div class="podium-box podium-1">
-            <div style="font-size: 3rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));">👑</div>
+            <div style="font-size: 3rem;">👑</div>
             <div class="podium-name" style="font-size: 1.2rem;">{p1_nome}</div>
             <div class="podium-points" style="font-size: 2rem; color: #004b23;">{p1_pts}</div>
             <div style="font-weight: bold; color: #ffb703; font-size: 1rem;">Líder</div>
@@ -331,13 +340,11 @@ with tab_ranking:
         """, unsafe_allow_html=True)
 
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
-
-    # Lista Geral Ordenada da Competição
     st.markdown("<h3 style='color: #004b23;'>Lista Geral de Classificação</h3>", unsafe_allow_html=True)
+    
     if df_classificacao is not None and num_competidores > 0:
         df_exibir = df_class_sorted.copy()
         
-        # Blindagem contra duplicidade na inserção de colunas de posição
         if 'Posição' in df_exibir.columns:
             df_exibir = df_exibir.drop(columns=['Posição'])
             
@@ -368,7 +375,13 @@ with tab_palpites:
     data_hoje_str = "16/06"
 
     for idx, row in df_resultados_sorted.iterrows():
-        status_jogo = str(row.get('Status', '🕒 Agendado'))
+        # Blindagem contra status em branco/NaN na planilha
+        status_raw = row.get('Status')
+        if pd.isna(status_raw) or str(status_raw).strip() == "":
+            status_jogo = "🕒 Agendado"
+        else:
+            status_jogo = str(status_raw)
+            
         nome_jogo = str(row['Jogo'])
         
         if "agendado" in status_jogo.lower():
@@ -377,6 +390,10 @@ with tab_palpites:
 
     if not jogos_disponiveis:
         st.info("Não existem novas partidas abertas para palpites no momento! Todos os confrontos de hoje já foram trancados.")
+        # Se os dados existirem na planilha mas não se qualificarem, mostramos um diagnóstico transparente
+        if not df_resultados_sorted.empty:
+            with st.expander("🔍 Ver situação das partidas atuais (Diagnóstico)"):
+                st.write(df_resultados_sorted[['Jogo', 'Status']])
     else:
         st.markdown("<br>", unsafe_allow_html=True)
         st.write("---")
