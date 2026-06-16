@@ -296,7 +296,15 @@ if df_respostas is not None:
                 p_v_val = palpite[col_p_v]
                 pts_ganhos = int(palpite['Pontos_Calculados'])
                 
-                st.info(f"**{jogo}**  \nPalpite enviado: **{int(p_m_val)} x {int(p_v_val)}**  \nPontuação obtida: **{pts_ganhos} pts**")
+                # Tratamento robusto para impedir o erro 'ValueError: cannot convert float NaN to integer'
+                try:
+                    p_m_display = str(int(float(p_m_val))) if pd.notna(p_m_val) else "-"
+                    p_v_display = str(int(float(p_v_val))) if pd.notna(p_v_val) else "-"
+                except Exception:
+                    p_m_display = "-"
+                    p_v_display = "-"
+                
+                st.info(f"**{jogo}**  \nPalpite enviado: **{p_m_display} x {p_v_display}**  \nPontuação obtida: **{pts_ganhos} pts**")
 
     # --- ABA 4: RESULTADOS OFICIAIS ---
     with tab_jogos:
@@ -308,7 +316,14 @@ if df_respostas is not None:
                 p_v = jogo['Placar Real Visitante']
                 status = jogo['Status']
                 
-                placar_texto = f"{int(p_m)} x {int(p_v)}" if pd.notnull(p_m) and pd.notnull(p_v) else "vs"
+                try:
+                    p_m_display = str(int(float(p_m))) if pd.notna(p_m) else None
+                    p_v_display = str(int(float(p_v))) if pd.notna(p_v) else None
+                except Exception:
+                    p_m_display = None
+                    p_v_display = None
+                
+                placar_texto = f"{p_m_display} x {p_v_display}" if p_m_display is not None and p_v_display is not None else "vs"
                 badge_status = f"🟢 {status}" if status == "Encerrado" else f"🕒 {status}"
                 
                 st.markdown(f"""
