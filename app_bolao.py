@@ -5,7 +5,7 @@ import requests
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
-
+# Configurações iniciais de página e tema responsivo de alta qualidade
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -13,11 +13,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+
 # Constantes de Configuração Geral
 SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
-# Fuso Horário de Brasília (UTC-3)
+# Fuso Horário de Brasília (UTC-3) - Sem Timezone Offset para evitar erros de comparação
 agora_brasil = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
 
 # 56 Jogos da Copa do Mundo em Ordem Cronológica Real
@@ -79,6 +80,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_55", "Jogo": "⚽ Portugal vs Senegal (25/06)", "Horário": "19:00"},
     {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Espanha vs Haiti (25/06)", "Horário": "21:30"}
 ]
+
 
 st.markdown("""
 <style>
@@ -203,6 +205,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
 st.markdown("""
 <div class="header-container">
     <div class="header-title">🏆 Bolão Corporativo Feltrim Correa</div>
@@ -216,6 +219,7 @@ st.markdown(f"""
     <span><b>HORA OFICIAL DE BRASÍLIA (UTC-3):</b> {agora_brasil.strftime('%d/%m/%Y %H:%M:%S')}</span>
 </div>
 """, unsafe_allow_html=True)
+
 
 @st.cache_data(ttl=15)
 def puxar_planilha_segura(sheet_name):
@@ -232,12 +236,23 @@ def puxar_planilha_segura(sheet_name):
     except Exception:
         return pd.DataFrame()
 
-# Carregamento seguro de dados
+# Carregamento seguro de dados com validação cirúrgica de colunas para impedir KeyError
 df_resultados_raw = puxar_planilha_segura("Resultados Oficiais")
 df_palpites_raw = puxar_planilha_segura("Palpites")
 
-# Configuração de Fallback se a planilha estiver inacessível ou vazia
-if df_resultados_raw.empty or 'Jogo' not in df_resultados_raw.columns:
+# Validação estrita de colunas obrigatórias
+colunas_obrigatorias = ['ID_Jogo', 'Jogo', 'Placar Real Mandante', 'Placar Real Visitante', 'Status', 'Horário']
+planilha_valida = not df_resultados_raw.empty
+
+if planilha_valida:
+    for col in colunas_obrigatorias:
+        if col not in df_resultados_raw.columns:
+            planilha_valida = False
+            break
+
+
+if not planilha_valida:
+    # Se os cabeçalhos estiverem incompletos ou a planilha vazia, carregamos o fallback seguro
     df_resultados = pd.DataFrame(JOGOS_ESTATICOS)
     df_resultados['Placar Real Mandante'] = ""
     df_resultados['Placar Real Visitante'] = ""
@@ -265,11 +280,12 @@ def obter_datetime_jogo(jogo_nome, horario_str):
         pass
     return datetime(2026, 6, 25, 23, 59)
 
-# Ordenação Cronológica de Jogos
+# Ordenação Cronológica Segura dos Jogos
 df_resultados['Data_Ordenacao'] = df_resultados.apply(
     lambda r: obter_datetime_jogo(r['Jogo'], r['Horário']), axis=1
 )
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').copy()
+
 
 def calcular_pontos_palpite(palpite, placar_m, placar_v):
     """
@@ -306,6 +322,7 @@ def calcular_pontos_palpite(palpite, placar_m, placar_v):
     except Exception:
         return 0
 
+
 tabela_ranking = {}
 
 if not df_palpites_raw.empty and len(df_palpites_raw.columns) > 3:
@@ -335,8 +352,8 @@ if not df_palpites_raw.empty and len(df_palpites_raw.columns) > 3:
                     if pd.notna(palpite_usuario) and str(palpite_usuario).strip() != "":
                         pts = calcular_pontos_palpite(
                             palpite_usuario, 
-                            j_row['Placar Real Mandante'], 
-                            j_row['Placar Real Visitante']
+                            j_row.get('Placar Real Mandante', ""), 
+                            j_row.get('Placar Real Visitante', "")
                         )
                         if pts is not None:
                             tabela_ranking[email]["Pontos"] += pts
@@ -395,7 +412,6 @@ with tabs[0]:
 
     st.write("")
     
-    # Exibir pódio com medalhas circulares elegantes
     if not df_ranking.empty:
         st.markdown("#### 🥇 Top 3 Competidores")
         cols_podio = st.columns(3)
@@ -468,12 +484,12 @@ with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
     
     for idx, row in df_resultados_sorted.iterrows():
-        id_jogo = row['ID_Jogo']
-        jogo = row['Jogo']
-        horario = row['Horário']
-        status = row['Status']
-        real_m = row['Placar Real Mandante']
-        real_v = row['Placar Real Visitante']
+        id_jogo = row.get('ID_Jogo', f'J_FALLBACK_{idx}')
+        jogo = row.get('Jogo', 'Sem Nome')
+        horario = row.get('Horário', '15:00')
+        status = row.get('Status', '🕒 Agendado')
+        real_m = row.get('Placar Real Mandante', '')
+        real_v = row.get('Placar Real Visitante', '')
         
         data_jogo = obter_datetime_jogo(jogo, horario)
         limite_palpite = data_jogo - timedelta(hours=1)
@@ -481,10 +497,15 @@ with tabs[1]:
         
         if "encerrado" in str(status).lower():
             status_badge = '<span class="badge-status badge-encerrado">🟢 Finalizado</span>'
-            placar_exibicao = f"<span style='font-size: 1.6rem; font-weight: 700; color: #004b23;'>{int(float(real_m))} - {int(float(real_v))}</span>"
+            # Evitando erros de conversão de ponto flutuante nulo
+            val_m = int(float(real_m)) if pd.notna(real_m) and str(real_m).strip() != "" else 0
+            val_v = int(float(real_v)) if pd.notna(real_v) and str(real_v).strip() != "" else 0
+            placar_exibicao = f"<span style='font-size: 1.6rem; font-weight: 700; color: #004b23;'>{val_m} - {val_v}</span>"
         elif "andamento" in str(status).lower() or "vivo" in str(status).lower():
             status_badge = '<span class="badge-status badge-andamento">🟡 Ao Vivo</span>'
-            placar_exibicao = f"<span style='font-size: 1.6rem; font-weight: 700; color: #b8860b;'>{int(float(real_m))} - {int(float(real_v))}</span>"
+            val_m = int(float(real_m)) if pd.notna(real_m) and str(real_m).strip() != "" else 0
+            val_v = int(float(real_v)) if pd.notna(real_v) and str(real_v).strip() != "" else 0
+            placar_exibicao = f"<span style='font-size: 1.6rem; font-weight: 700; color: #b8860b;'>{val_m} - {val_v}</span>"
         else:
             status_badge = '<span class="badge-status badge-agendado">🕒 Agendado</span>'
             placar_exibicao = "<span style='font-size: 1.1rem; color: #666; font-style: italic;'>vs</span>"
@@ -521,7 +542,6 @@ with tabs[2]:
         user_nome = st.text_input("👤 Nome Completo:", key="user_nome_input").strip()
         
         if user_email and "@" in user_email and len(user_nome) >= 3:
-            # Identificar e carregar palpites já efetuados por este e-mail
             col_email = ""
             palpites_feitos_usuario = []
             for c in df_palpites_raw.columns:
@@ -545,8 +565,8 @@ with tabs[2]:
                 jogo_nome = j_row['Jogo']
                 limite = j_row['Data_Ordenacao'] - timedelta(hours=1)
                 
-                # Regra: antes do tempo limite, não encerrado E ainda não palpitado
-                if agora_brasil < limite and "encerrado" not in str(j_row['Status']).lower():
+                # Regra de proteção: antes do limite cronológico, não encerrado E ainda não palpitado por ele
+                if agora_brasil < limite and "encerrado" not in str(j_row.get('Status', '')).lower():
                     if jogo_nome not in palpites_feitos_usuario:
                         jogos_disponiveis.append(jogo_nome)
             
@@ -630,8 +650,8 @@ with tabs[3]:
                                 algum_palpite = True
                                 pts_obtidos = calcular_pontos_palpite(
                                     voto_cadastrado, 
-                                    j_row['Placar Real Mandante'], 
-                                    j_row['Placar Real Visitante']
+                                    j_row.get('Placar Real Mandante', ''), 
+                                    j_row.get('Placar Real Visitante', '')
                                 )
                                 
                                 if pts_obtidos == 10:
@@ -647,7 +667,9 @@ with tabs[3]:
                                     cor_feedback = "border-left: 6px solid #6c757d; background: #fdfdfd;"
                                     msg_pts = "🕒 <i>Jogo ainda não realizado. Aguardando resultado oficial...</i>"
                                     
-                                placar_real_str = f"({int(float(j_row['Placar Real Mandante']))}x{int(float(j_row['Placar Real Visitante']))})" if pts_obtidos is not None else ""
+                                val_m = int(float(j_row['Placar Real Mandante'])) if pd.notna(j_row.get('Placar Real Mandante')) and str(j_row.get('Placar Real Mandante')).strip() != "" else ""
+                                val_v = int(float(j_row['Placar Real Visitante'])) if pd.notna(j_row.get('Placar Real Visitante')) and str(j_row.get('Placar Real Visitante')).strip() != "" else ""
+                                placar_real_str = f"({val_m}x{val_v})" if pts_obtidos is not None else ""
                                 
                                 st.markdown(f"""
                                 <div style="border-radius: 8px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); {cor_feedback}">
@@ -663,9 +685,9 @@ with tabs[3]:
 # ==================== ABA 5: PORTAL ADMIN ====================
 with tabs[4]:
     st.markdown("### 🔑 Controle de Acesso Administrativo")
-    st.write("Digite a sua credencial administrativa do bolão para desbloquear as opções de controle e configuração:")
+    st.write("Insira o código de acesso para habilitar o lançamento de resultados e inicializar tabelas:")
     
-    admin_pass = st.text_input("🔑 Senha de Administrador:", type="password", key="senha_admin_field").strip()
+    admin_pass = st.text_input("🔑 Código de Segurança:", type="password", key="senha_admin_field").strip()
     
     if admin_pass == "feltrim2026":
         st.success("✅ Acesso administrativo liberado!")
@@ -673,7 +695,7 @@ with tabs[4]:
         
         # Gerenciamento de inicialização em massa (Batch Optimization)
         st.markdown("#### ✨ Inicialização em Lote de Partidas")
-        st.write("Use o botão abaixo para criar todas as abas e os 56 confrontos na sua planilha do Google Sheets de uma só vez (otimizado para evitar lentidões):")
+        st.write("Use o botão abaixo para criar todas as abas e os 56 confrontos na sua planilha do Google Sheets de uma só vez (gravação em lote ultra-rápida de 1 segundo):")
         
         if st.button("🚀 Inicializar Todos os 56 Jogos na Planilha", key="btn_init_planilha"):
             with st.spinner("Conectando ao banco de dados e enviando jogos em lote..."):
@@ -742,6 +764,6 @@ with tabs[4]:
                         st.error(f"Falha de comunicação: {ex}")
     else:
         if admin_pass != "":
-            st.error("🔑 Senha incorreta. Acesso negado.")
+            st.error("🔑 Código incorreto. Acesso negado.")
         else:
-            st.info("Painel restrito. Digite a senha administrativa para obter acesso.")
+            st.info("Painel restrito para lançar resultados reais.")
