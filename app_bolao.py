@@ -20,6 +20,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Estilos CSS personalizados para o tema verde e amarelo (Identidade Feltrim Correa)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -32,6 +33,7 @@ st.markdown("""
         background-color: #f4f7f5;
     }
     
+    /* Cabeçalho Temático Brasil Premium */
     .header-title {
         color: #004b23;
         text-align: center;
@@ -49,6 +51,7 @@ st.markdown("""
         font-weight: 600;
     }
 
+    /* Abas Estilizadas em Verde e Amarelo */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         justify-content: center;
@@ -74,6 +77,7 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0, 75, 35, 0.25);
     }
 
+    /* Alertas Personalizados Estilo Premium */
     .custom-error-box {
         background-color: #fdf2f2;
         border-left: 4px solid #ef4444;
@@ -94,6 +98,7 @@ st.markdown("""
         font-size: 0.95rem;
     }
 
+    /* Grelha de Estatísticas */
     .metrics-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -124,6 +129,7 @@ st.markdown("""
         margin-top: 4px;
     }
 
+    /* Pódio Verde e Amarelo */
     .podium-row {
         display: flex;
         align-items: flex-end;
@@ -186,6 +192,7 @@ st.markdown("""
         margin-top: 4px;
     }
 
+    /* Lista do Líderes */
     .ranking-list {
         display: flex;
         flex-direction: column;
@@ -242,6 +249,7 @@ st.markdown("""
         font-size: 1.05rem;
     }
 
+    /* Estilo de Cartões de Jogos em Formato de Enquete */
     .poll-card {
         background-color: white;
         padding: 20px;
@@ -297,6 +305,7 @@ st.markdown("""
         border-radius: 20px;
     }
 
+    /* Barras de Estatística de Votos */
     .poll-bar-container {
         margin-bottom: 8px;
     }
@@ -328,6 +337,7 @@ st.markdown("""
     .bar-color-draw { background-color: #ffbd00; }
     .bar-color-v { background-color: #003566; }
 
+    /* Personalização de botões nativos */
     div.stButton > button {
         background-color: #004b23 !important;
         color: #ffffff !important;
@@ -346,7 +356,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-MAPA_EMOJIS_PAIS = {
+#MAPA_EMOJIS_PAIS = {
     "brasil": "🇧🇷💚💛", "brazil": "🇧🇷💚💛",
     "argentina": "🇦🇷💙🤍", "frança": "🇫🇷💙❤️", "franca": "🇫🇷💙❤️", "france": "🇫🇷💙❤️",
     "alemanha": "🇩🇪🖤❤️", "germany": "🇩🇪🖤❤️", "espanha": "🇪🇸❤️💛", "spain": "🇪🇸❤️💛",
@@ -402,7 +412,20 @@ def normalizar_nome_jogo(nome):
         return f"{parts[0].strip()} vs {parts[1].strip()}"
     return s.strip()
 
-# Inicialização de estado seguro para o ID da planilha
+#def extrair_data_jogo(col_name):
+    # Procura datas no formato (DD/MM) ou (DD/MM/AAAA)
+    match = re.search(r'\((\d{2})/(\d{2})\)', str(col_name))
+    if match:
+        dia = int(match.group(1))
+        mes = int(match.group(2))
+        return dia, mes
+    return 31, 12  # Caso não encontre, joga para o final do ano
+
+def chave_ordenacao_jogo(col_name):
+    dia, mes = extrair_data_jogo(col_name)
+    return (mes, dia)
+
+# Inicialização de estado seguro para o ID da planilha (Hospedando a planilha correta da Feltrim)
 if "sheet_id" not in st.session_state:
     st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
@@ -412,7 +435,7 @@ def carregar_dados_seguro(sheet_id):
     df_res = None
     is_private = False
     
-    # Lista de abas alternativas de palpites
+    # Aba principal de palpites do Forms
     abas_palpites = ["Form Responses 2", "Respostas_Formulario", "Form Responses 1"]
     for aba in abas_palpites:
         try:
@@ -431,8 +454,8 @@ def carregar_dados_seguro(sheet_id):
         except Exception:
             pass
 
-    # Lista de abas alternativas de resultados oficiais
-    abas_resultados = ["🎯 Resultados Oficiais", "Resultados Oficiais", "Resultados"]
+    # Aba de Resultados Oficiais (Agora SEM emoji para garantir exportação limpa)
+    abas_resultados = ["Resultados Oficiais", "🎯 Resultados Oficiais", "Resultados"]
     for aba in abas_resultados:
         try:
             aba_encoded = urllib.parse.quote(aba)
@@ -449,17 +472,16 @@ def carregar_dados_seguro(sheet_id):
 
     return df_resp, df_res, is_private
 
-# Botão destacado de atualização manual no topo do cabeçalho
+# Botão destacado de recarga de cache no topo do cabeçalho
 col_header_left, col_header_right = st.columns([4, 1])
 with col_header_left:
-    st.write('<h1 class="header-title">🏆 Bolão Feltrim Correa</h1>', unsafe_allow_html=True)
-    st.write('<p class="header-subtitle">🇧🇷 Rumo ao Hexa - Classificação em Tempo Real!</p>', unsafe_allow_html=True)
+    st.write("")
 with col_header_right:
     if st.button("🔄 Recarregar"):
         st.cache_data.clear()
         st.rerun()
 
-df_respostas_raw, df_resultados_raw, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
+#df_respostas_raw, df_resultados_raw, is_private = carregar_dados_seguro(st.session_state["sheet_id"])
 
 if is_private:
     st.markdown(textwrap.dedent("""
@@ -469,8 +491,8 @@ if is_private:
             <ol style="margin:0; padding-left:20px; font-size:0.88rem;">
                 <li>Abra sua planilha do Google Drive.</li>
                 <li>No canto superior direito, clique em <strong>Compartilhar</strong>.</li>
-                <li>Em \'Acesso Geral\', mude para <strong>\'Qualquer pessoa com o link\'</strong>.</li>
-                <li>Garanta que a permissão ao lado está como <strong>\'Leitor\'</strong> e salve.</li>
+                <li>Em 'Acesso Geral', mude para <strong>'Qualquer pessoa com o link'</strong>.</li>
+                <li>Garanta que a permissão ao lado está como <strong>'Leitor'</strong> e salve.</li>
             </ol>
             <p style="margin-top:10px; font-size:0.85rem;"><strong>Nota:</strong> Se você estiver usando uma cópia própria da planilha, insira o ID correto dela no Painel Admin abaixo!</p>
         </div>
@@ -489,13 +511,17 @@ if df_respostas_raw is not None and not df_respostas_raw.empty:
     col_nome_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['nome', 'completo', 'participante', '👤'])]
     col_nome = col_nome_list[0] if col_nome_list else col_email
 
+# Localizar colunas correspondentes a jogos no formulário
 lista_jogos_formulario = []
 if df_respostas is not None:
     for col in df_respostas.columns:
         if "vs" in col.lower() or "⚽" in col:
             lista_jogos_formulario.append(col.strip())
+            
+# Ordena TODOS os jogos detectados na horizontal de forma cronológica
+lista_jogos_formulario.sort(key=chave_ordenacao_jogo)
 
-if df_resultados_raw is not None and not df_resultados_raw.empty:
+#if df_resultados_raw is not None and not df_resultados_raw.empty:
     df_resultados_raw.columns = df_resultados_raw.columns.str.strip()
     
     mapeamento_colunas = {}
@@ -523,6 +549,7 @@ if df_resultados_raw is not None and not df_resultados_raw.empty:
     else:
         df_resultados = pd.DataFrame(columns=['Jogo', 'Placar Real Mandante', 'Placar Real Visitante', 'Status'])
 else:
+    # Fallback estruturado de resultados caso a aba Resultados Oficiais esteja vazia
     jogos_ficticios = []
     for jogo_nome in lista_jogos_formulario:
         jogos_ficticios.append({
@@ -533,7 +560,7 @@ else:
         })
     df_resultados = pd.DataFrame(jogos_ficticios)
 
-if df_respostas is not None and not df_respostas.empty:
+#if df_respostas is not None and not df_respostas.empty:
     df_respostas_filtradas = df_respostas[
         (~df_respostas[col_nome].astype(str).str.contains("vs|⚽", case=False, na=True)) & 
         (df_respostas[col_email].astype(str).str.contains("@", na=True))
@@ -699,7 +726,7 @@ if df_respostas is not None and not df_respostas.empty:
             """), unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with tab_enviar:
+    #    with tab_enviar:
         st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Enquete de Palpites em Tempo Real</h3>", unsafe_allow_html=True)
         
         email_user = st.text_input("Insira seu E-mail Corporativo:", placeholder="exemplo@feltrim.com.br", key="env_email").strip().lower()
@@ -719,7 +746,14 @@ if df_respostas is not None and not df_respostas.empty:
             
             st.markdown("<hr style='margin:20px 0;'>", unsafe_allow_html=True)
             
+            jogos_exibidos = 0
             for col_jogo in lista_jogos_formulario:
+                # Filtrando e removendo os jogos que vão acontecer hoje (16/06)
+                dia, mes = extrair_data_jogo(col_jogo)
+                if dia == 16 and mes == 6:
+                    continue  # Pula os jogos de hoje para fechar apostas
+                
+                jogos_exibidos += 1
                 partes = col_jogo.split('vs') if 'vs' in col_jogo.lower() else col_jogo.split('VS')
                 t1 = formatar_nome_time(partes[0])
                 t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else "Visitante"
@@ -738,7 +772,7 @@ if df_respostas is not None and not df_respostas.empty:
                 
                 st.markdown(textwrap.dedent(f"""
                     <div class="poll-card">
-                        <div class="poll-header">🎯 Enquete de Opinião</div>
+                        <div class="poll-header">🎯 Enquete de Opinião - ({dia:02d}/{mes:02d})</div>
                         <div class="poll-teams">
                             <div class="poll-team-box">
                                 <span class="poll-team-flag">{emojis_t1}</span>
@@ -837,8 +871,11 @@ if df_respostas is not None and not df_respostas.empty:
                             except Exception:
                                 st.error("Erro de conexão.")
                 st.markdown("<br>", unsafe_allow_html=True)
+            
+            if jogos_exibidos == 0:
+                st.info("🕒 Todos os jogos cadastrados estão marcados para hoje ou já aconteceram!")
 
-    with tab_palpites:
+    #    with tab_palpites:
         st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Consulta de Participante</h3>", unsafe_allow_html=True)
         usuarios_nomes_map = {email: obter_nome_exibicao(email) for email in df_respostas_consolidadas[col_email].unique()}
         usuarios_ordenados = sorted(usuarios_nomes_map.items(), key=lambda item: item[1])
@@ -852,38 +889,52 @@ if df_respostas is not None and not df_respostas.empty:
         
         if usuario_email_selecionado:
             palpites_user = df_respostas_consolidadas[df_respostas_consolidadas[col_email] == usuario_email_selecionado].iloc[0]
-            for col_name in df_respostas.columns:
-                if "vs" in col_name.lower() or "⚽" in col_name:
-                    palpite_val = palpites_user[col_name]
-                    if pd.isna(palpite_val) or str(palpite_val).strip().lower() in ['nan', 'none', '']:
-                        continue
-                    
-                    partes = col_name.split('vs') if 'vs' in col_name.lower() else col_name.split('VS')
-                    t1 = formatar_nome_time(partes[0])
-                    t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else ""
-                    emojis_t1 = obter_emojis_pais(t1)
-                    emojis_t2 = obter_emojis_pais(t2)
-                    
-                    st.markdown(textwrap.dedent(f"""
-                        <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <p style="font-weight: 700; color: #1e293b; margin: 0; font-size: 0.95rem;">{emojis_t1} {t1} vs {t2} {emojis_t2}</p>
-                                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite: <strong style="color: #004b23;">{palpite_val}</strong></p>
-                            </div>
+            
+            # Ordenando cronologicamente os palpites na visualização individual
+            colunas_jogos_ordenadas = sorted(
+                [c for c in df_respostas.columns if "vs" in c.lower() or "⚽" in c],
+                key=chave_ordenacao_jogo
+            )
+            
+            for col_name in colunas_jogos_ordenadas:
+                palpite_val = palpites_user[col_name]
+                if pd.isna(palpite_val) or str(palpite_val).strip().lower() in ['nan', 'none', '']:
+                    continue
+                
+                partes = col_name.split('vs') if 'vs' in col_name.lower() else col_name.split('VS')
+                t1 = formatar_nome_time(partes[0])
+                t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else ""
+                emojis_t1 = obter_emojis_pais(t1)
+                emojis_t2 = obter_emojis_pais(t2)
+                
+                dia, mes = extrair_data_jogo(col_name)
+                
+                st.markdown(textwrap.dedent(f"""
+                    <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="font-weight: 700; color: #1e293b; margin: 0; font-size: 0.95rem;">{emojis_t1} {t1} vs {t2} {emojis_t2} - ({dia:02d}/{mes:02d})</p>
+                            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #003566; font-weight:600;">Palpite: <strong style="color: #004b23;">{palpite_val}</strong></p>
                         </div>
-                    """), unsafe_allow_html=True)
+                    </div>
+                """), unsafe_allow_html=True)
 
-    with tab_jogos:
+    #    with tab_jogos:
         st.write("<h3 style='font-weight: 700; color: #004b23; margin-top: 10px;'>Placares Reais dos Jogos</h3>", unsafe_allow_html=True)
         if df_resultados is not None and not df_resultados.empty:
-            for _, jogo in df_resultados.iterrows():
+            
+            # Ordenando a exibição dos placares reais cronologicamente
+            df_resultados_sorted = df_resultados.copy()
+            df_resultados_sorted['Data_Ordenacao'] = df_resultados_sorted['Jogo'].apply(chave_ordenacao_jogo)
+            df_resultados_sorted = df_resultados_sorted.sort_values(by='Data_Ordenacao').reset_index(drop=True)
+            
+            for _, jogo in df_resultados_sorted.iterrows():
                 nome_jogo = jogo['Jogo']
                 p_m = jogo['Placar Real Mandante']
                 p_v = jogo['Placar Real Visitante']
                 status = jogo['Status']
                 
-                p_m_display = str(int(float(p_m))) if pd.notna(p_m) else ""
-                p_v_display = str(int(float(p_v))) if pd.notna(p_v) else ""
+                p_m_display = str(int(float(p_m))) if pd.notna(p_m) and str(p_m).strip() != "" else ""
+                p_v_display = str(int(float(p_v))) if pd.notna(p_v) and str(p_v).strip() != "" else ""
                 
                 status_clean = str(status).strip().lower()
                 if "encerrado" in status_clean:
@@ -902,10 +953,12 @@ if df_respostas is not None and not df_respostas.empty:
                 emojis1 = obter_emojis_pais(time1)
                 emojis2 = obter_emojis_pais(time2)
                 
+                dia, mes = extrair_data_jogo(nome_jogo)
+                
                 st.markdown(textwrap.dedent(f"""
                     <div style="background-color: white; padding: 18px; border-radius: 14px; border: 1px solid #e8efe9; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: bold; color: #475569;">
-                            <span>⚽ Copa 2026</span>
+                            <span>⚽ Copa 2026 - ({dia:02d}/{mes:02d})</span>
                             <span>{badge_label}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0;">
@@ -914,7 +967,7 @@ if df_respostas is not None and not df_respostas.empty:
                                 <span style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">{time1}</span>
                             </div>
                             <div style="font-size: 1.2rem; font-weight: 800; color: #004b23; width: 30%; text-align: center;">
-                                {p_m_display if tem_placar else ""} VS {p_v_display if tem_placar else ""}
+                                {p_m_display if tem_placar else " - "} VS {p_v_display if tem_placar else " - "}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; width: 35%; justify-content: flex-end; text-align: right;">
                                 <span style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">{time2}</span>
@@ -932,7 +985,7 @@ else:
         </div>
     """), unsafe_allow_html=True)
 
-st.markdown("---")
+#st.markdown("---")
 with st.expander("🛠️ Painel de Controle do Administrador"):
     senha_admin = st.text_input("Insira a senha do Administrador:", type="password", key="senha_admin")
     if senha_admin == "feltrim2026":
@@ -940,6 +993,7 @@ with st.expander("🛠️ Painel de Controle do Administrador"):
         
         st.write("### 🎯 Gravar ou Alterar Placar Oficial")
         if lista_jogos_formulario:
+            # Lista de jogos ordenada de forma cronológica para o seletor do Administrador
             jogo_selecionado = st.selectbox("Selecione o Jogo para atualizar:", options=lista_jogos_formulario)
             
             partes_jogo = jogo_selecionado.split('vs') if 'vs' in jogo_selecionado.lower() else jogo_selecionado.split('VS')
