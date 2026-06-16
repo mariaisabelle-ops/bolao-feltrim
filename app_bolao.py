@@ -5,7 +5,6 @@ import json
 import re
 from datetime import datetime
 
-# Configuração de Layout e Tema Visual Premium
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -15,7 +14,8 @@ st.set_page_config(
 
 # Constantes Globais de Integração
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
-DEFAULT_SPREADSHEET_ID = "1aZzWpYg1f3299oZ-D6kZ3eX_9O9E3V9Y1vX_Z3D9X8k" # ID Padrão Seguro
+DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc" # ID Padrão Seguro
+
 
 # Estilização CSS Customizada para visual elegante e corporativo
 st.markdown("""
@@ -369,11 +369,14 @@ with tab_ranking:
 
     st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
-    # Tabela Completa do Ranking Geral
     st.markdown("<h3 style='color: #004b23;'>Lista Geral de Classificação</h3>", unsafe_allow_html=True)
     if df_classificacao is not None and num_competidores > 0:
-        # Formatação amigável para exibição
         df_exibir = df_class_sorted.copy()
+        
+        # Blindagem: Se a coluna Posição já existir no DataFrame importado da planilha, removemos antes de reconstruir
+        if 'Posição' in df_exibir.columns:
+            df_exibir = df_exibir.drop(columns=['Posição'])
+            
         df_exibir.insert(0, 'Posição', range(1, len(df_exibir) + 1))
         df_exibir['Posição'] = df_exibir['Posição'].apply(lambda x: f"{x}º")
         
@@ -612,7 +615,7 @@ with tab_admin:
         if st.button("Gravar Alteração de Planilha"):
             st.session_state['spreadsheet_id'] = st_id_input
             st.cache_data.clear()
-            st.success("Planilha atualizada na sessão!")
+            st.success("Planilha updated com sucesso na sessão!")
             st.rerun()
     elif senha_admin != "":
         st.error("Senha de Administrador incorreta!")
