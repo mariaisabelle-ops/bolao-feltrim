@@ -5,7 +5,6 @@ import requests
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
-
 # Configurações de página do Streamlit
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
@@ -55,7 +54,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Portugal vs Romênia (20/06)", "Horário": "12:00"},
     {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Inglaterra vs Austrália (20/06)", "Horário": "15:00"},
     {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Holanda vs Gana (20/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_36", "⚽ Croácia vs África do Sul (20/06)": "JOGO_36", "Horário": "21:00"},
+    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Croácia vs África do Sul (20/06)", "Horário": "21:00"},
     {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Argentina vs Senegal (21/06)", "Horário": "12:00"},
     {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Panamá (21/06)", "Horário": "15:00"},
     {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Ucrânia vs Arábia Saudita (21/06)", "Horário": "18:00"},
@@ -631,14 +630,23 @@ with tabs[2]:
                         
                         try:
                             resposta = requests.post(WEB_APP_URL, json=dados_envio, timeout=12)
-                            res_json = resposta.json()
                             
-                            if res_json.get("status") == "success":
-                                st.success(f"🎉 Palpite registrado com sucesso para o jogo: {jogo_selecionado}!")
-                                st.balloons()
-                                st.cache_data.clear()
-                            else:
-                                st.error(f"Erro ao registrar: {res_json.get('message')}")
+                            # TRATAMENTO DE ERRO DE CONEXÃO ROBUSTO (EVITA CRASH EXPECTING VALUE)
+                            try:
+                                res_json = resposta.json()
+                                if res_json.get("status") == "success":
+                                    st.success(f"🎉 Palpite registrado com sucesso para o jogo: {jogo_selecionado}!")
+                                    st.balloons()
+                                    st.cache_data.clear()
+                                else:
+                                    st.error(f"Erro ao registrar: {res_json.get('message')}")
+                            except ValueError:
+                                # O Google Apps Script retornou HTML (Página de Erro / Redirecionamento de Conta Privada)
+                                st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma página de erro HTML em vez de dados seguros. "
+                                         "Isso geralmente indica que o seu script Web App não está com acesso configurado para 'Qualquer pessoa'.")
+                                with st.expander("🔍 Ver detalhes técnicos da resposta do Google"):
+                                    st.code(resposta.text[:1000], language="html")
+                                    
                         except Exception as e:
                             st.error(f"Falha de conexão com a API do Google Sheets. Detalhes: {e}")
         else:
@@ -728,12 +736,20 @@ with tabs[4]:
             with st.spinner("Conectando ao banco de dados e gerando as abas oficiais da Copa..."):
                 try:
                     res_init = requests.post(WEB_APP_URL, json={"action": "inicializarNovoBolao", "senha": "feltrim2026"}, timeout=20)
-                    r_json = res_init.json()
-                    if r_json.get("status") == "success":
-                        st.success("🎉 Todas as tabelas e os 56 jogos foram criados com sucesso na sua planilha!")
-                        st.cache_data.clear()
-                    else:
-                        st.error(f"Erro na criação: {r_json.get('message')}")
+                    
+                    # TRATAMENTO DE ERRO DE CONEXÃO ROBUSTO (EVITA CRASH EXPECTING VALUE)
+                    try:
+                        r_json = res_init.json()
+                        if r_json.get("status") == "success":
+                            st.success("🎉 Todas as tabelas e os 56 jogos foram criados com sucesso na sua planilha!")
+                            st.cache_data.clear()
+                        else:
+                            st.error(f"Erro na criação: {r_json.get('message')}")
+                    except ValueError:
+                        st.error("⚠️ Erro de Resposta: O Google Apps Script não pôde inicializar os jogos porque retornou uma página de erro HTML.")
+                        with st.expander("🔍 Ver detalhes técnicos do erro retornado pelo Google"):
+                            st.code(res_init.text[:1000], language="html")
+                            
                 except Exception as ex:
                     st.error(f"Erro ao se conectar ao Google Apps Script: {ex}")
                     
@@ -769,12 +785,20 @@ with tabs[4]:
                 with st.spinner("Salvando placar e recalculando notas..."):
                     try:
                         res_p = requests.post(WEB_APP_URL, json=payload_oficial, timeout=12)
-                        p_json = res_p.json()
-                        if p_json.get("status") == "success":
-                            st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado para {placar_real_m}x{placar_real_v} com sucesso!")
-                            st.cache_data.clear()
-                        else:
-                            st.error(f"Erro: {p_json.get('message')}")
+                        
+                        # TRATAMENTO DE ERRO DE CONEXÃO ROBUSTO (EVITA CRASH EXPECTING VALUE)
+                        try:
+                            p_json = res_p.json()
+                            if p_json.get("status") == "success":
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado para {placar_real_m}x{placar_real_v} com sucesso!")
+                                st.cache_data.clear()
+                            else:
+                                st.error(f"Erro: {p_json.get('message')}")
+                        except ValueError:
+                            st.error("⚠️ Erro de Resposta: O placar não foi salvo porque a planilha retornou uma página de erro HTML.")
+                            with st.expander("🔍 Ver detalhes do erro retornado pelo Google"):
+                                st.code(res_p.text[:1000], language="html")
+                                
                     except Exception as ex:
                         st.error(f"Falha de comunicação: {ex}")
     else:
