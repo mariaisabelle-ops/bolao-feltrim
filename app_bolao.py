@@ -12,7 +12,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Estilização CSS Premium customizada para evitar componentes padrão "feios"
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -69,7 +68,7 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(30, 58, 138, 0.25);
     }
 
-    /* Alertas customizados bonitos (evitando st.warning feio) */
+    /* Alertas customizados corporativos */
     .custom-warning {
         background-color: #fffbeb;
         border-left: 4px solid #f59e0b;
@@ -257,7 +256,7 @@ st.markdown("""
         font-size: 1.05rem;
     }
 
-    /* Visual dos Jogos Estilo FIFA (Match Cards) */
+    /* Cards de Jogos */
     .match-card {
         background-color: white;
         padding: 20px;
@@ -334,7 +333,7 @@ st.markdown("""
         min-width: 90px;
     }
 
-    /* Caixas de Formulário */
+    /* Formulários */
     .form-container {
         background-color: white;
         padding: 24px;
@@ -345,7 +344,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Dicionário robusto de mapeamento de seleções e bandeiras correspondentes
 MAPA_BANDEIRAS = {
     "brasil": "🇧🇷", "brazil": "🇧🇷",
     "argentina": "🇦🇷",
@@ -353,7 +351,7 @@ MAPA_BANDEIRAS = {
     "alemanha": "🇩🇪", "germany": "🇩🇪",
     "espanha": "🇪🇸", "spain": "🇪🇸",
     "itália": "🇮🇹", "italia": "🇮🇹", "italy": "🇮🇹",
-    "inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "england": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "inglaterra": "🇬🇧", "england": "🇬🇧", "reino unido": "🇬🇧",
     "portugal": "🇵🇹",
     "holanda": "🇳🇱", "países baixos": "🇳🇱", "netherlands": "🇳🇱",
     "bélgica": "🇧🇪", "belgica": "🇧🇪", "belgium": "🇧🇪",
@@ -379,7 +377,7 @@ def obter_bandeira(nome_time):
         return "🏳️"
     nome_clean = str(nome_time).strip().lower()
     
-    # Remove emojis existentes do nome do time para tratamento limpo
+    # Remove emojis pré-existentes para garantir tratamento limpo de strings
     nome_sem_emoji = re.sub(r'[^\w\s]', '', nome_clean).strip()
     
     for pais, bandeira in MAPA_BANDEIRAS.items():
@@ -388,15 +386,14 @@ def obter_bandeira(nome_time):
     return "🏳️"
 
 def formatar_nome_time(nome_time):
-    """Limpa o nome do time de qualquer emoji pré-existente para evitar duplicação feia."""
+    """Limpa o nome do time de qualquer emoji para evitar duplicação."""
     if not nome_time:
         return ""
-    # Remove caracteres especiais/emojis no início
     nome_limpo = re.sub(r'^[^\w\s]+', '', str(nome_time)).strip()
     return nome_limpo
 
 def embelezar_jogo(nome_jogo):
-    """Divide o jogo 'Mandante vs Visitante' e reconstrói com bandeiras lindas."""
+    """Divide o jogo 'Mandante vs Visitante' e reconstrói adicionando as bandeiras."""
     if not nome_jogo or 'vs' not in str(nome_jogo).lower():
         return str(nome_jogo)
     
@@ -413,9 +410,8 @@ def embelezar_jogo(nome_jogo):
 
 SHEET_ID = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
-# Codificação das abas para importação direta via CSV do Google Sheets
+# Codificação segura de abas para carregamento direto via URL
 sheet_res_encoded = urllib.parse.quote("Form Responses 2")
-
 URL_RESPOSTAS = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={sheet_res_encoded}"
 
 if "web_app_url" not in st.session_state:
@@ -423,25 +419,25 @@ if "web_app_url" not in st.session_state:
 
 @st.cache_data(ttl=5)
 def carregar_dados_seguro():
+    """Tenta ler de forma robusta e segura os dados da planilha oficial."""
     df_resp = None
     df_res = None
     erro_resp = None
     erro_res = None
     
-    # Tentativa de carregar respostas
+    # Carregar respostas de palpites dos funcionários
     try:
         df_resp = pd.read_csv(URL_RESPOSTAS)
     except Exception as e:
         erro_resp = str(e)
 
-    # Tentativa inteligente e sequencial de carregar a aba de resultados oficiais (com e sem emoji)
+    # Carregar aba de resultados com tolerância a variações de nomes ou emojis
     tentativas_abas = ["🎯 Resultados Oficiais", "Resultados Oficiais", "Resultados", "Jogos"]
     for aba_nome in tentativas_abas:
         try:
             aba_encoded = urllib.parse.quote(aba_nome)
             url_tentativa = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={aba_encoded}"
             df_temp = pd.read_csv(url_tentativa)
-            # Verifica se possui as colunas necessárias para ser a aba correta
             if df_temp is not None and not df_temp.empty and 'Jogo' in df_temp.columns:
                 df_res = df_temp
                 break
@@ -455,10 +451,10 @@ df_respostas_raw, df_resultados_raw, erro_resp, erro_res = carregar_dados_seguro
 df_respostas = None
 df_resultados = None
 
-# Higienização e estruturação inteligente da aba de respostas do formulário
 if df_respostas_raw is not None and not df_respostas_raw.empty:
     df_respostas = df_respostas_raw.dropna(how='all')
     
+    # Identificação inteligente de colunas de e-mail e jogo
     col_email_list = [col for col in df_respostas.columns if any(x in col.lower() for x in ['email', 'e-mail', 'usuário', 'username', 'quem'])]
     col_email = col_email_list[0] if col_email_list else df_respostas.columns[1]
     df_respostas = df_respostas.dropna(subset=[col_email])
@@ -467,31 +463,30 @@ if df_respostas_raw is not None and not df_respostas_raw.empty:
     col_jogo = col_jogo_list[0] if col_jogo_list else df_respostas.columns[2]
     df_respostas = df_respostas.dropna(subset=[col_jogo])
     
+    # Identificação inteligente de palpites de mandante e visitante
     col_p_m_list = [col for col in df_respostas.columns if any(x in col.lower() for x in ['mandante', 'gols 1', 'placar 1', 'gols mandante'])]
     col_p_v_list = [col for col in df_respostas.columns if any(x in col.lower() for x in ['visitante', 'gols 2', 'placar 2', 'gols visitante'])]
     col_p_m = col_p_m_list[0] if col_p_m_list else df_respostas.columns[3]
     col_p_v = col_p_v_list[0] if col_p_v_list else df_respostas.columns[4]
 
-# Higienização da aba de resultados (removendo linhas vazias indesejadas que geram "nan")
 if df_resultados_raw is not None and not df_resultados_raw.empty:
     df_resultados = df_resultados_raw.dropna(subset=['Jogo'], how='any')
     df_resultados = df_resultados[df_resultados['Jogo'].astype(str).str.strip() != ""]
     df_resultados['Jogo'] = df_resultados['Jogo'].astype(str).str.strip()
     df_resultados['Status'] = df_resultados['Status'].fillna('Agendado').astype(str).str.strip()
 
+# Renderização do cabeçalho institucional
 st.write('<h1 class="header-title">🏆 Bolão Feltrim Correa</h1>', unsafe_allow_html=True)
 st.write('<p class="header-subtitle">Central de palpites e classificação em tempo real!</p>', unsafe_allow_html=True)
 
 if df_respostas is not None and not df_respostas.empty:
 
-    # Cálculo dinâmico e seguro de pontos feito diretamente em Python
     def calcular_pontos(row):
+        """Calcula dinamicamente a pontuação de cada palpite (10, 5 ou 0 pts)."""
         if df_resultados is None or df_resultados.empty:
             return 0
         
         jogo_palpitado = formatar_nome_time(row[col_jogo]).lower()
-        
-        # Encontra o jogo correspondente independentemente de caixa ou formatação de emojis
         jogo_oficial = df_resultados[df_resultados['Jogo'].apply(formatar_nome_time).str.lower() == jogo_palpitado]
         
         if jogo_oficial.empty:
@@ -534,7 +529,6 @@ if df_respostas is not None and not df_respostas.empty:
 
     # --- ABA 1: RANKING GERAL (LEADERBOARD) ---
     with tab_ranking:
-        
         ranking = df_respostas.groupby(col_email)['Pontos_Calculados'].sum().reset_index()
         ranking = ranking.sort_values(by='Pontos_Calculados', ascending=False).reset_index(drop=True)
         
@@ -600,7 +594,7 @@ if df_respostas is not None and not df_respostas.empty:
         for idx, row in ranking.iterrows():
             posicao = idx + 1
             if posicao <= 3:
-                continue  # Pula o top 3 do pódio
+                continue
                 
             usuario = str(row[col_email]).split('@')[0].capitalize()
             pontos = int(row['Pontos_Calculados'])
@@ -767,7 +761,6 @@ if df_respostas is not None and not df_respostas.empty:
                 tem_placar = p_m_display != "" and p_v_display != ""
                 placar_html = f'<div class="match-score-box"><span>{p_m_display}</span><span>-</span><span>{p_v_display}</span></div>' if tem_placar else '<div class="match-score-box" style="font-size: 1.1rem; color: #94a3b8; font-weight: 600;">VS</div>'
                 
-                # Divide o nome do time para renderizar com bandeiras gigantes separadas lateralmente
                 times = nome_jogo.split('vs') if 'vs' in nome_jogo else nome_jogo.split('VS')
                 time1 = formatar_nome_time(times[0].strip()) if len(times) > 0 else "Mandante"
                 time2 = formatar_nome_time(times[1].strip()) if len(times) > 1 else "Visitante"
