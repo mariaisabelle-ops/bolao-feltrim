@@ -12,10 +12,9 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Constantes Globais de Integração
+# Constantes Globais de Integração Permanentes
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
-DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc" # ID Padrão Seguro
-
+DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 
 # Estilização CSS Customizada para visual elegante e corporativo
 st.markdown("""
@@ -213,15 +212,14 @@ df_classificacao = fetch_spreadsheet_data(sheet_id, "Classificacao")
 
 # Exibe aviso de configuração se a planilha estiver inacessível
 if df_resultados is None:
-    st.warning("⚠️ **Acesso à Planilha Não Configurado**")
+    st.warning("⚠️ **Acesso à Planilha Não Configurado ou Privado**")
     st.info("""
     Para que o sistema exiba os dados, certifique-se de que:
-    1. Você criou uma planilha do Google a partir do nosso guia de setup.
-    2. Compartilhou a sua planilha no modo **"Qualquer pessoa com o link pode ler"** (Leitor).
-    3. Registrou o ID correto da planilha no painel do administrador abaixo.
+    1. Você compartilhou a sua planilha no modo **"Qualquer pessoa com o link pode ler"** (como Leitor).
+    2. Registrou o ID correto da planilha no painel do administrador abaixo.
     """)
     
-    with st.expander("🔑 Painel de Configuração Inicial"):
+    with St.expander("🔑 Painel de Configuração Inicial"):
         novo_id = st.text_input("ID da Planilha Google (Cole o link ou ID):", value=sheet_id)
         if st.button("Gravar Nova Planilha"):
             # Extrai ID do link caso o usuário cole a URL completa
@@ -231,13 +229,18 @@ if df_resultados is None:
             st.rerun()
     st.stop()
 
-# Garantia de colunas válidas na tabela de resultados
-if 'Jogo' not in df_resultados.columns:
-    df_resultados['Jogo'] = []
-if 'Status' not in df_resultados.columns:
-    df_resultados['Status'] = "🕒 Agendado"
+# Blindagem total contra ValueError de tamanho de Index do Pandas
+if df_resultados.empty:
+    df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante'])
+else:
+    if 'Jogo' not in df_resultados.columns:
+        df_resultados['Jogo'] = ""
+    if 'Status' not in df_resultados.columns:
+        df_resultados['Status'] = "🕒 Agendado"
 
-# Ordenação Cronológica de Partidas
+# Ordenação Cronológica de Partidas de forma segura
+df_resultados = df_resultados.dropna(subset=['Jogo'])
+df_resultados['Jogo'] = df_resultados['Jogo'].astype(str)
 df_resultados['Data_Ordenacao'] = df_resultados['Jogo'].apply(extract_date_key)
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').drop(columns=['Data_Ordenacao'])
 
@@ -258,7 +261,6 @@ tab_ranking, tab_palpites, tab_meus_votos, tab_admin = st.tabs([
 ])
 
 with tab_ranking:
-    # Cabeçalho da classificação
     st.markdown("<h2 style='text-align: center; color: #004b23;'>Placar de Líderes</h2>", unsafe_allow_html=True)
     
     col_rec, col_vazio = st.columns([1, 4])
@@ -274,7 +276,6 @@ with tab_ranking:
 
     # Validação do DataFrame de Classificação
     if df_classificacao is not None and not df_classificacao.empty:
-        colunas_class = [str(c).lower() for c in df_classificacao.columns]
         col_nome_ref = next((c for c in df_classificacao.columns if "participante" in str(c).lower() or "nome" in str(c).lower()), None)
         col_pts_ref = next((c for c in df_classificacao.columns if "pontos" in str(c).lower() or "acumulados" in str(c).lower()), None)
         
@@ -286,7 +287,6 @@ with tab_ranking:
             
             num_competidores = len(df_classificacao_clean)
             if num_competidores > 0:
-                # Ordenar por pontuação
                 df_class_sorted = df_classificacao_clean.sort_values(by=col_pts_ref, ascending=False)
                 lider_nome = str(df_class_sorted.iloc[0][col_nome_ref]).split("@")[0].title()
                 media_pontos = float(df_class_sorted[col_pts_ref].dropna().mean())
@@ -373,14 +373,13 @@ with tab_ranking:
     if df_classificacao is not None and num_competidores > 0:
         df_exibir = df_class_sorted.copy()
         
-        # Blindagem: Se a coluna Posição já existir no DataFrame importado da planilha, removemos antes de reconstruir
+        # Blindagem contra duplicidade de inserção de coluna
         if 'Posição' in df_exibir.columns:
             df_exibir = df_exibir.drop(columns=['Posição'])
             
         df_exibir.insert(0, 'Posição', range(1, len(df_exibir) + 1))
         df_exibir['Posição'] = df_exibir['Posição'].apply(lambda x: f"{x}º")
         
-        # Renomeia colunas para o usuário final
         df_exibir = df_exibir.rename(columns={
             col_nome_ref: "Participante",
             col_pts_ref: "Pontos Acumulados"
@@ -397,23 +396,18 @@ with tab_ranking:
 with tab_palpites:
     st.markdown("<h2 style='color: #004b23;'>Enviar Meu Palpite</h2>", unsafe_allow_html=True)
     
-    # Campo de cadastro do Participante
     email_user = st.text_input("Seu E-mail Corporativo Feltrim Correa:", value="", placeholder="exemplo@feltrim.com.br")
     nome_user = st.text_input("Seu Nome Completo:", value="")
 
-    # Filtrar partidas disponíveis (Apenas "Agendadas" e que NÃO acontecem hoje)
     jogos_disponiveis = []
-    
-    # Data de corte: Hoje é dia 16/06/2026
+    # Data de corte para travar votos retroativos
     data_hoje_str = "16/06"
 
     for idx, row in df_resultados_sorted.iterrows():
         status_jogo = str(row.get('Status', '🕒 Agendado'))
         nome_jogo = str(row['Jogo'])
         
-        # Só permite votação em jogos marcados como Agendado
         if "agendado" in status_jogo.lower():
-            # Impede votação em partidas agendadas para o dia de hoje
             if data_hoje_str not in nome_jogo:
                 jogos_disponiveis.append(nome_jogo)
 
@@ -423,7 +417,6 @@ with tab_palpites:
         st.markdown("<br>", unsafe_allow_html=True)
         st.write("---")
         
-        # Seleção de Jogo para Palpite
         jogo_selecionado = st.selectbox("Selecione a partida que deseja votar:", jogos_disponiveis)
         
         if jogo_selecionado:
@@ -432,7 +425,6 @@ with tab_palpites:
             
             st.markdown(f"### Quem vencerá a partida: **{team_m}** vs **{team_v}**?")
             
-            # Opções de Voto focadas em Vencedor
             voto_opcao = st.radio(
                 "Escolha o seu palpite oficial:",
                 [
@@ -449,7 +441,6 @@ with tab_palpites:
                 elif len(nome_user) < 3:
                     st.error("Por favor, preencha o seu nome completo.")
                 else:
-                    # Mapeamento do palpite final
                     palpite_post = ""
                     if "Empate" in voto_opcao:
                         palpite_post = "Empate"
@@ -458,7 +449,6 @@ with tab_palpites:
                     else:
                         palpite_post = f"Vitoria do {team_v}"
 
-                    # Montagem da Requisição ao Apps Script
                     payload = {
                         "action": "fazerPalpite",
                         "email": email_user.strip().lower(),
@@ -489,9 +479,7 @@ with tab_meus_votos:
     if email_filtro:
         email_limpo = email_filtro.strip().lower()
         
-        # Varredura resiliente na base de palpites
         if df_palpites is not None and not df_palpites.empty:
-            colunas_palpite = [str(c).lower() for c in df_palpites.columns]
             col_email_ref = next((c for c in df_palpites.columns if "email" in str(c).lower() or "e-mail" in str(c).lower()), None)
             
             if col_email_ref:
@@ -505,11 +493,9 @@ with tab_meus_votos:
                     historico_lista = []
                     
                     for col in df_palpites.columns:
-                        # Identifica colunas que pertencem a partidas
                         if "vs" in col or "⚽" in col:
                             voto_valor = registros_usuario.iloc[0][col]
                             if pd.notna(voto_valor) and str(voto_valor).strip() != "":
-                                # Busca status oficial do jogo
                                 status_oficial = "🕒 Agendado"
                                 placar_text = "Sem placar cadastrado"
                                 
@@ -548,7 +534,6 @@ with tab_admin:
         
         st.markdown("### 🏆 Cadastro de Resultados Oficiais")
         
-        # Seleção de jogo para atualizar placares
         lista_atualizacao = list(df_resultados_sorted['Jogo'].unique())
         jogo_escolhido = st.selectbox("Selecione o Jogo para Cadastrar Placar:", lista_atualizacao)
         
@@ -558,7 +543,6 @@ with tab_admin:
             
             st.markdown(f"#### Partida: **{team_m}** vs **{team_v}**")
             
-            # Recupera valores atuais salvos
             placar_m_padrao = ""
             placar_v_padrao = ""
             status_padrao = "🕒 Agendado"
@@ -569,7 +553,6 @@ with tab_admin:
                 placar_v_padrao = str(match_row.iloc[0].get('Placar Real Visitante', ''))
                 status_padrao = str(match_row.iloc[0].get('Status', '🕒 Agendado'))
             
-            # Inputs de placar e status
             col_pl1, col_pl2 = st.columns(2)
             with col_pl1:
                 novo_placar_m = st.text_input(f"Gols de {team_m}:", value=placar_m_padrao)
@@ -583,7 +566,6 @@ with tab_admin:
             )
             
             if st.button("Salvar Placar Oficial 💾", use_container_width=True):
-                # Monta payload de envio para o Google Sheets
                 payload_admin = {
                     "action": "atualizarPlacar",
                     "senha": "feltrim2026",
@@ -615,7 +597,7 @@ with tab_admin:
         if st.button("Gravar Alteração de Planilha"):
             st.session_state['spreadsheet_id'] = st_id_input
             st.cache_data.clear()
-            st.success("Planilha updated com sucesso na sessão!")
+            st.success("Planilha atualizada com sucesso na sessão!")
             st.rerun()
     elif senha_admin != "":
         st.error("Senha de Administrador incorreta!")
