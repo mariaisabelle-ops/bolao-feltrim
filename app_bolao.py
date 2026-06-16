@@ -3,9 +3,8 @@ import pandas as pd
 import requests
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# Configuração de Página Inicial de Alta Fidelidade
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -13,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Configurações de Conectividade com o Google Sheets do Cliente
+# Chaves de Integração Consolidadas e Definitivas
 URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 
@@ -125,11 +124,11 @@ st.markdown("""
 def safe_to_int(val):
     """Converte valores de pontuação de forma blindada contra NaNs."""
     try:
-        if pd.isna(val) or val is None:
-            return 0
+        if pd.isna(val) or val is None or str(val).strip() == "":
+            return ""
         return int(float(val))
     except:
-        return 0
+        return ""
 
 def obter_datetime_jogo(nome_jogo, horario_str):
     """Combina o dia/mês do nome do jogo com o horário da planilha para gerar um datetime."""
@@ -139,7 +138,6 @@ def obter_datetime_jogo(nome_jogo, horario_str):
             return None
         dia, mes = int(match_data.group(1)), int(match_data.group(2))
         
-        # Horário padrão caso esteja em branco
         horario_limpo = "15:00"
         if pd.notna(horario_str) and str(horario_str).strip() != "":
             val = str(horario_str).lower().strip().replace('h', ':')
@@ -175,7 +173,7 @@ def formatar_time_slug(nome_completo_jogo, time_tipo="mandante"):
             return re.sub(r'\s*\(\d{2}/\d{2}\)', '', partes[1]).strip()
     return limpo
 
-@st.cache_data(ttl=10)
+@st.cache_data(ttl=5)
 def fetch_spreadsheet_data(sheet_id, sheet_name):
     """Busca dados no Google Sheets tolerando bloqueios e variações de cabeçalhos."""
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
@@ -228,14 +226,15 @@ if df_resultados is None:
             st.rerun()
     st.stop()
 
-# Garante que as colunas existam e não quebrem o index
 if df_resultados.empty:
-    df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante'])
+    df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante', 'Horário'])
 else:
     if 'Jogo' not in df_resultados.columns:
-        df_resultados['Jogo'] = ""
+        df_resultados = pd.DataFrame(columns=['Jogo', 'Status', 'Placar Real Mandante', 'Placar Real Visitante', 'Horário'])
     if 'Status' not in df_resultados.columns:
         df_resultados['Status'] = "🕒 Agendado"
+    if 'Horário' not in df_resultados.columns:
+        df_resultados['Horário'] = "15:00"
 
 # Ordenação Cronológica Segura (Evitando NaNs)
 if not df_resultados.empty:
@@ -394,7 +393,7 @@ with tab_jogos:
     st.markdown("<h2 style='color: #004b23;'>📅 Tabela de Jogos & Resultados</h2>", unsafe_allow_html=True)
     st.write("Acompanhe o cronograma completo dos confrontos, horários e os placares oficiais cadastrados.")
     
-    # Fuso Horário de Brasília (UTC-3)
+    # Fuso Horário de Brasília (UTC-3) de forma totalmente dinâmica
     try:
         agora_brasil = datetime.utcnow() - timedelta(hours=3)
     except Exception:
@@ -416,16 +415,15 @@ with tab_jogos:
             
             dt_jogo = obter_datetime_jogo(nome_jogo, horario_col)
             
-            # Define o status do palpite e badge visual
+            # Bloqueio automático inteligente: 1 hora antes com base no horário de Brasília
             if dt_jogo:
                 limite_palpite = dt_jogo - timedelta(hours=1)
-                tempo_restante = limite_palpite - agora_brasil
                 
-                if agora_brasil >= limite_palpite or "encerrado" in status_oficial.lower() or "vivo" in status_oficial.lower():
+                if agora_brasil >= limite_palpite or "encerrado" in status_oficial.lower() or "vivo" in status_oficial.lower() or "andamento" in status_oficial.lower():
                     status_palpites = "🔒 Palpites Encerrados"
                     cor_badge = "#d90429"
                 else:
-                    status_palpites = f"🔓 Palpites Abertos (Fecha às {limite_palpite.strftime('%H:%M')} do dia {limite_palpite.strftime('%d/%m')})"
+                    status_palpites = f"🔓 Palpites Abertos (Fecha às {limite_palpite.strftime('%H:%M')} de {limite_palpite.strftime('%d/%m')})"
                     cor_badge = "#004b23"
                 data_exibicao = dt_jogo.strftime("%d/%m às %H:%M")
             else:
@@ -433,7 +431,7 @@ with tab_jogos:
                 cor_badge = "#666"
                 data_exibicao = "A definir"
 
-            # Card elegante para cada jogo
+            # Renderização de card de jogo de alta fidelidade
             st.markdown(f"""
             <div style="background-color: #ffffff; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -443,7 +441,7 @@ with tab_jogos:
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                     <div style="flex: 1; text-align: right; font-weight: bold; font-size: 1.1rem; color: #333;">{team_m}</div>
                     <div style="padding: 0 20px; font-size: 1.5rem; font-weight: 800; color: #004b23; min-width: 100px; text-align: center;">
-                        {f"{safe_to_int(p_m)} - {safe_to_int(p_v)}" if pd.notna(p_m) and pd.notna(p_v) and str(p_m) != "" and str(p_v) != "" else "vs"}
+                        {f"{safe_to_int(p_m)} - {safe_to_int(p_v)}" if pd.notna(p_m) and pd.notna(p_v) and str(p_m).strip() != "" and str(p_v).strip() != "" else "vs"}
                     </div>
                     <div style="flex: 1; text-align: left; font-weight: bold; font-size: 1.1rem; color: #333;">{team_v}</div>
                 </div>
@@ -473,7 +471,7 @@ with tab_palpites:
         nome_jogo = str(row['Jogo'])
         horario_col = row.get('Horário', '15:00')
         
-        # Bloqueio inteligente: 1 hora antes com base no Horário e Data cadastrados
+        # Bloqueio automático: 1 hora antes de cada jogo
         dt_jogo = obter_datetime_jogo(nome_jogo, horario_col)
         jogo_bloqueado = False
         
@@ -498,7 +496,6 @@ with tab_palpites:
 
     if not jogos_disponiveis:
         st.info("Não existem novas partidas abertas para palpites no momento! Todos os confrontos de hoje já foram trancados.")
-        # Se os dados existirem na planilha mas não se qualificarem, mostramos um diagnóstico transparente
         if not df_resultados_sorted.empty:
             with st.expander("🔍 Ver situação das partidas atuais (Diagnóstico)"):
                 st.write(df_resultados_sorted[['Jogo', 'Status']])
@@ -680,6 +677,31 @@ with tab_admin:
                     except Exception as e:
                         st.error(f"Erro técnico de rede: {str(e)}")
                         
+        st.write("---")
+        st.markdown("### ✨ Inicialização Rápida de Partidas")
+        st.write("Se a sua nova planilha está vazia e você precisa carregar todos os 56 jogos oficiais da Copa de uma só vez, utilize o botão abaixo:")
+        
+        if st.button("✨ Inicializar Todos os 56 Jogos na Planilha", use_container_width=True):
+            payload_init = {
+                "action": "inicializarNovoBolao",
+                "senha": "feltrim2026"
+            }
+            with st.spinner("Criando as abas e cadastrando os 56 confrontos na planilha Google..."):
+                try:
+                    response = requests.post(URL_APPS_SCRIPT, json=payload_init, timeout=20)
+                    if response.status_code == 200:
+                        res_json = response.json()
+                        if res_json.get("status") == "success":
+                            st.success("Tabelas configuradas com sucesso! Todos os 56 jogos já estão criados.")
+                            st.cache_data.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"Erro na criação: {res_json.get('message')}")
+                    else:
+                        st.error("Erro de comunicação com o servidor.")
+                except Exception as e:
+                    st.error(f"Erro técnico de comunicação: {str(e)}")
+
         st.write("---")
         st.markdown("### ⚙️ Troca de Planilha Ativa")
         st_id_input = st.text_input("ID da Planilha Google em Uso:", value=sheet_id)
