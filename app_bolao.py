@@ -5,6 +5,7 @@ import requests
 import json
 import re
 
+# Configuração da página e do tema
 st.set_page_config(
     page_title="Bolão Feltrim Correa - Copa 2026",
     page_icon="🏆",
@@ -12,7 +13,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Estilização completa com cores oficiais da bandeira do Brasil (Verde-bandeira, Amarelo-ouro e Azul-royal)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -69,7 +69,7 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0, 75, 35, 0.25);
     }
 
-    /* Alertas Personalizados */
+    /* Alertas Personalizados Estilo Premium */
     .custom-error-box {
         background-color: #fdf2f2;
         border-left: 4px solid #ef4444;
@@ -405,6 +405,7 @@ def normalizar_nome_jogo(nome):
         return f"{parts[0].strip()} vs {parts[1].strip()}"
     return s.strip()
 
+# Inicialização de IDs e URLs de controle
 if "sheet_id" not in st.session_state:
     st.session_state["sheet_id"] = "1fmM9ocjt8cF3xw9zfNv4ysjlSCpNVCgTEefwbuZ_gwg"
 
@@ -418,7 +419,7 @@ def carregar_dados_seguro(sheet_id):
     erro_detalhado = ""
     is_private = False
     
-    # Tentativa de carregar aba "Form Responses 2"
+    # Tentativa de carregar a aba de palpites (Form Responses 2 ou alternativas)
     abas_palpites = ["Form Responses 2", "Respostas_Formulario", "Form Responses 1"]
     for aba in abas_palpites:
         try:
@@ -429,14 +430,14 @@ def carregar_dados_seguro(sheet_id):
                 if response.text.strip().startswith("<html") or "<!DOCTYPE" in response.text:
                     is_private = True
                     break
-                df_temp = pd.read_csv(urllib.parse.urljoin(url, ""))
+                df_temp = pd.read_csv(url)
                 if df_temp is not None and not df_temp.empty:
                     df_resp = df_temp
                     break
         except Exception as e:
             erro_detalhado += f"Falha ao ler {aba}: {str(e)}\n"
 
-    # Tentativa de carregar Resultados
+    # Tentativa de carregar a aba de resultados reais
     abas_resultados = ["🎯 Resultados Oficiais", "Resultados Oficiais", "Resultados"]
     for aba in abas_resultados:
         try:
@@ -480,12 +481,12 @@ df_resultados = None
 if df_respostas_raw is not None and not df_respostas_raw.empty:
     df_respostas = df_respostas_raw.dropna(how='all')
     
-    # Identificar email
+    # Identificar coluna de e-mail de forma flexível
     col_email_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['email', 'e-mail', 'usuário', 'address'])]
     col_email = col_email_list[0] if col_email_list else df_respostas.columns[1]
     df_respostas = df_respostas.dropna(subset=[col_email])
 
-    # Identificar Nome Completo
+    # Identificar coluna do nome completo de forma flexível
     col_nome_list = [col for col in df_respostas.columns if any(x in str(col).lower() for x in ['nome', 'completo', 'participante', '👤'])]
     col_nome = col_nome_list[0] if col_nome_list else col_email
 
@@ -496,13 +497,13 @@ if df_respostas is not None:
         if "vs" in col.lower() or "⚽" in col:
             lista_jogos_formulario.append(col.strip())
 
-# Estruturando os Resultados Oficiais
+# Estruturando os Resultados Oficiais (com fallback caso não exista a aba de resultados)
 if df_resultados_raw is not None and not df_resultados_raw.empty:
     df_resultados = df_resultados_raw.dropna(subset=['Jogo'], how='any')
     df_resultados['Jogo'] = df_resultados['Jogo'].astype(str).str.strip()
     df_resultados['Status'] = df_resultados['Status'].fillna('Agendado').astype(str).str.strip()
 else:
-    # Cria os resultados fictícios automaticamente se não houver a aba de resultados
+    # Cria os resultados fictícios automaticamente para o site não ficar sem dados
     jogos_ficticios = []
     for jogo_nome in lista_jogos_formulario:
         jogos_ficticios.append({
@@ -515,6 +516,7 @@ else:
         df_resultados = pd.DataFrame(jogos_ficticios)
 
 if df_respostas is not None and not df_respostas.empty:
+    # Mapeia email -> nome real para exibição bonita
     mapa_nomes = df_respostas.groupby(col_email)[col_nome].first().to_dict()
 
     def obter_nome_exibicao(email_val):
@@ -533,7 +535,7 @@ if df_respostas is not None and not df_respostas.empty:
                 if not palpite_usuario or pd.isna(row[col_name]) or palpite_usuario.lower() == 'nan':
                     continue
                 
-                # Procura correspondente normalizado nos resultados
+                # Procura correspondente nos resultados reais usando o nome normalizado
                 jogo_norm = normalizar_nome_jogo(col_name)
                 jogo_oficial = df_resultados[df_resultados['Jogo'].apply(normalizar_nome_jogo) == jogo_norm]
                 
@@ -551,7 +553,7 @@ if df_respostas is not None and not df_respostas.empty:
                     except:
                         continue
                     
-                    # Extraindo times para validar a tendência
+                    # Extraindo times para verificar tendência de vitória/empate
                     times_split = str(jogo_oficial.iloc[0]['Jogo']).split('vs') if 'vs' in str(jogo_oficial.iloc[0]['Jogo']).lower() else str(jogo_oficial.iloc[0]['Jogo']).split('VS')
                     time_m = formatar_nome_time(times_split[0]).lower()
                     time_v = formatar_nome_time(times_split[1]).lower() if len(times_split) > 1 else ""
@@ -566,7 +568,7 @@ if df_respostas is not None and not df_respostas.empty:
                         
                     palpite_clean = palpite_usuario.lower()
                     
-                    # Verificação inteligente do palpite de tendência
+                    # Verificação inteligente de tendência acertada (Ganha 10 pontos)
                     if resultado_real == "empate" and "empate" in palpite_clean:
                         pontos += 10
                     elif resultado_real == "mandante" and time_m in palpite_clean:
@@ -575,10 +577,11 @@ if df_respostas is not None and not df_respostas.empty:
                         pontos += 10
         return pontos
 
-    # Consolidando palpites para pegar o mais recente por email
+    # Consolidando os palpites mais recentes de cada email
     df_respostas_consolidadas = df_respostas.sort_values('Timestamp').groupby(col_email).last().reset_index()
     df_respostas_consolidadas['Pontos_Calculados'] = df_respostas_consolidadas.apply(calcular_pontos_participante, axis=1)
 
+    # Criação das Abas Visuais
     tab_ranking, tab_enviar, tab_palpites, tab_jogos = st.tabs([
         "📊 Classificação", 
         "📝 Dar Palpite", 
@@ -681,9 +684,8 @@ if df_respostas is not None and not df_respostas.empty:
         else:
             st.markdown("<hr style='margin:20px 0;'>", unsafe_allow_html=True)
             
-            # Gerando enquetes dinâmicas
+            # Gerando enquetes baseadas nas colunas dinâmicas da planilha
             for col_jogo in lista_jogos_formulario:
-                # Extração de times para a enquete
                 partes = col_jogo.split('vs') if 'vs' in col_jogo.lower() else col_jogo.split('VS')
                 t1 = formatar_nome_time(partes[0])
                 t2 = formatar_nome_time(partes[1]) if len(partes) > 1 else "Visitante"
@@ -691,7 +693,7 @@ if df_respostas is not None and not df_respostas.empty:
                 emojis_t1 = obter_emojis_pais(t1)
                 emojis_t2 = obter_emojis_pais(t2)
                 
-                # Calculando percentuais da galera
+                # Computando porcentagens da galera
                 total_votos_jogo = len(df_respostas)
                 votos_t1 = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains(t1.lower())]) if t1 else 0
                 votos_draw = len(df_respostas[df_respostas[col_jogo].astype(str).str.lower().str.contains('empate')])
@@ -731,7 +733,7 @@ if df_respostas is not None and not df_respostas.empty:
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Botões de Palpite
+                # Três botões de palpitar
                 col_btn1, col_btn2, col_btn3 = st.columns(3)
                 
                 with col_btn1:
