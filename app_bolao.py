@@ -488,35 +488,35 @@ with tab_ranking:
         participantes = df_exibir[col_nome_ref].tolist()
         pontos = [f"{safe_to_int(p)} pts" for p in df_exibir[col_pts_ref].tolist()]
         
-        # Monta a tabela elegante em formato HTML
+        # Monta a tabela elegante em formato HTML linear (evita o bug de espaçamento do markdown)
         linhas_html = ""
         for i in range(len(posicoes)):
             bg_destaque = "style='background-color: #fffef2; font-weight: bold;'" if i == 0 else ""
-            linhas_html += f"""
-            <tr {bg_destaque}>
-                <td style="font-weight: 700; width: 100px;">{posicoes[i]}</td>
-                <td>{participantes[i]}</td>
-                <td style="font-weight: 700; color: #004b23; text-align: right; width: 150px;">{pontos[i]}</td>
-            </tr>
-            """
+            linhas_html += (
+                f"<tr {bg_destaque}>"
+                f"<td style='font-weight: 700; width: 100px;'>{posicoes[i]}</td>"
+                f"<td>{participantes[i]}</td>"
+                f"<td style='font-weight: 700; color: #004b23; text-align: right; width: 150px;'>{pontos[i]}</td>"
+                f"</tr>"
+            )
             
-        tabela_completa_html = f"""
-        <div class="table-container">
-            <table class="premium-table">
-                <thead>
-                    <tr>
-                        <th>Posição</th>
-                        <th>Competidor</th>
-                        <th style="text-align: right;">Pontuação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {linhas_html}
-                </tbody>
-            </table>
-        </div>
-        """
-        st.markdown(tabela_completa_html, unsafe_allow_html=True)
+        tabela_completa_html = (
+            f"<div class='table-container'>"
+            f"<table class='premium-table'>"
+            f"<thead>"
+            f"<tr>"
+            f"<th>Posição</th>"
+            f"<th>Competidor</th>"
+            f"<th style='text-align: right;'>Pontuação</th>"
+            f"</tr>"
+            f"</thead>"
+            f"<tbody>"
+            f"{linhas_html}"
+            f"</tbody>"
+            f"</table>"
+            f"</div>"
+        )
+        st.html(tabela_completa_html)
     else:
         st.info("Nenhum participante pontuou ainda. Os pontos serão calculados à medida que as partidas forem concluídas!")
 
