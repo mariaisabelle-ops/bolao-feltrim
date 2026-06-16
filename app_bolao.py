@@ -17,7 +17,6 @@ st.set_page_config(
 # Constantes de Configuração Geral
 SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
-
 # Fuso Horário de Brasília (UTC-3) - Sem Timezone Offset para evitar erros de comparação
 agora_brasil = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
 
