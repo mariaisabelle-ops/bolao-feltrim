@@ -13,12 +13,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Constante de Fallback Padrão (Planilha modelo)
+# ==============================================================================
+# ⚠️ COLOQUE O ID DA SUA PLANILHA ENTRE AS ASPAS ABAIXO PARA FICAR SALVO PARA SEMPRE:
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
+# ==============================================================================
+
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
 # Fuso Horário de Brasília (UTC-3) - Sem Timezone Offset para evitar erros de comparação
-agora_brasil = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
+agora_brasil = (datetime.now(timezone.utc) - timedelta(hours=3)).replace(tzinfo=None)
 
 # Inicialização do ID da planilha em cache de sessão
 if "spreadsheet_id" not in st.session_state:
@@ -26,7 +29,7 @@ if "spreadsheet_id" not in st.session_state:
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Poppins', sans-serif;
@@ -147,7 +150,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 56 Jogos da Copa do Mundo em Ordem Cronológica Real
+# 56 Jogos da Copa do Mundo em Ordem Cronológica Real (Corrigido JOGO_39)
 JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ Estados Unidos vs Austrália (11/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "21:30"},
@@ -187,7 +190,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Croácia vs África do Sul (20/06)", "Horário": "21:00"},
     {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Argentina vs Senegal (21/06)", "Horário": "12:00"},
     {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Panamá (21/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_39", "⚽ Ucrânia vs Arábia Saudita (21/06)": "⚽ Ucrânia vs Arábia Saudita (21/06)", "Horário": "18:00"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Ucrânia vs Arábia Saudita (21/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Suíça vs Honduras (21/06)", "Horário": "21:00"},
     {"ID_Jogo": "JOGO_41", "Jogo": "⚽ França vs Nigéria (22/06)", "Horário": "12:00"},
     {"ID_Jogo": "JOGO_42", "Jogo": "⚽ Chile vs Marrocos (22/06)", "Horário": "15:00"},
@@ -234,7 +237,7 @@ with st.sidebar:
         st.session_state.spreadsheet_id = user_sid
         st.cache_data.clear()
         st.rerun()
-    st.info("💡 Lembre-se: Para o site conseguir ler a planilha, ela precisa estar compartilhada como 'Qualquer pessoa com o link pode ler'.")
+    st.info("💡 Lembre-se: Para o site conseguir ler a planilha, ela precisa estar compartilhada como 'Qualquer pessoa com o link pode ler' no Google Sheets.")
 
 @st.cache_data(ttl=5)
 def puxar_planilha_segura(sheet_name):
@@ -486,9 +489,9 @@ with tabs[1]:
         st.warning("""
         ⚠️ **Planilha Desconectada ou em Branco!**
         O aplicativo está rodando com dados locais salvos. Para conectar à sua planilha, certifique-se de:
-        1. Configurar o ID correto na barra lateral.
+        1. Copiar o ID da **sua** planilha Google Sheets (presente na URL dela) e colá-lo na caixa de texto do menu lateral esquerdo.
         2. Compartilhar a planilha no Google Sheets como **"Qualquer pessoa com o link pode ler"**.
-        3. Acessar a aba **Portal Admin** para inicializar as abas.
+        3. Se for o administrador do bolão, acesse a aba **Portal Admin** para inicializar as abas na sua planilha!
         """)
 
     for idx, row in df_resultados_sorted.iterrows():
@@ -541,86 +544,87 @@ with tabs[2]:
     st.markdown("### 📝 Registrar seu Palpite")
     
     if planilha_precisa_inicializar:
-        st.error("⚠️ Planilha Desconectada! Verifique o ID da planilha e o compartilhamento na barra lateral esquerda antes de palpitar.")
-    else:
-        st.write("Digite o seu e-mail corporativo cadastrado para filtrar e selecionar as partidas disponíveis.")
+        st.info("ℹ️ **Nota de Conectividade:** O site está a funcionar em modo local porque ainda não foi configurado o seu ID de planilha no GitHub. Pode enviar os seus palpites normalmente, pois eles serão gravados com sucesso!")
+    
+    st.write("Digite o seu e-mail corporativo cadastrado para filtrar e selecionar as partidas disponíveis.")
+    
+    user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
+    user_nome = st.text_input("👤 Nome Completo:", key="user_nome_input").strip()
+    
+    if user_email and "@" in user_email and len(user_nome) >= 3:
+        col_email = ""
+        palpites_feitos_usuario = []
+        for c in df_palpites_raw.columns:
+            if "email" in c.lower() or "e-mail" in c.lower() or "usuário" in c.lower():
+                col_email = c
+                break
         
-        user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
-        user_nome = st.text_input("👤 Nome Completo:", key="user_nome_input").strip()
-        
-        if user_email and "@" in user_email and len(user_nome) >= 3:
-            col_email = ""
-            palpites_feitos_usuario = []
-            for c in df_palpites_raw.columns:
-                if "email" in c.lower() or "e-mail" in c.lower() or "usuário" in c.lower():
-                    col_email = c
-                    break
-            
-            if col_email and not df_palpites_raw.empty:
-                usuario_existente = df_palpites_raw[df_palpites_raw[col_email].astype(str).str.strip().str.lower() == user_email]
-                if not usuario_existente.empty:
-                    linha_user = usuario_existente.iloc[0]
-                    for col in df_palpites_raw.columns:
-                        if col not in ["Carimbo de data/hora", "E-mail do Usuário", "Nome Completo", "email", "e-mail", col_email]:
-                            voto_realizado = str(linha_user[col]).strip()
-                            if voto_realizado and voto_realizado != "nan" and voto_realizado != "":
-                                palpites_feitos_usuario.append(col)
+        if col_email and not df_palpites_raw.empty:
+            usuario_existente = df_palpites_raw[df_palpites_raw[col_email].astype(str).str.strip().str.lower() == user_email]
+            if not usuario_existente.empty:
+                linha_user = usuario_existente.iloc[0]
+                for col in df_palpites_raw.columns:
+                    if col not in ["Carimbo de data/hora", "E-mail do Usuário", "Nome Completo", "email", "e-mail", col_email]:
+                        voto_realizado = str(linha_user[col]).strip()
+                        if voto_realizado and voto_realizado != "nan" and voto_realizado != "":
+                            palpites_feitos_usuario.append(col)
 
-            # Filtrar e remover jogos expirados ou já palpitados pelo colaborador
-            jogos_disponiveis = []
-            for j_idx, j_row in df_resultados_sorted.iterrows():
-                jogo_nome = j_row['Jogo']
-                limite = j_row['Data_Ordenacao'] - timedelta(hours=1)
-                
-                # Regra estrita de palpites livres: antes do limite cronológico e não palpitado
-                if agora_brasil < limite and "encerrado" not in str(j_row.get('Status', '')).lower():
-                    if jogo_nome not in palpites_feitos_usuario:
-                        jogos_disponiveis.append(jogo_nome)
+        # Filtrar e remover jogos expirados ou já palpitados pelo colaborador
+        jogos_disponiveis = []
+        for j_idx, j_row in df_resultados_sorted.iterrows():
+            jogo_nome = j_row['Jogo']
+            limite = j_row['Data_Ordenacao'] - timedelta(hours=1)
             
-            if len(jogos_disponiveis) == 0:
-                st.success("🎉 Você já deu palpite em todos os jogos cronologicamente disponíveis no momento!")
-            else:
-                with st.form("form_palpite_novo"):
-                    jogo_selecionado = st.selectbox("⚽ Selecione o Jogo que deseja apostar:", jogos_disponiveis)
+            # Regra estrita de palpites livres: antes do limite cronológico e não palpitado
+            if agora_brasil < limite and "encerrado" not in str(j_row.get('Status', '')).lower():
+                if jogo_nome not in palpites_feitos_usuario:
+                    jogos_disponiveis.append(jogo_nome)
+        
+        if len(jogos_disponiveis) == 0:
+            st.success("🎉 Parabéns! Já deu palpite em todos os jogos disponíveis no momento!")
+        else:
+            with st.form("form_palpite_novo"):
+                jogo_selecionado = st.selectbox("⚽ Selecione o Jogo que deseja apostar:", jogos_disponiveis)
+                
+                st.markdown(f"##### 🎯 Palpite de Placar para {jogo_selecionado}")
+                col_m, col_v = st.columns(2)
+                with col_m:
+                    gols_m = st.number_input("Gols do Mandante (Equipe 1):", min_value=0, max_value=25, value=0, step=1)
+                with col_v:
+                    gols_v = st.number_input("Gols do Visitante (Equipe 2):", min_value=0, max_value=25, value=0, step=1)
                     
-                    st.markdown(f"##### 🎯 Palpite de Placar para {jogo_selecionado}")
-                    col_m, col_v = st.columns(2)
-                    with col_m:
-                        gols_m = st.number_input("Gols do Mandante (Equipe 1):", min_value=0, max_value=25, value=0, step=1)
-                    with col_v:
-                        gols_v = st.number_input("Gols do Visitante (Equipe 2):", min_value=0, max_value=25, value=0, step=1)
-                        
-                    st.write("")
-                    btn_envio = st.form_submit_button("Confirmar e Registrar Palpite")
+                st.write("")
+                btn_envio = st.form_submit_button("Confirmar e Registrar Palpite")
+                
+                if btn_envio:
+                    palpite_texto = f"{gols_m} x {gols_v}"
+                    dados_envio = {
+                        "action": "fazerPalpite",
+                        "email": user_email,
+                        "nome": user_nome,
+                        "id_jogo": jogo_selecionado,
+                        "palpite": palpite_texto
+                    }
                     
-                    if btn_envio:
-                        palpite_texto = f"{gols_m} x {gols_v}"
-                        dados_envio = {
-                            "action": "fazerPalpite",
-                            "email": user_email,
-                            "nome": user_nome,
-                            "id_jogo": jogo_selecionado,
-                            "palpite": palpite_texto
-                        }
-                        
+                    with st.spinner("Registando o seu palpite no Google Sheets..."):
                         try:
                             resposta = requests.post(WEB_APP_URL, json=dados_envio, timeout=35)
                             try:
                                 res_json = resposta.json()
                                 if res_json.get("status") == "success":
-                                    st.success(f"🎉 Palpite registrado com sucesso para o jogo: {jogo_selecionado}!")
+                                    st.success(f"🎉 Palpite registado com sucesso para o jogo: {jogo_selecionado}!")
                                     st.balloons()
                                     st.cache_data.clear()
                                 else:
-                                    st.error(f"Erro ao registrar: {res_json.get('message')}")
+                                    st.error(f"Erro ao registar: {res_json.get('message')}")
                             except ValueError:
                                 st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma página inválida. Verifique se o seu App da Web está implantado como acesso público para 'Qualquer Pessoa'.")
                                 with st.expander("🔍 Detalhes técnicos da Resposta"):
                                     st.code(resposta.text[:1000], language="html")
                         except Exception as e:
                             st.error(f"Falha de conexão com a API do Google Sheets. Detalhes: {e}")
-        else:
-            st.info("💡 Digite o seu e-mail corporativo completo e seu nome para listar os palpites em aberto.")
+    else:
+        st.info("💡 Digite o seu e-mail corporativo completo e seu nome para listar os palpites em aberto.")
 
 # ==================== ABA 4: MEUS PALPITES ====================
 with tabs[3]:
