@@ -259,12 +259,12 @@ with st.sidebar:
         "ID da sua Planilha Google:", 
         value=st.session_state.spreadsheet_id,
         help="Copie o ID longo presente na URL da sua planilha e cole aqui."
-    ).strip()
-    if user_sid and user_sid != st.session_state.spreadsheet_id:
-        st.session_state.spreadsheet_id = user_sid
-        st.cache_data.clear()
-        st.rerun()
-    st.info("💡 Lembre-se: Para o site conseguir ler a planilha, ela precisa estar compartilhada como 'Qualquer pessoa com o link pode ler' como Leitor.")
+# Configuração da Barra Lateral Simplificada (O ID da planilha foi ocultado por segurança)
+with st.sidebar:
+    st.image("https://img.icons8.com/color/96/trophy.png", width=60)
+    st.markdown("### 🏆 Feltrim Correa")
+    st.markdown("Bolão Oficial da Copa do Mundo FIFA 2026.")
+    st.write("Desejamos bons palpites a todos os colaboradores!")
 
 @st.cache_data(ttl=5)
 def puxar_planilha_segura(sheet_name):
@@ -761,6 +761,21 @@ with tabs[4]:
     
     if admin_pass == "feltrim2026":
         st.success("✅ Acesso administrativo liberado!")
+        st.divider()
+        
+        # Configuração Segura do ID da Planilha Google (Apenas visível para o Admin)
+        st.markdown("#### ⚙️ Configuração do Banco de Dados")
+        user_sid = st.text_input(
+            "ID da Planilha Google Sheets:", 
+            value=st.session_state.spreadsheet_id,
+            help="Copie o ID longo presente na URL da sua planilha e cole aqui para conectar o banco de dados oficial."
+        ).strip()
+        if user_sid and user_sid != st.session_state.spreadsheet_id:
+            st.session_state.spreadsheet_id = user_sid
+            st.cache_data.clear()
+            st.success("🔄 ID da Planilha atualizado com sucesso!")
+            st.rerun()
+            
         st.divider()
         
         st.markdown("#### ✨ Inicialização das Abas e Jogos")
