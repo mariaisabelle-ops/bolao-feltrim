@@ -30,6 +30,7 @@ if "spreadsheet_id" not in st.session_state:
 
 if "erro_conexao" not in st.session_state:
     st.session_state.erro_conexao = None
+
 # Injeção de CSS para estilização premium e responsiva
 st.markdown("""
 <style>
@@ -253,11 +254,11 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "18:00"}
 ]
 
-st.markdown("""
-<div class="header-container">
-    st.markdown("Bem-vindo ao portal oficial do nosso bolão corporativo!")
-    st.markdown("---")
-    st.markdown("📌 **Como participar?**")
+with st.sidebar:
+    st.image("https://img.icons8.com/color/96/trophy.png", width=60)
+    st.markdown("### ⚽ Bolão Feltrim Correa")
+    st.write("Bem-vindo ao portal oficial do nosso bolão corporativo!")
+    st.write("📌 **Como participar?**")
     st.write("1. Registre seu e-mail e nome completo na guia **'Dar Palpite'**.")
     st.write("2. Escolha o confronto em aberto e envie seu placar.")
     st.write("3. Acompanhe a tabela e o ranking em tempo real.")
@@ -448,28 +449,31 @@ with tabs[0]:
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(f"""
+        html_part = """
         <div style="background-color: #f8f9fa; border-left: 5px solid #004b23; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
             <div style="font-size: 0.9rem; color: #666; text-transform: uppercase;">Participantes</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #004b23; margin-top: 5px;">{len(df_ranking)}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #004b23; margin-top: 5px;">{TOTAL}</div>
         </div>
-        """, unsafe_allow_html=True)
+        """.replace("{TOTAL}", str(len(df_ranking)))
+        st.markdown(html_part, unsafe_allow_html=True)
     with col2:
         top_name = df_ranking.iloc[0]['Nome'] if not df_ranking.empty else "Nenhum"
-        st.markdown(f"""
+        html_lider = """
         <div style="background-color: #f8f9fa; border-left: 5px solid #d4af37; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
             <div style="font-size: 0.9rem; color: #666; text-transform: uppercase;">Líder Atual 👑</div>
-            <div style="font-size: 1.4rem; font-weight: 700; color: #b8860b; margin-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{top_name}</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #b8860b; margin-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{LIDER}</div>
         </div>
-        """, unsafe_allow_html=True)
+        """.replace("{LIDER}", str(top_name))
+        st.markdown(html_lider, unsafe_allow_html=True)
     with col3:
         media_pts = round(df_ranking['Pontos'].mean(), 1) if not df_ranking.empty else 0.0
-        st.markdown(f"""
+        html_media = """
         <div style="background-color: #f8f9fa; border-left: 5px solid #007200; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
             <div style="font-size: 0.9rem; color: #666; text-transform: uppercase;">Média de Pontuação</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #007200; margin-top: 5px;">{media_pts} pts</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #007200; margin-top: 5px;">{MEDIA} pts</div>
         </div>
-        """, unsafe_allow_html=True)
+        """.replace("{MEDIA}", str(media_pts))
+        st.markdown(html_media, unsafe_allow_html=True)
 
     st.write("")
     
@@ -480,36 +484,39 @@ with tabs[0]:
         with cols_podio[0]:
             if len(df_ranking) >= 1:
                 p1 = df_ranking.iloc[0]
-                st.markdown(f"""
+                html_p1 = """
                 <div style="background: linear-gradient(135deg, #fffaf0 0%, #fff0d4 100%); border: 2px solid #d4af37; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 6px 15px rgba(212,175,55,0.15);">
                     <div style="font-size: 2.5rem; margin-bottom: 5px;">🥇</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: #856404;">{p1['Nome']}</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #004b23; margin-top: 5px;">{p1['Pontos']} pts</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{p1['Acertos_Exatos']} placares exatos</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #856404;">{NOME}</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #004b23; margin-top: 5px;">{PONTOS} pts</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{EXATOS} placares exatos</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """.replace("{NOME}", str(p1['Nome'])).replace("{PONTOS}", str(p1['Pontos'])).replace("{EXATOS}", str(p1['Acertos_Exatos']))
+                st.markdown(html_p1, unsafe_allow_html=True)
         with cols_podio[1]:
             if len(df_ranking) >= 2:
                 p2 = df_ranking.iloc[1]
-                st.markdown(f"""
+                html_p2 = """
                 <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1.5px solid #adb5bd; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                     <div style="font-size: 2.5rem; margin-bottom: 5px;">🥈</div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: #495057;">{p2['Nome']}</div>
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{p2['Pontos']} pts</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{p2['Acertos_Exatos']} placares exatos</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #495057;">{NOME}</div>
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{PONTOS} pts</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{EXATOS} placares exatos</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """.replace("{NOME}", str(p2['Nome'])).replace("{PONTOS}", str(p2['Pontos'])).replace("{EXATOS}", str(p2['Acertos_Exatos']))
+                st.markdown(html_p2, unsafe_allow_html=True)
         with cols_podio[2]:
             if len(df_ranking) >= 3:
                 p3 = df_ranking.iloc[2]
-                st.markdown(f"""
+                html_p3 = """
                 <div style="background: linear-gradient(135deg, #fdf6f0 0%, #f5e6d3 100%); border: 1.5px solid #cd7f32; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                     <div style="font-size: 2.5rem; margin-bottom: 5px;">🥉</div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: #8a4f1c;">{p3['Nome']}</div>
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{p3['Pontos']} pts</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{p3['Acertos_Exatos']} placares exatos</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #8a4f1c;">{NOME}</div>
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{PONTOS} pts</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{EXATOS} placares exatos</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """.replace("{NOME}", str(p3['Nome'])).replace("{PONTOS}", str(p3['Pontos'])).replace("{EXATOS}", str(p3['Acertos_Exatos']))
+                st.markdown(html_p3, unsafe_allow_html=True)
 
         st.markdown("#### 📋 Classificação Completa")
         
@@ -626,6 +633,7 @@ with tabs[2]:
                         if voto_realizado and voto_realizado != "nan" and voto_realizado != "":
                             palpites_feitos_usuario.append(col)
 
+        # Filtrar e remover jogos expirados ou já palpitados pelo colaborador
         jogos_disponiveis = []
         for j_idx, j_row in df_resultados_sorted.iterrows():
             jogo_nome = j_row.get('Jogo', '')
@@ -829,7 +837,7 @@ with tabs[4]:
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated successfully!")
                                 st.cache_data.clear()
                             else:
                                 st.error(f"Erro: {p_json.get('message')}")
