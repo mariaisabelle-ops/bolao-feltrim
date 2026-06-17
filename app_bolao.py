@@ -11,7 +11,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# STREAMING_CHUNK: Definindo a lista cronológica oficial de 72 jogos da fase de grupos...
+# ==========================================
+# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS
+# ==========================================
 JOGOS_CADASTRADOS = [
     # --- 11/06 ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "15:00", "Data": "11/06 (Quinta)", "Time_M": "México", "ISO_M": "mx", "Time_V": "África do Sul", "ISO_V": "za"},
@@ -194,6 +196,46 @@ st.markdown("""
         border-color: #0B1B3D !important;
     }
     
+    /* Menu de Navegação Premium Sem Círculos de Opção */
+    div[data-testid="stSidebar"] div[role="radiogroup"] {
+        gap: 8px !important;
+    }
+    
+    div[data-testid="stSidebar"] div[role="radiogroup"] [data-baseweb="radio"] > div:first-child {
+        display: none !important; /* Remove as bolinhas pretas/vermelhas feias */
+    }
+    
+    div[data-testid="stSidebar"] div[role="radiogroup"] label {
+        background-color: #FAF9F6 !important;
+        border: 1px solid rgba(197, 160, 89, 0.2) !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        margin-bottom: 2px !important;
+        cursor: pointer !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    div[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+        border-color: #C5A059 !important;
+        background-color: rgba(197, 160, 89, 0.05) !important;
+        transform: translateX(4px);
+    }
+    
+    div[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
+        background: linear-gradient(135deg, #0B1B3D 0%, #1A365D 100%) !important;
+        color: #FFFFFF !important;
+        border-color: #C5A059 !important;
+        box-shadow: 0 4px 15px rgba(11, 27, 61, 0.15) !important;
+    }
+    
+    div[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) span {
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+    }
+    
     /* Pódio Corporativo Esculpido Minimalista */
     .podium-section {
         display: flex;
@@ -362,7 +404,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.image("https://img.icons8.com/color/120/cup.png", width=50)
+    st.image("https://img.icons8.com/color/120/trophy.png", width=50) # Trocado para o Troféu real em vez da caneca de café
     st.markdown("<h3 style='color:#0B1B3D; margin-bottom: 0;'>🏆 Feltrim Correa</h3>", unsafe_allow_html=True)
     st.markdown("<small style='color:#C5A059; font-weight:700;'>Copa do Mundo FIFA 2026</small>", unsafe_allow_html=True)
     st.markdown("---")
@@ -727,7 +769,7 @@ elif aba_selecionada == "📝 Registrar Palpites":
                                 lista_jogos_betted.add(nome_jogo)
 
         # Filtragem de partidas disponíveis para o usuário
-        jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
+        jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_joged_betted] if 'lista_joged_betted' in locals() else [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
         
         st.markdown("---")
         st.markdown(f"<h4 style='color:#0B1B3D; font-weight:800;'>🏟️ Seus Palpites Disponíveis ({len(jogos_disponiveis)} jogos restantes)</h4>", unsafe_allow_html=True)
