@@ -6,6 +6,7 @@ import io
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
+# Configurações iniciais de página e tema responsivo de alta qualidade
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -14,13 +15,13 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# ID Oficial da Planilha Feltrim Correa
+# ID Oficial da Planilha Feltrim Correa (Padrão e Oculto para Usuários Comuns)
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 # ==============================================================================
 
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
-# Fuso Horário de Brasília (UTC-3) - Sem Timezone Offset para evitar erros de comparação
+# Fuso Horário de Brasília (UTC-3)
 agora_brasil = (datetime.now(timezone.utc) - timedelta(hours=3)).replace(tzinfo=None)
 
 # Inicialização de estados em cache de sessão
@@ -29,7 +30,7 @@ if "spreadsheet_id" not in st.session_state:
 
 if "erro_conexao" not in st.session_state:
     st.session_state.erro_conexao = None
-
+# Injeção de CSS para estilização premium e responsiva
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700&display=swap');
@@ -153,128 +154,126 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# 72 Jogos da Copa do Mundo em Ordem Cronológica Real e Oficial do PDF (Sem Polônia)
 JOGOS_ESTATICOS = [
     # --- GRUPO A ---
-    {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "18h"},
-    {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs R. Tcheca (11/06)", "Horário": "23h"},
-    {"ID_Jogo": "JOGO_03", "Jogo": "⚽ R. Tcheca vs África do Sul (18/06)", "Horário": "13h"},
-    {"ID_Jogo": "JOGO_04", "Jogo": "⚽ México vs Coreia do Sul (18/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_05", "Jogo": "⚽ R. Tcheca vs México (24/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_06", "Jogo": "⚽ África do Sul vs Coreia do Sul (24/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "18:00"},
+    {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs R. Tcheca (11/06)", "Horário": "23:00"},
+    {"ID_Jogo": "JOGO_03", "Jogo": "⚽ R. Tcheca vs África do Sul (18/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_04", "Jogo": "⚽ México vs Coreia do Sul (18/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_05", "Jogo": "⚽ R. Tcheca vs México (24/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_06", "Jogo": "⚽ África do Sul vs Coreia do Sul (24/06)", "Horário": "22:00"},
 
     # --- GRUPO B ---
-    {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Canadá vs Bósnia (12/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_08", "Jogo": "⚽ Qatar vs Suíça (12/06)", "Horário": "19h"},
-    {"ID_Jogo": "JOGO_09", "Jogo": "⚽ Suíça vs Bósnia (18/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_10", "Jogo": "⚽ Canadá vs Qatar (18/06)", "Horário": "19h"},
-    {"ID_Jogo": "JOGO_11", "Jogo": "⚽ Suíça vs Canadá (24/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Bósnia vs Qatar (24/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Canadá vs Bósnia (12/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_08", "Jogo": "⚽ Qatar vs Suíça (12/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_09", "Jogo": "⚽ Suíça vs Bósnia (18/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_10", "Jogo": "⚽ Canadá vs Qatar (18/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_11", "Jogo": "⚽ Suíça vs Canadá (24/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Bósnia vs Qatar (24/06)", "Horário": "16:00"},
 
     # --- GRUPO C ---
-    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "13h"},
-    {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "19h"},
-    {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21h30"},
-    {"ID_Jogo": "JOGO_17", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "19h"},
-    {"ID_Jogo": "JOGO_18", "Jogo": "⚽ Marrocos vs Haiti (24/06)", "Horário": "19h"},
+    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21:30"},
+    {"ID_Jogo": "JOGO_17", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_18", "Jogo": "⚽ Marrocos vs Haiti (24/06)", "Horário": "19:00"},
 
     # --- GRUPO D ---
-    {"ID_Jogo": "JOGO_19", "Jogo": "⚽ EUA vs Paraguai (12/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Austrália vs Turquia (14/06)", "Horário": "01h"},
-    {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Turquia vs Paraguai (20/06)", "Horário": "00h"},
-    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ EUA vs Austrália (19/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Turquia vs EUA (25/06)", "Horário": "23h"},
-    {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Paraguai vs Austrália (25/06)", "Horário": "23h"},
+    {"ID_Jogo": "JOGO_19", "Jogo": "⚽ EUA vs Paraguai (12/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Austrália vs Turquia (14/06)", "Horário": "01:00"},
+    {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Turquia vs Paraguai (20/06)", "Horário": "00:00"},
+    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ EUA vs Austrália (19/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Turquia vs EUA (25/06)", "Horário": "23:00"},
+    {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Paraguai vs Austrália (25/06)", "Horário": "23:00"},
 
     # --- GRUPO E ---
-    {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Alemanha vs Curaçao (14/06)", "Horário": "14h"},
-    {"ID_Jogo": "JOGO_26", "Jogo": "⚽ C. do Marfim vs Equador (14/06)", "Horário": "20h"},
-    {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Alemanha vs C. do Marfim (20/06)", "Horário": "21h"},
-    {"ID_Jogo": "JOGO_28", "Jogo": "⚽ Equador vs Curaçao (20/06)", "Horário": "21h"},
-    {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Equador vs Alemanha (25/06)", "Horário": "17h"},
-    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Curaçao vs C. do Marfim (25/06)", "Horário": "17h"},
+    {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Alemanha vs Curaçao (14/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_26", "Jogo": "⚽ C. do Marfim vs Equador (14/06)", "Horário": "20:00"},
+    {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Alemanha vs C. do Marfim (20/06)", "Horário": "21:00"},
+    {"ID_Jogo": "JOGO_28", "Jogo": "⚽ Equador vs Curaçao (20/06)", "Horário": "21:00"},
+    {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Equador vs Alemanha (25/06)", "Horário": "17:00"},
+    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Curaçao vs C. do Marfim (25/06)", "Horário": "17:00"},
 
     # --- GRUPO F ---
-    {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Holanda vs Japão (14/06)", "Horário": "17h"},
-    {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Suécia vs Tunísia (14/06)", "Horário": "23h"},
-    {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Tunísia vs Japão (20/06)", "Horário": "23h"},
-    {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Holanda vs Suécia (20/06)", "Horário": "14h"},
-    {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Tunísia vs Holanda (25/06)", "Horário": "20h"},
-    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Japão vs Suécia (25/06)", "Horário": "20h"},
+    {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Holanda vs Japão (14/06)", "Horário": "17:00"},
+    {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Suécia vs Tunísia (14/06)", "Horário": "23:00"},
+    {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Tunísia vs Japão (20/06)", "Horário": "23:00"},
+    {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Holanda vs Suécia (20/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Tunísia vs Holanda (25/06)", "Horário": "20:00"},
+    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Japão vs Suécia (25/06)", "Horário": "20:00"},
 
     # --- GRUPO G ---
-    {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Bélgica vs Egito (15/06)", "Horário": "18h"},
-    {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Iraque vs Nova Zelândia (15/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Bélgica vs Iraque (21/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Nova Zelândia vs Bélgica (27/06)", "Horário": "15h"},
-    {"ID_Jogo": "JOGO_42", "Jogo": "⚽ Egito vs Iraque (27/06)", "Horário": "15h"},
+    {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Bélgica vs Egito (15/06)", "Horário": "18:00"},
+    {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Iraque vs Nova Zelândia (15/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Bélgica vs Iraque (21/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Nova Zelândia vs Bélgica (27/06)", "Horário": "15:00"},
+    {"ID_Jogo": "JOGO_42", "Jogo": "⚽ Egito vs Iraque (27/06)", "Horário": "15:00"},
 
     # --- GRUPO H ---
-    {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Espanha vs Cabo Verde (15/06)", "Horário": "13h"},
-    {"ID_Jogo": "JOGO_44", "Jogo": "⚽ A. Saudita vs Uruguai (15/06)", "Horário": "19h"},
-    {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Espanha vs A. Saudita (21/06)", "Horário": "13h"},
-    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Uruguai vs Cabo Verde (20/06)", "Horário": "21h"},
-    {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Uruguai vs Espanha (26/06)", "Horário": "21h"},
-    {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Cabo Verde vs A. Saudita (26/06)", "Horário": "21h"},
+    {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Espanha vs Cabo Verde (15/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_44", "Jogo": "⚽ A. Saudita vs Uruguai (15/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Espanha vs A. Saudita (21/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Uruguai vs Cabo Verde (20/06)", "Horário": "21:00"},
+    {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Uruguai vs Espanha (26/06)", "Horário": "21:00"},
+    {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Cabo Verde vs A. Saudita (26/06)", "Horário": "21:00"},
 
     # --- GRUPO I ---
-    {"ID_Jogo": "JOGO_49", "Jogo": "⚽ França vs Senegal (15/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_50", "Jogo": "⚽ Áustria vs Noruega (16/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_51", "Jogo": "⚽ França vs Áustria (22/06)", "Horário": "18h"},
-    {"ID_Jogo": "JOGO_52", "Jogo": "⚽ Noruega vs Senegal (22/06)", "Horário": "00h"},
-    {"ID_Jogo": "JOGO_53", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "18h"},
-    {"ID_Jogo": "JOGO_54", "Jogo": "⚽ Senegal vs Áustria (26/06)", "Horário": "18h"},
+    {"ID_Jogo": "JOGO_49", "Jogo": "⚽ França vs Senegal (15/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_50", "Jogo": "⚽ Áustria vs Noruega (16/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_51", "Jogo": "⚽ França vs Áustria (22/06)", "Horário": "18:00"},
+    {"ID_Jogo": "JOGO_52", "Jogo": "⚽ Noruega vs Senegal (22/06)", "Horário": "00:00"},
+    {"ID_Jogo": "JOGO_53", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "18:00"},
+    {"ID_Jogo": "JOGO_54", "Jogo": "⚽ Senegal vs Áustria (26/06)", "Horário": "18:00"},
 
     # --- GRUPO J ---
-    {"ID_Jogo": "JOGO_55", "Jogo": "⚽ Argentina vs Argélia (16/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Jordânia vs Ucrânia (17/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_57", "Jogo": "⚽ Ucrânia vs Argentina (23/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_58", "Jogo": "⚽ Jordânia vs Argélia (23/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_59", "Jogo": "⚽ Ucrânia vs Argélia (27/06)", "Horário": "22h"},
-    {"ID_Jogo": "JOGO_60", "Jogo": "⚽ Argentina vs Jordânia (27/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_55", "Jogo": "⚽ Argentina vs Argélia (16/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Jordânia vs Ucrânia (17/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_57", "Jogo": "⚽ Ucrânia vs Argentina (23/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_58", "Jogo": "⚽ Jordânia vs Argélia (23/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_59", "Jogo": "⚽ Ucrânia vs Argélia (27/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_60", "Jogo": "⚽ Argentina vs Jordânia (27/06)", "Horário": "22:00"},
 
     # --- GRUPO K ---
-    {"ID_Jogo": "JOGO_61", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "14h"},
-    {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Uzbequistão vs Colômbia (17/06)", "Horário": "16h"},
-    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "14h"},
-    {"ID_Jogo": "JOGO_64", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "20h"},
-    {"ID_Jogo": "JOGO_65", "Jogo": "⚽ Colômbia vs Portugal (27/06)", "Horário": "20h30"},
-    {"ID_Jogo": "JOGO_66", "Jogo": "⚽ RD Congo vs Uzbequistão (27/06)", "Horário": "20h30"},
+    {"ID_Jogo": "JOGO_61", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Uzbequistão vs Colômbia (17/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_64", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "20:00"},
+    {"ID_Jogo": "JOGO_65", "Jogo": "⚽ Colômbia vs Portugal (27/06)", "Horário": "20:30"},
+    {"ID_Jogo": "JOGO_66", "Jogo": "⚽ RD Congo vs Uzbequistão (27/06)", "Horário": "20:30"},
 
     # --- GRUPO L ---
-    {"ID_Jogo": "JOGO_67", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "17h"},
-    {"ID_Jogo": "JOGO_68", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "21h"},
-    {"ID_Jogo": "JOGO_69", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "17h"},
-    {"ID_Jogo": "JOGO_70", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "23h"},
-    {"ID_Jogo": "JOGO_71", "Jogo": "⚽ Panamá vs Inglaterra (27/06)", "Horário": "18h"},
-    {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "18h"}
+    {"ID_Jogo": "JOGO_67", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "17:00"},
+    {"ID_Jogo": "JOGO_68", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "21:00"},
+    {"ID_Jogo": "JOGO_69", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "17:00"},
+    {"ID_Jogo": "JOGO_70", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "23:00"},
+    {"ID_Jogo": "JOGO_71", "Jogo": "⚽ Panamá vs Inglaterra (27/06)", "Horário": "18:00"},
+    {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "18:00"}
 ]
 
-# Configuração de ID Personalizado de Planilha na Barra Lateral
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/google-sheets.png", width=60)
-    st.markdown("### 📊 Banco de Dados")
-    user_sid = st.text_input(
-        "ID da sua Planilha Google:", 
-        value=st.session_state.spreadsheet_id,
-        help="Copie o ID longo presente na URL da sua planilha e cole aqui."
-# Configuração da Barra Lateral Simplificada (O ID da planilha foi ocultado por segurança)
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/trophy.png", width=60)
-    st.markdown("### 🏆 Feltrim Correa")
-    st.markdown("Bolão Oficial da Copa do Mundo FIFA 2026.")
-    st.write("Desejamos bons palpites a todos os colaboradores!")
+st.markdown("""
+<div class="header-container">
+    st.markdown("Bem-vindo ao portal oficial do nosso bolão corporativo!")
+    st.markdown("---")
+    st.markdown("📌 **Como participar?**")
+    st.write("1. Registre seu e-mail e nome completo na guia **'Dar Palpite'**.")
+    st.write("2. Escolha o confronto em aberto e envie seu placar.")
+    st.write("3. Acompanhe a tabela e o ranking em tempo real.")
 
 @st.cache_data(ttl=5)
 def puxar_planilha_segura(sheet_name):
+    """
+    Carrega dados de uma aba com tratamento avançado de URLs e diagnóstico de erros.
+    """
     try:
         sheet_encoded = urllib.parse.quote(sheet_name)
         url = f"https://docs.google.com/spreadsheets/d/{st.session_state.spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_encoded}"
         resposta = requests.get(url, timeout=10)
         
         if resposta.status_code == 404:
-            st.session_state.erro_conexao = "ID da Planilha não encontrado. Verifique se copiou corretamente."
+            st.session_state.erro_conexao = "ID da Planilha não encontrado no Google Sheets."
             return pd.DataFrame()
         elif resposta.status_code != 200:
             st.session_state.erro_conexao = f"Falha HTTP {resposta.status_code} na API do Google."
@@ -282,17 +281,17 @@ def puxar_planilha_segura(sheet_name):
             
         conteudo = resposta.text
         if "html" in resposta.headers.get("Content-Type", "").lower() or "<html" in conteudo[:200].lower():
-            st.session_state.erro_conexao = "Planilha Privada! Vá em Compartilhar > Qualquer pessoa com o link pode ler."
+            st.session_state.erro_conexao = "Acesso Bloqueado! Sua planilha está Privada. Mude o compartilhamento para 'Qualquer pessoa com o link'."
             return pd.DataFrame()
             
         df = pd.read_csv(io.StringIO(conteudo))
-        df = df.dropna(how='all', axis=0) # Apenas descarta linhas inteiramente vazias, preservando as colunas nulas!
+        df = df.dropna(how='all', axis=1)
         df.columns = [str(c).strip() for c in df.columns]
         
         st.session_state.erro_conexao = None
         return df
     except Exception as e:
-        st.session_state.erro_conexao = f"Erro físico de conexão: {str(e)}"
+        st.session_state.erro_conexao = f"Erro de conexão: {str(e)}"
         return pd.DataFrame()
 
 def carregar_aba_com_fallback(lista_nomes):
@@ -302,7 +301,6 @@ def carregar_aba_com_fallback(lista_nomes):
             return df, nome
     return pd.DataFrame(), None
 
-# Carregamento seguro das tabelas
 df_resultados_raw, aba_resultados_nome = carregar_aba_com_fallback([
     "Resultados Oficiais", "🎯 Resultados Oficiais", "Resultados", "🎯 Resultados"
 ])
@@ -311,6 +309,7 @@ df_palpites_raw, aba_palpites_nome = carregar_aba_com_fallback([
     "Palpites", "Respostas_Formulario", "Respostas ao formulário 1", "Form Responses 1", "Respostas do formulário 1"
 ])
 
+# Mapeando e normalizando colunas
 if not df_resultados_raw.empty:
     col_map = {}
     for col in df_resultados_raw.columns:
@@ -341,18 +340,12 @@ def obter_datetime_jogo(jogo_nome, horario_str):
         if "(" in str(jogo_nome) and "/" in str(jogo_nome):
             parte_data = str(jogo_nome).split("(")[-1].split(")")[0]
             dia, mes = map(int, parte_data.split("/"))
-            horario_str = str(horario_str).strip().lower()
-            if "h" in horario_str:
-                horario_str = horario_str.replace("h", ":")
-            
+            horario_str = str(horario_str).strip()
             if ":" in horario_str:
-                partes = horario_str.split(":")
-                hora = int(partes[0])
-                minuto = int(partes[1]) if partes[1].strip() else 0
+                hora, minuto = map(int, horario_str.split(":"))
             else:
-                hora = int(horario_str)
-                minuto = 0
-            return datetime(2026, mes, dia, hora, minute=minuto)
+                hora, minuto = 15, 0
+            return datetime(2026, mes, dia, hora, minuto)
     except Exception:
         pass
     return datetime(2026, 6, 25, 23, 59)
@@ -440,6 +433,7 @@ if not df_ranking.empty:
 else:
     df_ranking = pd.DataFrame(columns=['Posição', 'Nome', 'Pontos', 'Acertos_Exatos', 'Palpites_Feitos'])
 
+# Estrutura de Abas do Aplicativo
 tabs = st.tabs([
     "🏆 Classificação Geral", 
     "📅 Jogos & Resultados", 
@@ -555,7 +549,7 @@ with tabs[1]:
         **Mensagem Técnica:** {motivo_diagnostico}
         
         *O app está operando de forma segura no modo local.* Para que o site reconheça a sua planilha no Google Sheets:
-        1. Confirme se copiou exatamente o ID `{st.session_state.spreadsheet_id}` da URL da planilha.
+        1. Confirme se as abas estão devidamente criadas no seu Google Sheets.
         2. Clique em **Compartilhar** no Google Sheets e configure o **Acesso Geral** como **"Qualquer pessoa com o link pode ler"** (como Leitor).
         3. Vá na aba **Portal Admin** usando a senha para gerar as tabelas na sua planilha!
         """)
@@ -608,6 +602,7 @@ with tabs[1]:
 # ==================== ABA 3: DAR PALPITE ====================
 with tabs[2]:
     st.markdown("### 📝 Registrar seu Palpite")
+    
     st.write("Digite o seu e-mail corporativo cadastrado para filtrar e selecionar as partidas disponíveis.")
     
     user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
@@ -636,7 +631,7 @@ with tabs[2]:
             jogo_nome = j_row.get('Jogo', '')
             limite = j_row.get('Data_Ordenacao') - timedelta(hours=1)
             
-            # Palpites abertos: antes do limite cronológico e não palpitados
+            # Regra estrita de palpites livres: antes do limite cronológico e não palpitado
             if agora_brasil < limite and "encerrado" not in str(j_row.get('Status', '')).lower():
                 if jogo_nome not in palpites_feitos_usuario:
                     jogos_disponiveis.append(jogo_nome)
@@ -650,9 +645,9 @@ with tabs[2]:
                 st.markdown(f"##### 🎯 Palpite de Placar para {jogo_selecionado}")
                 col_m, col_v = st.columns(2)
                 with col_m:
-                    gols_m = st.number_input("Gols do Mandante (Equipe 1):", min_value=0, max_value=25, value=0, step=1)
+                    gols_m = st.number_input("Gols do Mandante:", min_value=0, max_value=25, value=0, step=1)
                 with col_v:
-                    gols_v = st.number_input("Gols do Visitante (Equipe 2):", min_value=0, max_value=25, value=0, step=1)
+                    gols_v = st.number_input("Gols do Visitante:", min_value=0, max_value=25, value=0, step=1)
                     
                 st.write("")
                 btn_envio = st.form_submit_button("Confirmar e Registrar Palpite")
@@ -679,7 +674,7 @@ with tabs[2]:
                                 else:
                                     st.error(f"Erro ao registar: {res_json.get('message')}")
                             except ValueError:
-                                st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma resposta inválida.")
+                                st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma resposta inválida. Verifique se o seu App da Web está configurado corretamente como público.")
                         except Exception as e:
                             st.error(f"Falha de conexão com a API do Google Sheets. Detalhes: {e}")
     else:
@@ -763,17 +758,16 @@ with tabs[4]:
         st.success("✅ Acesso administrativo liberado!")
         st.divider()
         
-        # Configuração Segura do ID da Planilha Google (Apenas visível para o Admin)
-        st.markdown("#### ⚙️ Configuração do Banco de Dados")
+        st.markdown("#### ⚙️ Configurações de Banco de Dados")
         user_sid = st.text_input(
-            "ID da Planilha Google Sheets:", 
+            "ID da Planilha Google Sheets:",
             value=st.session_state.spreadsheet_id,
-            help="Copie o ID longo presente na URL da sua planilha e cole aqui para conectar o banco de dados oficial."
+            help="Altere o ID da planilha para conectar outro banco de dados do bolão de forma segura."
         ).strip()
+        
         if user_sid and user_sid != st.session_state.spreadsheet_id:
             st.session_state.spreadsheet_id = user_sid
             st.cache_data.clear()
-            st.success("🔄 ID da Planilha atualizado com sucesso!")
             st.rerun()
             
         st.divider()
@@ -792,12 +786,12 @@ with tabs[4]:
                     try:
                         r_json = res_init.json()
                         if r_json.get("status") == "success":
-                            st.success("🎉 Todas as tabelas e os 72 jogos oficiais foram criados com sucesso!")
+                            st.success("🎉 Todas as tabelas e os 72 jogos foram criados com sucesso!")
                             st.cache_data.clear()
                         else:
                             st.error(f"Erro na criação: {r_json.get('message')}")
                     except ValueError:
-                        st.error("⚠️ O Google Apps Script retornou uma resposta inesperada.")
+                        st.error("⚠️ O Google Apps Script retornou uma resposta inesperada. Garanta que a URL está implantada com acesso público.")
                 except Exception as ex:
                     st.error(f"Erro ao se conectar ao Google Apps Script: {ex}")
                     
@@ -835,11 +829,10 @@ with tabs[4]:
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated successfully!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
                                 st.cache_data.clear()
                             else:
-                                r_json_msg = p_json.get('message')
-                                st.error(f"Erro: {r_json_msg}")
+                                st.error(f"Erro: {p_json.get('message')}")
                         except ValueError:
                             st.error("⚠️ Erro de Resposta: O placar não pôde ser gravado.")
                     except Exception as ex:
