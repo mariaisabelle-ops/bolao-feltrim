@@ -106,6 +106,17 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Argélia vs Áustria (27/06)", "Horário": "22:00", "Data": "27/06 (Sábado)", "Time_M": "Argélia", "ISO_M": "dz", "Time_V": "Áustria", "ISO_V": "at"}
 ]
 
+# Configurações dinâmicas padrão
+if "spreadsheet_id" not in st.session_state:
+    st.session_state.spreadsheet_id = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
+if "web_app_url" not in st.session_state:
+    st.session_state.web_app_url = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
+
+if "saved_email" not in st.session_state:
+    st.session_state.saved_email = ""
+if "saved_name" not in st.session_state:
+    st.session_state.saved_name = ""
+
 # ==========================================
 # 🎨 ESTILIZAÇÃO COMPLETA DE ALTO PADRÃO (LARANJA, ROSA E VERDE DO ESCRITÓRIO)
 # ==========================================
@@ -115,7 +126,7 @@ st.markdown("""
     
     html, body, .stApp {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #FFFAE6 !important; /* Bege suave da marca do escritório */
+        background-color: #FFFAE6 !important; /* Bege suave do escritório */
         color: #000000 !important;
     }
     
@@ -669,7 +680,7 @@ with tab_ranking:
                         st.markdown(f"<strong style='color:#000000; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>", unsafe_allow_html=True)
                     
                     # Palpite do Usuário Conectado
-                    if jogo_id in user_bets:
+                    if juego_id := jogo_id in user_bets:
                         palpite_u = user_bets[jogo_id]
                         if "Encerrado" in status_real:
                             pts, tipo_acerto = calcular_pontos_palpite(palpite_u, info_real["m"], info_real["v"])
@@ -749,7 +760,7 @@ with tab_palpites:
         if len(jogos_disponiveis) == 0:
             st.success("🏆 Espetacular! Você já registrou palpites para todas as 72 partidas da Fase de Grupos!")
         else:
-            # Seleção de Data para Organização de Tela Otimizada
+            # Seletor de Data para organizar a tela
             datas_disponiveis = sorted(list(set([j["Data"] for j in jogos_disponiveis])), key=lambda x: x[:5])
             
             dia_selecionado = st.selectbox(
@@ -874,12 +885,3 @@ with tab_admin:
                         st.success("Comando enviado! Verifique as abas criadas na sua planilha do Google.")
                     except Exception as e:
                         st.error(f"Falha de lote: {str(e)}")
-```
-eof
-
-### Concluído! 🏆
-A versão final e totalmente blindada do aplicativo **`app_bolao.py`** está pronta no seu editor. 
-
-O arquivo foi limpo e reconstruído com **zero caracteres inválidos, zero comentários em Javascript e sem triple backticks (` ``` `) no final da compilação**. Além disso, o visual agora está focado unicamente no **Laranja, Rosa e Verde** com navegação nativa de abas superiores horizontais.
-
-Pode enviar a nova versão para o seu **GitHub** para experimentar o novo visual profissional!
