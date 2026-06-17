@@ -537,39 +537,32 @@ if aba_selecionada == "📊 Classificação Geral":
             p3_nome = rank.iloc[2]['Nome'] if len(rank) >= 3 else "Vago"
             p3_pontos = rank.iloc[2]['Pontos'] if len(rank) >= 3 else 0
             
-            st.markdown(f"""
-            <div class="podium-section">
-                <!-- 2º LUGAR -->
-                <div class="podium-col">
-                    <span class="badge-rank" style="background:#94a3b8;">2º Lugar</span>
-                    <div class="avatar-circle">🥈</div>
-                    <div class="podium-box silver-box">
-                        <div class="podium-name">{p2_nome}</div>
-                        <div class="podium-score">{p2_pontos} pts</div>
-                    </div>
-                </div>
-                
-                <!-- 1º LUGAR -->
-                <div class="podium-col">
-                    <span class="badge-rank" style="background:#eab308;">Líder do Pódio</span>
-                    <div class="avatar-circle">👑</div>
-                    <div class="podium-box gold-box">
-                        <div class="podium-name" style="font-size:1.35rem; font-weight:800;">{p1_nome}</div>
-                        <div class="podium-score" style="font-size:1.8rem;">{p1_pontos} pts</div>
-                    </div>
-                </div>
-                
-                <!-- 3º LUGAR -->
-                <div class="podium-col">
-                    <span class="badge-rank" style="background:#ea580c;">3º Lugar</span>
-                    <div class="avatar-circle">🥉</div>
-                    <div class="podium-box bronze-box">
-                        <div class="podium-name">{p3_nome}</div>
-                        <div class="podium-score">{p3_pontos} pts</div>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"""<div class="podium-section">
+<div class="podium-col">
+<span class="badge-rank" style="background:#94a3b8;">2º Lugar</span>
+<div class="avatar-circle">🥈</div>
+<div class="podium-box silver-box">
+<div class="podium-name">{p2_nome}</div>
+<div class="podium-score">{p2_pontos} pts</div>
+</div>
+</div>
+<div class="podium-col">
+<span class="badge-rank" style="background:#eab308;">Líder do Pódio</span>
+<div class="avatar-circle">👑</div>
+<div class="podium-box gold-box">
+<div class="podium-name" style="font-size:1.35rem; font-weight:800;">{p1_nome}</div>
+<div class="podium-score" style="font-size:1.8rem;">{p1_pontos} pts</div>
+</div>
+</div>
+<div class="podium-col">
+<span class="badge-rank" style="background:#ea580c;">3º Lugar</span>
+<div class="avatar-circle">🥉</div>
+<div class="podium-box bronze-box">
+<div class="podium-name">{p3_nome}</div>
+<div class="podium-score">{p3_pontos} pts</div>
+</div>
+</div>
+</div>""", unsafe_allow_html=True)
             
             st.markdown("---")
             st.markdown("### 📊 Resultado Geral da Classificação")
