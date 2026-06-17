@@ -154,6 +154,21 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Cabeçalho Premium da Marca Feltrim Correa
+st.markdown("""
+<div class="header-container">
+    <div class="header-title">🏆 Feltrim Correa</div>
+    <div class="header-subtitle">PORTAL OFICIAL DO BOLÃO DA COPA DO MUNDO FIFA 2026</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown(f"""
+<div class="timezone-bar">
+    <span>⏱️</span>
+    <span>Horário de Brasília: <b>{agora_brasil.strftime('%d/%m/%Y às %H:%M:%S')}</b> (Palpites travam 1 hora antes de cada jogo)</span>
+</div>
+""", unsafe_allow_html=True)
+
 JOGOS_ESTATICOS = [
     # --- GRUPO A ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "18:00"},
@@ -284,7 +299,7 @@ def puxar_planilha_segura(sheet_name):
             return pd.DataFrame()
             
         df = pd.read_csv(io.StringIO(conteudo))
-        df = df.dropna(how='all', axis=1)
+        # Removemos o descarte agressivo de colunas nulas para evitar a perda das colunas de Placar Real vazias
         df.columns = [str(c).strip() for c in df.columns]
         
         st.session_state.erro_conexao = None
@@ -774,6 +789,58 @@ with tabs[4]:
             st.rerun()
             
         st.divider()
+
+        # ==================== PAINEL DE DIAGNÓSTICO AVANÇADO ====================
+        st.markdown("#### 🔍 Painel de Diagnóstico de Conexão")
+        st.write("Execute testes automáticos em tempo real para descobrir exatamente por que a planilha ou a API não estão carregando:")
+
+        if st.button("⚡ Executar Testes de Conexão"):
+            # Teste 1: Leitura Direta da Planilha
+            st.markdown("**1. Testando Leitura da Planilha Google...**")
+            sheet_url = f"https://docs.google.com/spreadsheets/d/{st.session_state.spreadsheet_id}/gviz/tq?tqx=out:csv"
+            try:
+                r_sheet = requests.get(sheet_url, timeout=10)
+                if r_sheet.status_code == 200:
+                    text_prev = r_sheet.text[:200].lower()
+                    if "html" in r_sheet.headers.get("Content-Type", "").lower() or "<html" in text_prev:
+                        st.error("❌ **Sua planilha está PRIVADA!**\n\nO Google Sheets está exigindo login para leitura. Vá na sua planilha do Google, clique no botão azul **'Compartilhar'** no canto superior direito e mude o Acesso Geral para **'Qualquer pessoa com o link'** como **'Leitor'**.")
+                    else:
+                        st.success("✅ **Planilha Acessível!** O site consegue ler dados públicos da planilha normalmente.")
+                else:
+                    st.error(f"❌ **Falha do Google Sheets!** O Google retornou código HTTP {r_sheet.status_code}. Verifique se o ID da planilha está correto.")
+            except Exception as e:
+                st.error(f"❌ **Falha ao conectar na Planilha:** {e}")
+
+            # Teste 2: Conexão com Apps Script API
+            st.markdown("**2. Testando Comunicação com o Google Apps Script...**")
+            try:
+                r_script = requests.post(
+                    st.session_state.web_app_url,
+                    json={"action": "testPing", "spreadsheet_id": st.session_state.spreadsheet_id},
+                    timeout=15
+                )
+                st.write(f"Código HTTP recebido da API: `{r_script.status_code}`")
+                
+                text_preview = r_script.text[:500]
+                if "html" in r_script.headers.get("Content-Type", "").lower() or "<html" in text_preview.lower():
+                    st.error("❌ **Sua API está Privada ou Bloqueada pelo Google!**\n\nO Google Apps Script retornou uma página de login em vez de responder à nossa aplicação.")
+                    if "sign-in" in text_preview.lower() or "accounts.google.com" in text_preview.lower():
+                        st.info("💡 **Como resolver:** No editor do seu Apps Script, clique em **'Implantar' (Deploy)** -> **'Gerenciar implantações'** -> **'Editar' (ícone de lápis)** e certifique-se de configurar:\n* **Executar como:** 'Eu'\n* **Quem tem acesso:** **'Qualquer pessoa'** (Anyone).\n* **MUITO IMPORTANTE:** Mude a Versão para **'Nova Versão'** antes de clicar em Implantar!")
+                    else:
+                        st.info(f"Visualização do erro retornado pelo Google:\n```html\n{text_preview}\n```")
+                else:
+                    try:
+                        res_json = r_script.json()
+                        st.success("✅ **Google Apps Script Conectado e Respondendo!**")
+                        st.write("Resposta oficial retornada:", res_json)
+                    except ValueError:
+                        st.error("❌ **Resposta de dados corrompida!** O script respondeu, mas não em formato JSON.")
+                        st.write(f"Conteúdo retornado: `{text_preview}`")
+            except Exception as e:
+                st.error(f"❌ **Falha ao enviar dados para o Apps Script:** {e}")
+
+        st.divider()
+
         st.markdown("#### ✨ Inicialização das Abas e Jogos")
         st.write(f"Crie as abas necessárias para rodar o bolão na planilha atual (**ID:** `{st.session_state.spreadsheet_id}`):")
         
