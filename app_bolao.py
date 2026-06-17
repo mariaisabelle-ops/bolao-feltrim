@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import json
 
+# Configuração de Página Premium do Streamlit
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Corporativo",
     page_icon="🏆",
@@ -10,114 +11,112 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ==========================================
-# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS
-# ==========================================
+# STREAMING_CHUNK: Declarando o mapeamento de jogos com ISO de bandeiras reais da API Flagcdn...
 JOGOS_CADASTRADOS = [
     # --- 11/06 ---
-    {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "15:00", "Data": "11/06 (Quinta)", "Time_M": "México", "Emoji_M": "🇲🇽", "Time_V": "África do Sul", "Emoji_V": "🇿🇦"},
-    {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs Tchéquia (11/06)", "Horário": "22:00", "Data": "11/06 (Quinta)", "Time_M": "Coreia do Sul", "Emoji_M": "🇰🇷", "Time_V": "Tchéquia", "Emoji_V": "🇨🇿"},
+    {"ID_Jogo": "JOGO_01", "Jogo": "México vs África do Sul (11/06)", "Horário": "15:00", "Data": "11/06 (Quinta)", "Time_M": "México", "ISO_M": "mx", "Time_V": "África do Sul", "ISO_V": "za"},
+    {"ID_Jogo": "JOGO_02", "Jogo": "Coreia do Sul vs Tchéquia (11/06)", "Horário": "22:00", "Data": "11/06 (Quinta)", "Time_M": "Coreia do Sul", "ISO_M": "kr", "Time_V": "Tchéquia", "ISO_V": "cz"},
     # --- 12/06 ---
-    {"ID_Jogo": "JOGO_03", "Jogo": "⚽ Canadá vs Bósnia e Herzegovina (12/06)", "Horário": "15:00", "Data": "12/06 (Sexta)", "Time_M": "Canadá", "Emoji_M": "🇨🇦", "Time_V": "Bósnia e Herzegovina", "Emoji_V": "🇧🇦"},
-    {"ID_Jogo": "JOGO_04", "Jogo": "⚽ Estados Unidos vs Paraguai (12/06)", "Horário": "21:00", "Data": "12/06 (Sexta)", "Time_M": "Estados Unidos", "Emoji_M": "🇺🇸", "Time_V": "Paraguai", "Emoji_V": "🇵🇾"},
+    {"ID_Jogo": "JOGO_03", "Jogo": "Canadá vs Bósnia e Herzegovina (12/06)", "Horário": "15:00", "Data": "12/06 (Sexta)", "Time_M": "Canadá", "ISO_M": "ca", "Time_V": "Bósnia e Herzegovina", "ISO_V": "ba"},
+    {"ID_Jogo": "JOGO_04", "Jogo": "Estados Unidos vs Paraguai (12/06)", "Horário": "21:00", "Data": "12/06 (Sexta)", "Time_M": "Estados Unidos", "ISO_M": "us", "Time_V": "Paraguai", "ISO_V": "py"},
     # --- 13/06 ---
-    {"ID_Jogo": "JOGO_05", "Jogo": "⚽ Catar vs Suíça (13/06)", "Horário": "15:00", "Data": "13/06 (Sábado)", "Time_M": "Catar", "Emoji_M": "🇶🇦", "Time_V": "Suíça", "Emoji_V": "🇨🇭"},
-    {"ID_Jogo": "JOGO_06", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "18:00", "Data": "13/06 (Sábado)", "Time_M": "Brasil", "Emoji_M": "🇧🇷", "Time_V": "Marrocos", "Emoji_V": "🇲🇦"},
-    {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "21:00", "Data": "13/06 (Sábado)", "Time_M": "Haiti", "Emoji_M": "🇭🇹", "Time_V": "Escócia", "Emoji_V": "⚽"},
+    {"ID_Jogo": "JOGO_05", "Jogo": "Catar vs Suíça (13/06)", "Horário": "15:00", "Data": "13/06 (Sábado)", "Time_M": "Catar", "ISO_M": "qa", "Time_V": "Suíça", "ISO_V": "ch"},
+    {"ID_Jogo": "JOGO_06", "Jogo": "Brasil vs Marrocos (13/06)", "Horário": "18:00", "Data": "13/06 (Sábado)", "Time_M": "Brasil", "ISO_M": "br", "Time_V": "Marrocos", "ISO_V": "ma"},
+    {"ID_Jogo": "JOGO_07", "Jogo": "Haiti vs Escócia (13/06)", "Horário": "21:00", "Data": "13/06 (Sábado)", "Time_M": "Haiti", "ISO_M": "ht", "Time_V": "Escócia", "ISO_V": "gb-sct"},
     # --- 14/06 ---
-    {"ID_Jogo": "JOGO_08", "Jogo": "⚽ Austrália vs Turquia (14/06)", "Horário": "00:00", "Data": "14/06 (Domingo)", "Time_M": "Austrália", "Emoji_M": "🇦🇺", "Time_V": "Turquia", "Emoji_V": "🇹🇷"},
-    {"ID_Jogo": "JOGO_09", "Jogo": "⚽ Alemanha vs Curaçao (14/06)", "Horário": "13:00", "Data": "14/06 (Domingo)", "Time_M": "Alemanha", "Emoji_M": "🇩🇪", "Time_V": "Curaçao", "Emoji_V": "🇨🇼"},
-    {"ID_Jogo": "JOGO_10", "Jogo": "⚽ Holanda vs Japão (14/06)", "Horário": "16:00", "Data": "14/06 (Domingo)", "Time_M": "Holanda", "Emoji_M": "🇳🇱", "Time_V": "Japão", "Emoji_V": "🇯🇵"},
-    {"ID_Jogo": "JOGO_11", "Jogo": "⚽ Costa do Marfim vs Equador (14/06)", "Horário": "19:00", "Data": "14/06 (Domingo)", "Time_M": "Costa do Marfim", "Emoji_M": "🇨🇮", "Time_V": "Equador", "Emoji_V": "🇪🇨"},
-    {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Suécia vs Tunísia (14/06)", "Horário": "22:00", "Data": "14/06 (Domingo)", "Time_M": "Suécia", "Emoji_M": "🇸🇪", "Time_V": "Tunísia", "Emoji_V": "🇹🇳"},
+    {"ID_Jogo": "JOGO_08", "Jogo": "Austrália vs Turquia (14/06)", "Horário": "00:00", "Data": "14/06 (Domingo)", "Time_M": "Austrália", "ISO_M": "au", "Time_V": "Turquia", "ISO_V": "tr"},
+    {"ID_Jogo": "JOGO_09", "Jogo": "Alemanha vs Curaçao (14/06)", "Horário": "13:00", "Data": "14/06 (Domingo)", "Time_M": "Alemanha", "ISO_M": "de", "Time_V": "Curaçao", "ISO_V": "cw"},
+    {"ID_Jogo": "JOGO_10", "Jogo": "Holanda vs Japão (14/06)", "Horário": "16:00", "Data": "14/06 (Domingo)", "Time_M": "Holanda", "ISO_M": "nl", "Time_V": "Japão", "ISO_V": "jp"},
+    {"ID_Jogo": "JOGO_11", "Jogo": "Costa do Marfim vs Equador (14/06)", "Horário": "19:00", "Data": "14/06 (Domingo)", "Time_M": "Costa do Marfim", "ISO_M": "ci", "Time_V": "Equador", "ISO_V": "ec"},
+    {"ID_Jogo": "JOGO_12", "Jogo": "Suécia vs Tunísia (14/06)", "Horário": "22:00", "Data": "14/06 (Domingo)", "Time_M": "Suécia", "ISO_M": "se", "Time_V": "Tunísia", "ISO_V": "tn"},
     # --- 15/06 ---
-    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Espanha vs Cabo Verde (15/06)", "Horário": "12:00", "Data": "15/06 (Segunda)", "Time_M": "Espanha", "Emoji_M": "🇪🇸", "Time_V": "Cabo Verde", "Emoji_V": "🇨🇻"},
-    {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Bélgica vs Egito (15/06)", "Horário": "15:00", "Data": "15/06 (Segunda)", "Time_M": "Bélgica", "Emoji_M": "🇧🇪", "Time_V": "Egito", "Emoji_V": "🇪🇬"},
-    {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Arábia Saudita vs Uruguai (15/06)", "Horário": "18:00", "Data": "15/06 (Segunda)", "Time_M": "Arábia Saudita", "Emoji_M": "🇸🇦", "Time_V": "Uruguai", "Emoji_V": "🇺🇾"},
-    {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Irã vs Nova Zelândia (15/06)", "Horário": "21:00", "Data": "15/06 (Segunda)", "Time_M": "Irã", "Emoji_M": "🇮🇷", "Time_V": "Nova Zelândia", "Emoji_V": "🇳🇿"},
+    {"ID_Jogo": "JOGO_13", "Jogo": "Espanha vs Cabo Verde (15/06)", "Horário": "12:00", "Data": "15/06 (Segunda)", "Time_M": "Espanha", "ISO_M": "es", "Time_V": "Cabo Verde", "ISO_V": "cv"},
+    {"ID_Jogo": "JOGO_14", "Jogo": "Bélgica vs Egito (15/06)", "Horário": "15:00", "Data": "15/06 (Segunda)", "Time_M": "Bélgica", "ISO_M": "be", "Time_V": "Egito", "ISO_V": "eg"},
+    {"ID_Jogo": "JOGO_15", "Jogo": "Arábia Saudita vs Uruguai (15/06)", "Horário": "18:00", "Data": "15/06 (Segunda)", "Time_M": "Arábia Saudita", "ISO_M": "sa", "Time_V": "Uruguai", "ISO_V": "uy"},
+    {"ID_Jogo": "JOGO_16", "Jogo": "Irã vs Nova Zelândia (15/06)", "Horário": "21:00", "Data": "15/06 (Segunda)", "Time_M": "Irã", "ISO_M": "ir", "Time_V": "Nova Zelândia", "ISO_V": "nz"},
     # --- 16/06 ---
-    {"ID_Jogo": "JOGO_17", "Jogo": "⚽ França vs Senegal (16/06)", "Horário": "15:00", "Data": "16/06 (Terça)", "Time_M": "França", "Emoji_M": "🇫🇷", "Time_V": "Senegal", "Emoji_V": "🇸🇳"},
-    {"ID_Jogo": "JOGO_18", "Jogo": "⚽ Iraque vs Noruega (16/06)", "Horário": "18:00", "Data": "16/06 (Terça)", "Time_M": "Iraque", "Emoji_M": "🇮🇶", "Time_V": "Noruega", "Emoji_V": "🇳🇴"},
-    {"ID_Jogo": "JOGO_19", "Jogo": "⚽ Argentina vs Argélia (16/06)", "Horário": "21:00", "Data": "16/06 (Terça)", "Time_M": "Argentina", "Emoji_M": "🇦🇷", "Time_V": "Argélia", "Emoji_V": "🇩🇿"},
+    {"ID_Jogo": "JOGO_17", "Jogo": "França vs Senegal (16/06)", "Horário": "15:00", "Data": "16/06 (Terça)", "Time_M": "França", "ISO_M": "fr", "Time_V": "Senegal", "ISO_V": "sn"},
+    {"ID_Jogo": "JOGO_18", "Jogo": "Iraque vs Noruega (16/06)", "Horário": "18:00", "Data": "16/06 (Terça)", "Time_M": "Iraque", "ISO_M": "iq", "Time_V": "Noruega", "ISO_V": "no"},
+    {"ID_Jogo": "JOGO_19", "Jogo": "Argentina vs Argélia (16/06)", "Horário": "21:00", "Data": "16/06 (Terça)", "Time_M": "Argentina", "ISO_M": "ar", "Time_V": "Argélia", "ISO_V": "dz"},
     # --- 17/06 ---
-    {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Áustria vs Jordânia (17/06)", "Horário": "00:00", "Data": "17/06 (Quarta)", "Time_M": "Áustria", "Emoji_M": "🇦🇹", "Time_V": "Jordânia", "Emoji_V": "🇯🇴"},
-    {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "13:00", "Data": "17/06 (Quarta)", "Time_M": "Portugal", "Emoji_M": "🇵🇹", "Time_V": "RD Congo", "Emoji_V": "🇨🇩"},
-    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "16:00", "Data": "17/06 (Quarta)", "Time_M": "Inglaterra", "Emoji_M": "⚽", "Time_V": "Croácia", "Emoji_V": "🇭🇷"},
-    {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "19:00", "Data": "17/06 (Quarta)", "Time_M": "Gana", "Emoji_M": "🇬🇭", "Time_V": "Panamá", "Emoji_V": "🇵🇦"},
-    {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Uzbequistão vs Colômbia (17/06)", "Horário": "22:00", "Data": "17/06 (Quarta)", "Time_M": "Uzbequistão", "Emoji_M": "🇺🇿", "Time_V": "Colômbia", "Emoji_V": "🇨🇴"},
+    {"ID_Jogo": "JOGO_20", "Jogo": "Áustria vs Jordânia (17/06)", "Horário": "00:00", "Data": "17/06 (Quarta)", "Time_M": "Áustria", "ISO_M": "at", "Time_V": "Jordânia", "ISO_V": "jo"},
+    {"ID_Jogo": "JOGO_21", "Jogo": "Portugal vs RD Congo (17/06)", "Horário": "13:00", "Data": "17/06 (Quarta)", "Time_M": "Portugal", "ISO_M": "pt", "Time_V": "RD Congo", "ISO_V": "cd"},
+    {"ID_Jogo": "JOGO_22", "Jogo": "Inglaterra vs Croácia (17/06)", "Horário": "16:00", "Data": "17/06 (Quarta)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Croácia", "ISO_V": "hr"},
+    {"ID_Jogo": "JOGO_23", "Jogo": "Gana vs Panamá (17/06)", "Horário": "19:00", "Data": "17/06 (Quarta)", "Time_M": "Gana", "ISO_M": "gh", "Time_V": "Panamá", "ISO_V": "pa"},
+    {"ID_Jogo": "JOGO_24", "Jogo": "Uzbequistão vs Colômbia (17/06)", "Horário": "22:00", "Data": "17/06 (Quarta)", "Time_M": "Uzbequistão", "ISO_M": "uz", "Time_V": "Colômbia", "ISO_V": "co"},
     # --- 18/06 ---
-    {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Tchéquia vs África do Sul (18/06)", "Horário": "12:00", "Data": "18/06 (Quinta)", "Time_M": "Tchéquia", "Emoji_M": "🇨🇿", "Time_V": "África do Sul", "Emoji_V": "🇿🇦"},
-    {"ID_Jogo": "JOGO_26", "Jogo": "⚽ Suíça vs Bósnia e Herzegovina (18/06)", "Horário": "15:00", "Data": "18/06 (Quinta)", "Time_M": "Suíça", "Emoji_M": "🇨🇭", "Time_V": "Bósnia e Herzegovina", "Emoji_V": "🇧🇦"},
-    {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Canadá vs Catar (18/06)", "Horário": "18:00", "Data": "18/06 (Quinta)", "Time_M": "Canadá", "Emoji_M": "🇨🇦", "Time_V": "Catar", "Emoji_V": "🇶🇦"},
-    {"ID_Jogo": "JOGO_28", "Jogo": "⚽ México vs Coreia do Sul (18/06)", "Horário": "21:00", "Data": "18/06 (Quinta)", "Time_M": "México", "Emoji_M": "🇲🇽", "Time_V": "Coreia do Sul", "Emoji_V": "🇰🇷"},
+    {"ID_Jogo": "JOGO_25", "Jogo": "Tchéquia vs África do Sul (18/06)", "Horário": "12:00", "Data": "18/06 (Quinta)", "Time_M": "Tchéquia", "ISO_M": "cz", "Time_V": "África do Sul", "ISO_V": "za"},
+    {"ID_Jogo": "JOGO_26", "Jogo": "Suíça vs Bósnia e Herzegovina (18/06)", "Horário": "15:00", "Data": "18/06 (Quinta)", "Time_M": "Suíça", "ISO_M": "ch", "Time_V": "Bósnia e Herzegovina", "ISO_V": "ba"},
+    {"ID_Jogo": "JOGO_27", "Jogo": "Canadá vs Catar (18/06)", "Horário": "18:00", "Data": "18/06 (Quinta)", "Time_M": "Canadá", "ISO_M": "ca", "Time_V": "Catar", "ISO_V": "qa"},
+    {"ID_Jogo": "JOGO_28", "Jogo": "México vs Coreia do Sul (18/06)", "Horário": "21:00", "Data": "18/06 (Quinta)", "Time_M": "México", "ISO_M": "mx", "Time_V": "Coreia do Sul", "ISO_V": "kr"},
     # --- 19/06 ---
-    {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Estados Unidos vs Austrália (19/06)", "Horário": "15:00", "Data": "19/06 (Sexta)", "Time_M": "Estados Unidos", "Emoji_M": "🇺🇸", "Time_V": "Austrália", "Emoji_V": "🇦🇺"},
-    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "18:00", "Data": "19/06 (Sexta)", "Time_M": "Escócia", "Emoji_M": "⚽", "Time_V": "Marrocos", "Emoji_V": "🇲🇦"},
-    {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21:30", "Data": "19/06 (Sexta)", "Time_M": "Brasil", "Emoji_M": "🇧🇷", "Time_V": "Haiti", "Emoji_V": "🇭🇹"},
-    {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Turquia vs Paraguai (19/06)", "Horário": "23:00", "Data": "19/06 (Sexta)", "Time_M": "Turquia", "Emoji_M": "🇹🇷", "Time_V": "Paraguai", "Emoji_V": "🇵🇾"},
+    {"ID_Jogo": "JOGO_29", "Jogo": "Estados Unidos vs Austrália (19/06)", "Horário": "15:00", "Data": "19/06 (Sexta)", "Time_M": "Estados Unidos", "ISO_M": "us", "Time_V": "Austrália", "ISO_V": "au"},
+    {"ID_Jogo": "JOGO_30", "Jogo": "Escócia vs Marrocos (19/06)", "Horário": "18:00", "Data": "19/06 (Sexta)", "Time_M": "Escócia", "ISO_M": "gb-sct", "Time_V": "Marrocos", "ISO_V": "ma"},
+    {"ID_Jogo": "JOGO_31", "Jogo": "Brasil vs Haiti (19/06)", "Horário": "21:30", "Data": "19/06 (Sexta)", "Time_M": "Brasil", "ISO_M": "br", "Time_V": "Haiti", "ISO_V": "ht"},
+    {"ID_Jogo": "JOGO_32", "Jogo": "Turquia vs Paraguai (19/06)", "Horário": "23:00", "Data": "19/06 (Sexta)", "Time_M": "Turquia", "ISO_M": "tr", "Time_V": "Paraguai", "ISO_V": "py"},
     # --- 20/06 ---
-    {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Holanda vs Suécia (20/06)", "Horário": "13:00", "Data": "20/06 (Sábado)", "Time_M": "Holanda", "Emoji_M": "🇳🇱", "Time_V": "Suécia", "Emoji_V": "🇸🇪"},
-    {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Alemanha vs Costa do Marfim (20/06)", "Horário": "16:00", "Data": "20/06 (Sábado)", "Time_M": "Alemanha", "Emoji_M": "🇩🇪", "Time_V": "Costa do Marfim", "Emoji_V": "🇨🇮"},
-    {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Equador vs Curaçao (20/06)", "Horário": "20:00", "Data": "20/06 (Sábado)", "Time_M": "Equador", "Emoji_M": "🇪🇨", "Time_V": "Curaçao", "Emoji_V": "🇨🇼"},
+    {"ID_Jogo": "JOGO_33", "Jogo": "Holanda vs Suécia (20/06)", "Horário": "13:00", "Data": "20/06 (Sábado)", "Time_M": "Holanda", "ISO_M": "nl", "Time_V": "Suécia", "ISO_V": "se"},
+    {"ID_Jogo": "JOGO_34", "Jogo": "Alemanha vs Costa do Marfim (20/06)", "Horário": "16:00", "Data": "20/06 (Sábado)", "Time_M": "Alemanha", "ISO_M": "de", "Time_V": "Costa do Marfim", "ISO_V": "ci"},
+    {"ID_Jogo": "JOGO_35", "Jogo": "Equador vs Curaçao (20/06)", "Horário": "20:00", "Data": "20/06 (Sábado)", "Time_M": "Equador", "ISO_M": "ec", "Time_V": "Curaçao", "ISO_V": "cw"},
     # --- 21/06 ---
-    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Tunísia vs Japão (21/06)", "Horário": "00:00", "Data": "21/06 (Domingo)", "Time_M": "Tunísia", "Emoji_M": "🇹🇳", "Time_V": "Japão", "Emoji_V": "🇯🇵"},
-    {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Espanha vs Arábia Saudita (21/06)", "Horário": "12:00", "Data": "21/06 (Domingo)", "Time_M": "Espanha", "Emoji_M": "🇪🇸", "Time_V": "Arábia Saudita", "Emoji_V": "🇸🇦"},
-    {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Irã (21/06)", "Horário": "15:00", "Data": "21/06 (Domingo)", "Time_M": "Bélgica", "Emoji_M": "🇧🇪", "Time_V": "Irã", "Emoji_V": "🇮🇷"},
-    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguai vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "Emoji_M": "🇺🇾", "Time_V": "Cabo Verde", "Emoji_V": "🇨🇻"},
-    {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "21:00", "Data": "21/06 (Domingo)", "Time_M": "Nova Zelândia", "Emoji_M": "🇳🇿", "Time_V": "Egito", "Emoji_V": "🇪🇬"},
+    {"ID_Jogo": "JOGO_36", "Jogo": "Tunísia vs Japão (21/06)", "Horário": "00:00", "Data": "21/06 (Domingo)", "Time_M": "Tunísia", "ISO_M": "tn", "Time_V": "Japão", "ISO_V": "jp"},
+    {"ID_Jogo": "JOGO_37", "Jogo": "Espanha vs Arábia Saudita (21/06)", "Horário": "12:00", "Data": "21/06 (Domingo)", "Time_M": "Espanha", "ISO_M": "es", "Time_V": "Arábia Saudita", "ISO_V": "sa"},
+    {"ID_Jogo": "JOGO_38", "Jogo": "Bélgica vs Irã (21/06)", "Horário": "15:00", "Data": "21/06 (Domingo)", "Time_M": "Bélgica", "ISO_M": "be", "Time_V": "Irã", "ISO_V": "ir"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "Uruguai vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Cabo Verde", "ISO_V": "cv"},
+    {"ID_Jogo": "JOGO_40", "Jogo": "Nova Zelândia vs Egito (21/06)", "Horário": "21:00", "Data": "21/06 (Domingo)", "Time_M": "Nova Zelândia", "ISO_M": "nz", "Time_V": "Egito", "ISO_V": "eg"},
     # --- 22/06 ---
-    {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "13:00", "Data": "22/06 (Segunda)", "Time_M": "Argentina", "Emoji_M": "🇦🇷", "Time_V": "Áustria", "Emoji_V": "🇦🇹"},
-    {"ID_Jogo": "JOGO_42", "Jogo": "⚽ França vs Iraque (22/06)", "Horário": "17:00", "Data": "22/06 (Segunda)", "Time_M": "França", "Emoji_M": "🇫🇷", "Time_V": "Iraque", "Emoji_V": "🇮🇶"},
-    {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Noruega vs Senegal (22/06)", "Horário": "20:00", "Data": "22/06 (Segunda)", "Time_M": "Noruega", "Emoji_M": "🇳🇴", "Time_V": "Senegal", "Emoji_V": "🇸🇳"},
-    {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (22/06)", "Horário": "23:00", "Data": "22/06 (Segunda)", "Time_M": "Jordânia", "Emoji_M": "🇯🇴", "Time_V": "Argélia", "Emoji_V": "🇩🇿"},
+    {"ID_Jogo": "JOGO_41", "Jogo": "Argentina vs Áustria (22/06)", "Horário": "13:00", "Data": "22/06 (Segunda)", "Time_M": "Argentina", "ISO_M": "ar", "Time_V": "Áustria", "ISO_V": "at"},
+    {"ID_Jogo": "JOGO_42", "Jogo": "França vs Iraque (22/06)", "Horário": "17:00", "Data": "22/06 (Segunda)", "Time_M": "França", "ISO_M": "fr", "Time_V": "Iraque", "ISO_V": "iq"},
+    {"ID_Jogo": "JOGO_43", "Jogo": "Noruega vs Senegal (22/06)", "Horário": "20:00", "Data": "22/06 (Segunda)", "Time_M": "Noruega", "ISO_M": "no", "Time_V": "Senegal", "ISO_V": "sn"},
+    {"ID_Jogo": "JOGO_44", "Jogo": "Jordânia vs Argélia (22/06)", "Horário": "23:00", "Data": "22/06 (Segunda)", "Time_M": "Jordânia", "ISO_M": "jo", "Time_V": "Argélia", "ISO_V": "dz"},
     # --- 23/06 ---
-    {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "13:00", "Data": "23/06 (Terça)", "Time_M": "Portugal", "Emoji_M": "🇵🇹", "Time_V": "Uzbequistão", "Emoji_V": "🇺🇿"},
-    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "Emoji_M": "⚽", "Time_V": "Gana", "Emoji_V": "🇬🇭"},
-    {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "19:00", "Data": "23/06 (Terça)", "Time_M": "Panamá", "Emoji_M": "🇵🇦", "Time_V": "Croácia", "Emoji_V": "🇭🇷"},
-    {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "22:00", "Data": "23/06 (Terça)", "Time_M": "Colômbia", "Emoji_M": "🇨🇴", "Time_V": "RD Congo", "Emoji_V": "🇨🇩"},
+    {"ID_Jogo": "JOGO_45", "Jogo": "Portugal vs Uzbequistão (23/06)", "Horário": "13:00", "Data": "23/06 (Terça)", "Time_M": "Portugal", "ISO_M": "pt", "Time_V": "Uzbequistão", "ISO_V": "uz"},
+    {"ID_Jogo": "JOGO_46", "Jogo": "Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Gana", "ISO_V": "gh"},
+    {"ID_Jogo": "JOGO_47", "Jogo": "Panamá vs Croácia (23/06)", "Horário": "19:00", "Data": "23/06 (Terça)", "Time_M": "Panamá", "ISO_M": "pa", "Time_V": "Croácia", "ISO_V": "hr"},
+    {"ID_Jogo": "JOGO_48", "Jogo": "Colômbia vs RD Congo (23/06)", "Horário": "22:00", "Data": "23/06 (Terça)", "Time_M": "Colômbia", "ISO_M": "co", "Time_V": "RD Congo", "ISO_V": "cd"},
     # --- 24/06 ---
-    {"ID_Jogo": "JOGO_49", "Jogo": "⚽ Suíça vs Canadá (24/06)", "Horário": "15:00", "Data": "24/06 (Quarta)", "Time_M": "Suíça", "Emoji_M": "🇨🇭", "Time_V": "Canadá", "Emoji_V": "🇨🇦"},
-    {"ID_Jogo": "JOGO_50", "Jogo": "⚽ Bósnia e Herzegovina vs Catar (24/06)", "Horário": "15:00", "Data": "24/06 (Quarta)", "Time_M": "Bósnia e Herzegovina", "Emoji_M": "🇧🇦", "Time_V": "Catar", "Emoji_V": "🇶🇦"},
-    {"ID_Jogo": "JOGO_51", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Escócia", "Emoji_M": "⚽", "Time_V": "Brasil", "Emoji_V": "🇧🇷"},
-    {"ID_Jogo": "JOGO_52", "Jogo": "⚽ Marrocos vs Haiti (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Marrocos", "Emoji_M": "🇲🇦", "Time_V": "Haiti", "Emoji_V": "🇭🇹"},
-    {"ID_Jogo": "JOGO_53", "Jogo": "⚽ Tchéquia vs México (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "Tchéquia", "Emoji_M": "🇨🇿", "Time_V": "México", "Emoji_V": "🇲🇽"},
-    {"ID_Jogo": "JOGO_54", "Jogo": "⚽ África do Sul vs Coreia do Sul (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "África do Sul", "Emoji_M": "🇿🇦", "Time_V": "Coreia do Sul", "Emoji_V": "🇰🇷"},
+    {"ID_Jogo": "JOGO_49", "Jogo": "Suíça vs Canadá (24/06)", "Horário": "15:00", "Data": "24/06 (Quarta)", "Time_M": "Suíça", "ISO_M": "ch", "Time_V": "Canadá", "ISO_V": "ca"},
+    {"ID_Jogo": "JOGO_50", "Jogo": "Bósnia e Herzegovina vs Catar (24/06)", "Horário": "15:00", "Data": "24/06 (Quarta)", "Time_M": "Bósnia e Herzegovina", "ISO_M": "ba", "Time_V": "Catar", "ISO_V": "qa"},
+    {"ID_Jogo": "JOGO_51", "Jogo": "Escócia vs Brasil (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Escócia", "ISO_M": "gb-sct", "Time_V": "Brasil", "ISO_V": "br"},
+    {"ID_Jogo": "JOGO_52", "Jogo": "Marrocos vs Haiti (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Marrocos", "ISO_M": "ma", "Time_V": "Haiti", "ISO_V": "ht"},
+    {"ID_Jogo": "JOGO_53", "Jogo": "Tchéquia vs México (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "Tchéquia", "ISO_M": "cz", "Time_V": "México", "ISO_V": "mx"},
+    {"ID_Jogo": "JOGO_54", "Jogo": "África do Sul vs Coreia do Sul (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "África do Sul", "ISO_M": "za", "Time_V": "Coreia do Sul", "ISO_V": "kr"},
     # --- 25/06 ---
-    {"ID_Jogo": "JOGO_55", "Jogo": "⚽ Equador vs Alemanha (25/06)", "Horário": "16:00", "Data": "25/06 (Quinta)", "Time_M": "Equador", "Emoji_M": "🇪🇨", "Time_V": "Alemanha", "Emoji_V": "🇩🇪"},
-    {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Curaçao vs Costa do Marfim (25/06)", "Horário": "16:00", "Data": "25/06 (Quinta)", "Time_M": "Curaçao", "Emoji_M": "🇨🇼", "Time_V": "Costa do Marfim", "Emoji_V": "🇨🇮"},
-    {"ID_Jogo": "JOGO_57", "Jogo": "⚽ Tunísia vs Holanda (25/06)", "Horário": "19:00", "Data": "25/06 (Quinta)", "Time_M": "Tunísia", "Emoji_M": "🇹🇳", "Time_V": "Holanda", "Emoji_V": "🇳🇱"},
-    {"ID_Jogo": "JOGO_58", "Jogo": "⚽ Japão vs Suécia (25/06)", "Horário": "19:00", "Data": "25/06 (Quinta)", "Time_M": "Japão", "Emoji_M": "🇯🇵", "Time_V": "Suécia", "Emoji_V": "🇸🇪"},
-    {"ID_Jogo": "JOGO_59", "Jogo": "⚽ Turquia vs Estados Unidos (25/06)", "Horário": "22:00", "Data": "25/06 (Quinta)", "Time_M": "Turquia", "Emoji_M": "🇹🇷", "Time_V": "Estados Unidos", "Emoji_V": "🇺🇸"},
-    {"ID_Jogo": "JOGO_60", "Jogo": "⚽ Paraguai vs Austrália (25/06)", "Horário": "22:00", "Data": "25/06 (Quinta)", "Time_M": "Paraguai", "Emoji_M": "🇵🇾", "Time_V": "Austrália", "Emoji_V": "🇦🇺"},
+    {"ID_Jogo": "JOGO_55", "Jogo": "Equador vs Alemanha (25/06)", "Horário": "16:00", "Data": "25/06 (Quinta)", "Time_M": "Equador", "ISO_M": "ec", "Time_V": "Alemanha", "ISO_V": "de"},
+    {"ID_Jogo": "JOGO_56", "Jogo": "Curaçao vs Costa do Marfim (25/06)", "Horário": "16:00", "Data": "25/06 (Quinta)", "Time_M": "Curaçao", "ISO_M": "cw", "Time_V": "Costa do Marfim", "ISO_V": "ci"},
+    {"ID_Jogo": "JOGO_57", "Jogo": "Tunísia vs Holanda (25/06)", "Horário": "19:00", "Data": "25/06 (Quinta)", "Time_M": "Tunísia", "ISO_M": "tn", "Time_V": "Holanda", "ISO_V": "nl"},
+    {"ID_Jogo": "JOGO_58", "Jogo": "Japão vs Suécia (25/06)", "Horário": "19:00", "Data": "25/06 (Quinta)", "Time_M": "Japão", "ISO_M": "jp", "Time_V": "Suécia", "ISO_V": "se"},
+    {"ID_Jogo": "JOGO_59", "Jogo": "Turquia vs Estados Unidos (25/06)", "Horário": "22:00", "Data": "25/06 (Quinta)", "Time_M": "Turquia", "ISO_M": "tr", "Time_V": "Estados Unidos", "ISO_V": "us"},
+    {"ID_Jogo": "JOGO_60", "Jogo": "Paraguai vs Austrália (25/06)", "Horário": "22:00", "Data": "25/06 (Quinta)", "Time_M": "Paraguai", "ISO_M": "py", "Time_V": "Austrália", "ISO_V": "au"},
     # --- 26/06 ---
-    {"ID_Jogo": "JOGO_61", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Noruega", "Emoji_M": "🇳🇴", "Time_V": "França", "Emoji_V": "🇫🇷"},
-    {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Senegal vs Iraque (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Senegal", "Emoji_M": "🇸🇳", "Time_V": "Iraque", "Emoji_V": "🇮🇶"},
-    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Uruguai vs Espanha (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Uruguai", "Emoji_M": "🇺🇾", "Time_V": "Espanha", "Emoji_V": "🇪🇸"},
-    {"ID_Jogo": "JOGO_64", "Jogo": "⚽ Cabo Verde vs Arábia Saudita (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Cabo Verde", "Emoji_M": "🇨🇻", "Time_V": "Arábia Saudita", "Emoji_V": "🇸🇦"},
-    {"ID_Jogo": "JOGO_65", "Jogo": "⚽ Nova Zelândia vs Bélgica (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Nova Zelândia", "Emoji_M": "🇳🇿", "Time_V": "Bélgica", "Emoji_V": "🇧🇪"},
-    {"ID_Jogo": "JOGO_66", "Jogo": "⚽ Egito vs Irã (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Egito", "Emoji_M": "🇪🇬", "Time_V": "Irã", "Emoji_V": "🇮🇷"},
+    {"ID_Jogo": "JOGO_61", "Jogo": "Noruega vs França (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Noruega", "ISO_M": "no", "Time_V": "França", "ISO_V": "fr"},
+    {"ID_Jogo": "JOGO_62", "Jogo": "Senegal vs Iraque (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Senegal", "ISO_M": "sn", "Time_V": "Iraque", "ISO_V": "iq"},
+    {"ID_Jogo": "JOGO_63", "Jogo": "Uruguai vs Espanha (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Espanha", "ISO_V": "es"},
+    {"ID_Jogo": "JOGO_64", "Jogo": "Cabo Verde vs Arábia Saudita (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Cabo Verde", "ISO_M": "cv", "Time_V": "Arábia Saudita", "ISO_V": "sa"},
+    {"ID_Jogo": "JOGO_65", "Jogo": "Nova Zelândia vs Bélgica (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Nova Zelândia", "ISO_M": "nz", "Time_V": "Bélgica", "ISO_V": "be"},
+    {"ID_Jogo": "JOGO_66", "Jogo": "Egito vs Irã (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Egito", "ISO_M": "eg", "Time_V": "Irã", "ISO_V": "ir"},
     # --- 27/06 ---
-    {"ID_Jogo": "JOGO_67", "Jogo": "⚽ Panamá vs Inglaterra (27/06)", "Horário": "17:00", "Data": "27/06 (Sábado)", "Time_M": "Panamá", "Emoji_M": "🇵🇦", "Time_V": "Inglaterra", "Emoji_V": "⚽"},
-    {"ID_Jogo": "JOGO_68", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "17:00", "Data": "27/06 (Sábado)", "Time_M": "Croácia", "Emoji_M": "🇭🇷", "Time_V": "Gana", "Emoji_V": "🇬🇭"},
-    {"ID_Jogo": "JOGO_69", "Jogo": "⚽ Colômbia vs Portugal (27/06)", "Horário": "19:30", "Data": "27/06 (Sábado)", "Time_M": "Colômbia", "Emoji_M": "🇨🇴", "Time_V": "Portugal", "Emoji_V": "🇵🇹"},
-    {"ID_Jogo": "JOGO_70", "Jogo": "⚽ RD Congo vs Uzbequistão (27/06)", "Horário": "19:30", "Data": "27/06 (Sábado)", "Time_M": "RD Congo", "Emoji_M": "🇨🇩", "Time_V": "Uzbequistão", "Emoji_V": "🇺🇿"},
-    {"ID_Jogo": "JOGO_71", "Jogo": "⚽ Jordânia vs Argentina (27/06)", "Horário": "22:00", "Data": "27/06 (Sábado)", "Time_M": "Jordânia", "Emoji_M": "🇯🇴", "Time_V": "Argentina", "Emoji_V": "🇦🇷"},
-    {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Argélia vs Áustria (27/06)", "Horário": "22:00", "Data": "27/06 (Sábado)", "Time_M": "Argélia", "Emoji_M": "🇩🇿", "Time_V": "Áustria", "Emoji_V": "🇦🇹"}
+    {"ID_Jogo": "JOGO_67", "Jogo": "Panamá vs Inglaterra (27/06)", "Horário": "17:00", "Data": "27/06 (Sábado)", "Time_M": "Panamá", "ISO_M": "pa", "Time_V": "Inglaterra", "ISO_V": "gb-eng"},
+    {"ID_Jogo": "JOGO_68", "Jogo": "Croácia vs Gana (27/06)", "Horário": "17:00", "Data": "27/06 (Sábado)", "Time_M": "Croácia", "ISO_M": "hr", "Time_V": "Gana", "ISO_V": "gh"},
+    {"ID_Jogo": "JOGO_69", "Jogo": "Colômbia vs Portugal (27/06)", "Horário": "19:30", "Data": "27/06 (Sábado)", "Time_M": "Colômbia", "ISO_M": "co", "Time_V": "Portugal", "ISO_V": "pt"},
+    {"ID_Jogo": "JOGO_70", "Jogo": "RD Congo vs Uzbequistão (27/06)", "Horário": "19:30", "Data": "27/06 (Sábado)", "Time_M": "RD Congo", "ISO_M": "cd", "Time_V": "Uzbequistão", "ISO_V": "uz"},
+    {"ID_Jogo": "JOGO_71", "Jogo": "Jordânia vs Argentina (27/06)", "Horário": "22:00", "Data": "27/06 (Sábado)", "Time_M": "Jordânia", "ISO_M": "jo", "Time_V": "Argentina", "ISO_V": "ar"},
+    {"ID_Jogo": "JOGO_72", "Jogo": "Argélia vs Áustria (27/06)", "Horário": "22:00", "Data": "27/06 (Sábado)", "Time_M": "Argélia", "ISO_M": "dz", "Time_V": "Áustria", "ISO_V": "at"}
 ]
 
+# Inicialização Dinâmica de Chaves de Planilha
 if "spreadsheet_id" not in st.session_state:
     st.session_state.spreadsheet_id = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 if "web_app_url" not in st.session_state:
     st.session_state.web_app_url = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
+# Gerenciador de Login do Colaborador Conectado
 if "saved_email" not in st.session_state:
     st.session_state.saved_email = ""
 if "saved_name" not in st.session_state:
     st.session_state.saved_name = ""
 
-# ==========================================
-# 🎨 ESTILIZAÇÃO COMPLETA DE ALTO PADRÃO (CSS)
-# ==========================================
+# STREAMING_CHUNK: Aplicando o Design System Corporativo CSS Premium...
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -312,9 +311,21 @@ st.markdown("""
     .rank-2 { background: #e2e8f0; color: #475569; }
     .rank-3 { background: #ffedd5; color: #9a3412; }
     .rank-other { background: #f1f5f9; color: #64748b; }
+    
+    /* Bandeiras reais redondas */
+    .flag-icon-mini {
+        width: 22px;
+        height: 16px;
+        border-radius: 2px;
+        object-fit: cover;
+        vertical-align: middle;
+        margin-right: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
 </style>
 """, unsafe_allow_html=True)
 
+# STREAMING_CHUNK: Desenhando menu de navegação lateral sofisticado...
 with st.sidebar:
     st.image("https://img.icons8.com/color/120/cup.png", width=60)
     st.markdown("### 🏆 Feltrim Correa")
@@ -327,8 +338,9 @@ with st.sidebar:
         key="menu_navegacao"
     )
     st.markdown("---")
-    st.markdown("<small style='color:#94a3b8;'>Plataforma Premium V3.8</small>", unsafe_allow_html=True)
+    st.markdown("<small style='color:#94a3b8;'>Plataforma Premium V4.0</small>", unsafe_allow_html=True)
 
+# STREAMING_CHUNK: Carregando dados da planilha do Google de forma protegida...
 @st.cache_data(ttl=5)
 def carregar_dados_planilha(sheet_id):
     try:
@@ -374,6 +386,7 @@ def calcular_pontos_palpite(palpite_str, real_m, real_v):
     except Exception:
         return 0, "Erro"
 
+# STREAMING_CHUNK: Calculando o ranking consolidado com ordenação oficial...
 def calcular_ranking_real(df_palpites, df_resultados):
     if df_palpites is None or df_resultados is None or df_palpites.empty or df_resultados.empty:
         return pd.DataFrame()
@@ -442,6 +455,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
             rank = calcular_ranking_real(df_p, df_r)
             
             if not rank.empty:
+                # STREAMING_CHUNK: Montando o Pódio com layout limpo em HTML esterilizado...
                 p1_nome = rank.iloc[0]['Nome'] if len(rank) >= 1 else "Vago"
                 p1_pontos = rank.iloc[0]['Pontos'] if len(rank) >= 1 else 0
                 
@@ -477,11 +491,11 @@ if aba_selecionada == "📊 Classificação & Resultados":
 </div>
 </div>
 </div>"""
-                # Higieniza a string removendo novas linhas para evitar bugs de rendering do Markdown do Streamlit
                 st.markdown(podium_html.replace("\n", " "), unsafe_allow_html=True)
                 
                 st.markdown("### 📊 Resultado Geral da Classificação")
                 
+                # STREAMING_CHUNK: Desenhando Tabela de Classificação Premium higienizada de quebras de linha...
                 table_html = """<table class="premium-table">
 <thead>
 <tr>
@@ -520,7 +534,6 @@ if aba_selecionada == "📊 Classificação & Resultados":
 </tr>"""
                     
                 table_html += "</tbody></table>"
-                # Remove novas linhas para evitar vazamentos de código (image_2a1a65.png)
                 st.markdown(table_html.replace("\n", " "), unsafe_allow_html=True)
                 
             else:
@@ -556,6 +569,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
             
             jogos_filtrados = [j for j in JOGOS_CADASTRADOS if j["Data"] == filtro_dia]
             
+            # STREAMING_CHUNK: Renderizando os cards de confrontos reais com bandeiras PNG HD carregadas via CDN...
             for j in jogos_filtrados:
                 jogo_id = j["ID_Jogo"]
                 info_real = res_map.get(jogo_id, {"m": None, "v": None, "status": "Agendado"})
@@ -578,20 +592,28 @@ if aba_selecionada == "📊 Classificação & Resultados":
                     
                     st.markdown("---")
                     
-                    # Times e Placar
+                    # Times e Placar com bandeiras de alta resolução Flagcdn
                     col_team_m, col_score, col_team_v = st.columns([3, 2, 3])
                     
                     with col_team_m:
-                        st.markdown(f"<div style='text-align:center;'><span style='font-size:2rem;'>{j['Emoji_M']}</span><br><strong style='color:#0f172a; font-size:1rem;'>{j['Time_M']}</strong></div>", unsafe_allow_html=True)
+                        st.markdown(f"""
+                        <div style='text-align:center;'>
+                            <img src="https://flagcdn.com/w160/{j['ISO_M']}.png" style="width:75px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
+                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin-top:8px;'>{j['Time_M']}</strong>
+                        </div>""", unsafe_allow_html=True)
                     
                     with col_score:
                         if "Encerrado" in status_real or "Ao Vivo" in status_real:
-                            st.markdown(f"<h1 style='text-align:center; margin:0; color:#0f172a; font-weight:800;'>{info_real['m']} - {info_real['v']}</h1>", unsafe_allow_html=True)
+                            st.markdown(f"<h1 style='text-align:center; margin:0; color:#0f172a; font-weight:800; font-size:2.5rem; margin-top:5px;'>{info_real['m']} - {info_real['v']}</h1>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<p style='text-align:center; font-size:0.9rem; color:#64748b; margin-top:0.5rem;'>🕒 {j['Horário']}</p>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='text-align:center; padding:10px; background:#f1f5f9; border-radius:30px; font-weight:700; color:#475569; font-size:1rem; max-width:140px; margin:15px auto 0 auto;'>🕒 {j['Horário']}</div>", unsafe_allow_html=True)
                     
                     with col_team_v:
-                        st.markdown(f"<div style='text-align:center;'><span style='font-size:2rem;'>{j['Emoji_V']}</span><br><strong style='color:#0f172a; font-size:1rem;'>{j['Time_V']}</strong></div>", unsafe_allow_html=True)
+                        st.markdown(f"""
+                        <div style='text-align:center;'>
+                            <img src="https://flagcdn.com/w160/{j['ISO_V']}.png" style="width:75px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
+                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>
+                        </div>""", unsafe_allow_html=True)
                     
                     # Palpite do Usuário Conectado
                     if jogo_id in user_bets:
@@ -599,17 +621,17 @@ if aba_selecionada == "📊 Classificação & Resultados":
                         if "Encerrado" in status_real:
                             pts, tipo_acerto = calcular_pontos_palpite(palpite_u, info_real["m"], info_real["v"])
                             if tipo_acerto == "Exato":
-                                badge_pontos = f"<span style='background-color:#dcfce7; color:#15803d; padding:0.25rem 0.75rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>⭐ +10 pts (Placar Exato)</span>"
+                                badge_pontos = f"<span style='background-color:#dcfce7; color:#15803d; padding:0.4rem 1rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>⭐ +10 pts (Placar Exato)</span>"
                             elif tipo_acerto == "Vencedor":
-                                badge_pontos = f"<span style='background-color:#dbeafe; color:#1d4ed8; padding:0.25rem 0.75rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>⭐ +5 pts (Vencedor)</span>"
+                                badge_pontos = f"<span style='background-color:#dbeafe; color:#1d4ed8; padding:0.4rem 1rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>⭐ +5 pts (Vencedor)</span>"
                             else:
-                                badge_pontos = f"<span style='background-color:#fee2e2; color:#b91c1c; padding:0.25rem 0.75rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>❌ 0 pts (Errou)</span>"
+                                badge_pontos = f"<span style='background-color:#fee2e2; color:#b91c1c; padding:0.4rem 1rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>❌ 0 pts (Errou)</span>"
                             
-                            st.markdown(f"<p style='margin-top:1rem; text-align:center; font-size:0.9rem;'>Seu palpite foi: <strong>{palpite_u}</strong> — {badge_pontos}</p>", unsafe_allow_html=True)
+                            st.markdown(f"<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#334155;'>Seu palpite foi: <strong>{palpite_u}</strong> — {badge_pontos}</p>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<p style='margin-top:1rem; text-align:center; font-size:0.9rem; color:#475569;'>Seu palpite salvo: <strong style='color:#2563eb;'>{palpite_u}</strong></p>", unsafe_allow_html=True)
+                            st.markdown(f"<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#475569;'>Seu palpite salvo: <strong style='color:#2563eb; background:#eff6ff; padding:0.25rem 0.75rem; border-radius:30px;'>{palpite_u}</strong></p>", unsafe_allow_html=True)
                     elif st.session_state.saved_email:
-                        st.markdown("<p style='margin-top:1rem; text-align:center; font-size:0.9rem; color:#ef4444; font-weight:500;'>⚠️ Você ainda não palpitou nesta partida!</p>", unsafe_allow_html=True)
+                        st.markdown("<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#ef4444; font-weight:600;'>⚠️ Você ainda não palpitou nesta partida!</p>", unsafe_allow_html=True)
         else:
             st.info("Central de resultados oficiais indisponível no momento.")
 
@@ -693,8 +715,8 @@ elif aba_selecionada == "📝 Registrar Palpites":
             
             jogos_do_dia = [j for j in jogos_disponiveis if j["Data"] == dia_selecionado]
             
+            # STREAMING_CHUNK: Desenhando formulários reativos de palpites com bandeiras HD em cada card...
             for jogo in jogos_do_dia:
-                # Usando o container nativo estilizado do Streamlit para o Card Premium do Confronto
                 with st.container(border=True):
                     # Cabeçalho Interno do Card
                     col_h1, col_h2 = st.columns([2, 1])
@@ -709,14 +731,22 @@ elif aba_selecionada == "📝 Registrar Palpites":
                     col_m, col_vs, col_v = st.columns([3, 1, 3])
                     
                     with col_m:
-                        st.markdown(f"<div style='text-align:center;'><span style='font-size:2rem;'>{jogo['Emoji_M']}</span><br><strong style='color:#0f172a; font-size:1rem;'>{jogo['Time_M']}</strong></div>", unsafe_allow_html=True)
+                        st.markdown(f"""
+                        <div style='text-align:center;'>
+                            <img src="https://flagcdn.com/w160/{jogo['ISO_M']}.png" style="width:70px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
+                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin:8px 0;'>{jogo['Time_M']}</strong>
+                        </div>""", unsafe_allow_html=True)
                         gols_m = st.number_input("Gols Mandante", min_value=0, max_value=20, value=0, key=f"m_{jogo['ID_Jogo']}", step=1)
                         
                     with col_vs:
                         st.markdown("<h2 style='text-align: center; margin-top: 1.5rem; color:#cbd5e1;'>x</h2>", unsafe_allow_html=True)
                         
                     with col_v:
-                        st.markdown(f"<div style='text-align:center;'><span style='font-size:2rem;'>{jogo['Emoji_V']}</span><br><strong style='color:#0f172a; font-size:1rem;'>{jogo['Time_V']}</strong></div>", unsafe_allow_html=True)
+                        st.markdown(f"""
+                        <div style='text-align:center;'>
+                            <img src="https://flagcdn.com/w160/{jogo['ISO_V']}.png" style="width:70px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
+                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin:8px 0;'>{jogo['Time_V']}</strong>
+                        </div>""", unsafe_allow_html=True)
                         gols_v = st.number_input("Gols Visitante", min_value=0, max_value=20, value=0, key=f"v_{jogo['ID_Jogo']}", step=1)
                     
                     # Botão de envio integrado no rodapé de cada card de forma super elegante
