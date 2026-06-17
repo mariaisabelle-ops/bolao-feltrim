@@ -6,7 +6,6 @@ import io
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
-# Configurações iniciais de página e tema responsivo de alta qualidade
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -31,7 +30,6 @@ if "spreadsheet_id" not in st.session_state:
 if "erro_conexao" not in st.session_state:
     st.session_state.erro_conexao = None
 
-# Injeção de CSS para estilização premium e responsiva
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700&display=swap');
@@ -155,7 +153,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 56 Jogos da Copa do Mundo em Ordem Cronológica Real
 JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ Estados Unidos vs Austrália (11/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "21:30"},
@@ -215,7 +212,6 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Espanha vs Haiti (25/06)", "Horário": "21:30"}
 ]
 
-# Configuração de ID Personalizado de Planilha na Barra Lateral
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/google-sheets.png", width=60)
     st.markdown("### 📊 Banco de Dados")
@@ -254,7 +250,8 @@ def puxar_planilha_segura(sheet_name):
             return pd.DataFrame()
             
         df = pd.read_csv(io.StringIO(conteudo))
-        df = df.dropna(how='all', axis=1)
+        # REMOVIDO: dropna(axis=1) para evitar exclusão de colunas de resultados que se inicializam vazias!
+        df = df.dropna(how='all', axis=0) # Apenas descarta linhas vazias por completo
         df.columns = [str(c).strip() for c in df.columns]
         
         st.session_state.erro_conexao = None
@@ -263,7 +260,6 @@ def puxar_planilha_segura(sheet_name):
         st.session_state.erro_conexao = f"Erro físico de conexão: {str(e)}"
         return pd.DataFrame()
 
-# ==================== CARREGAMENTO DE ABAS ROBUSTO ====================
 def carregar_aba_com_fallback(lista_nomes):
     """
     Procura na planilha pelas abas na ordem de prioridade estipulada.
@@ -284,7 +280,6 @@ df_palpites_raw, aba_palpites_nome = carregar_aba_com_fallback([
     "Palpites", "Respostas_Formulario", "Respostas ao formulário 1", "Form Responses 1", "Respostas do formulário 1"
 ])
 
-# Mapeamento e Normalização inteligente de Colunas
 if not df_resultados_raw.empty:
     col_map = {}
     for col in df_resultados_raw.columns:
@@ -332,7 +327,6 @@ df_resultados['Data_Ordenacao'] = df_resultados.apply(
 )
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').copy()
 
-# Cálculo blindado de pontuação
 def calcular_pontos_palpite(palpite, placar_m, placar_v):
     try:
         if pd.isna(placar_m) or pd.isna(placar_v) or str(placar_m).strip() == "" or str(placar_v).strip() == "":
@@ -411,7 +405,6 @@ if not df_ranking.empty:
 else:
     df_ranking = pd.DataFrame(columns=['Posição', 'Nome', 'Pontos', 'Acertos_Exatos', 'Palpites_Feitos'])
 
-# Estrutura de Abas do Aplicativo
 tabs = st.tabs([
     "🏆 Classificação Geral", 
     "📅 Jogos & Resultados", 
@@ -519,7 +512,6 @@ with tabs[0]:
 with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
     
-    # Exibe diagnóstico inteligente de compartilhamento
     if planilha_precisa_inicializar:
         motivo_diagnostico = st.session_state.erro_conexao if st.session_state.erro_conexao else "Planilha vazia ou com abas não configuradas."
         st.warning(f"""
