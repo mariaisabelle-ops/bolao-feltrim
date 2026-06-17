@@ -6,7 +6,7 @@ import io
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
-# Configurações iniciais de página e tema de alta qualidade
+# Configurações iniciais de página e tema responsivo de alta qualidade
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -31,7 +31,7 @@ if "spreadsheet_id" not in st.session_state:
 if "erro_conexao" not in st.session_state:
     st.session_state.erro_conexao = None
 
-# Injeção de CSS para estilização dos botões Premium Pill-Shape e Cabeçalho
+# Injeção de CSS para estilização premium e responsiva
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700&display=swap');
@@ -155,6 +155,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Lista Original de 48 Jogos Oficiais do seu Bolão
 JOGOS_ESTATICOS = [
     # --- RODADA 1 ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "16:00"},
@@ -209,6 +210,21 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Haiti vs Marrocos (24/06)", "Horário": "19:00"}
 ]
 
+# Configuração de ID Personalizado de Planilha na Barra Lateral
+with st.sidebar:
+    st.image("https://img.icons8.com/color/96/google-sheets.png", width=60)
+    st.markdown("### 📊 Banco de Dados")
+    user_sid = st.text_input(
+        "ID da sua Planilha Google:", 
+        value=st.session_state.spreadsheet_id,
+        help="Copie o ID longo presente na URL da sua planilha e cole aqui."
+    ).strip()
+    if user_sid and user_sid != st.session_state.spreadsheet_id:
+        st.session_state.spreadsheet_id = user_sid
+        st.cache_data.clear()
+        st.rerun()
+    st.info("💡 Lembre-se: Para o site conseguir ler a planilha, ela precisa estar compartilhada como 'Qualquer pessoa com o link pode ler' como Leitor.")
+
 @st.cache_data(ttl=5)
 def puxar_planilha_segura(sheet_name):
     try:
@@ -238,6 +254,7 @@ def puxar_planilha_segura(sheet_name):
         st.session_state.erro_conexao = f"Erro físico de conexão: {str(e)}"
         return pd.DataFrame()
 
+# Carregamento seguro das tabelas
 def carregar_aba_com_fallback(lista_nomes):
     for nome in lista_nomes:
         df = puxar_planilha_segura(nome)
@@ -385,6 +402,7 @@ tabs = st.tabs([
     "🔑 Portal Admin"
 ])
 
+# ==================== ABA 1: CLASSIFICAÇÃO GERAL ====================
 with tabs[0]:
     st.markdown("### 🏆 Placar de Líderes")
     
@@ -479,6 +497,7 @@ with tabs[0]:
         st.cache_data.clear()
         st.rerun()
 
+# ==================== ABA 2: JOGOS & RESULTADOS ====================
 with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
     
@@ -540,6 +559,7 @@ with tabs[1]:
         </div>
         """, unsafe_allow_html=True)
 
+# ==================== ABA 3: DAR PALPITE ====================
 with tabs[2]:
     st.markdown("### 📝 Registrar seu Palpite")
     st.write("Digite o seu e-mail corporativo cadastrado para filtrar e selecionar as partidas disponíveis.")
@@ -605,7 +625,7 @@ with tabs[2]:
                         try:
                             resposta = requests.post(WEB_APP_URL, json=dados_envio, timeout=35)
                             try:
-                                res_json = resposta.json()
+                                res_json = reply_json = resposta.json()
                                 if res_json.get("status") == "success":
                                     st.success(f"🎉 Palpite registado com sucesso para o jogo: {jogo_selecionado}!")
                                     st.balloons()
@@ -619,6 +639,7 @@ with tabs[2]:
     else:
         st.info("💡 Digite o seu e-mail corporativo completo e seu nome para listar os palpites em aberto.")
 
+# ==================== ABA 4: MEUS PALPITES ====================
 with tabs[3]:
     st.markdown("### 🎟️ Meus Tickets de Apostas")
     st.write("Digite o seu e-mail corporativo cadastrado para visualizar todo o seu histórico de palpites.")
@@ -685,6 +706,7 @@ with tabs[3]:
                     if not algum_palpite:
                         st.info("Nenhum palpite preenchido até o momento por este usuário.")
 
+# ==================== ABA 5: PORTAL ADMIN ====================
 with tabs[4]:
     st.markdown("### 🔑 Controle de Acesso Administrativo")
     st.write("Insira o código de segurança para habilitar os recursos de lançamento e configurações:")
