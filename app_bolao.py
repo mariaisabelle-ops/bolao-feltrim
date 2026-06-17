@@ -625,7 +625,7 @@ with tabs[2]:
                         try:
                             resposta = requests.post(WEB_APP_URL, json=dados_envio, timeout=35)
                             try:
-                                res_json = reply_json = resposta.json()
+                                res_json = resposta.json()
                                 if res_json.get("status") == "success":
                                     st.success(f"🎉 Palpite registado com sucesso para o jogo: {jogo_selecionado}!")
                                     st.balloons()
@@ -774,7 +774,7 @@ with tabs[4]:
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated com sucesso!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
                                 st.cache_data.clear()
                             else:
                                 st.error(f"Erro: {p_json.get('message')}")
