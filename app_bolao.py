@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 import json
-import re
 
 # LISTA OFICIAL CRONOLÓGICA DE 72 JOGOS DA COPA DO MUNDO FIFA 2026 (FASE DE GRUPOS)
 # Todos os horários e datas estão baseados estritamente no fuso de Brasília (UTC-3).
@@ -114,6 +113,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Argélia vs Áustria (27/06)", "Horário": "22:00"}
 ]
 
+# Configurações de layout da página do Streamlit
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
@@ -121,13 +121,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Inicialização de estados globais de conexão
+# Inicialização de estados globais de conexão (salvamento dinâmico via Portal Admin)
 if "spreadsheet_id" not in st.session_state:
     st.session_state.spreadsheet_id = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 if "web_app_url" not in st.session_state:
     st.session_state.web_app_url = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
-# Estilos CSS unificados para um layout corporativo limpo e premium
+# Preservar dados de identificação do usuário para evitar redigitação
+if "saved_email" not in st.session_state:
+    st.session_state.saved_email = ""
+if "saved_name" not in st.session_state:
+    st.session_state.saved_name = ""
+
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
@@ -187,6 +192,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Barra Lateral (Menu de Opções)
 with st.sidebar:
     st.image("https://img.icons8.com/color/120/cup.png", width=65)
     st.markdown("### 🏆 Feltrim Correa")
@@ -199,8 +205,10 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("<small>Versão Premium V2.5</small>", unsafe_allow_html=True)
+    st.markdown("<small>Versão Premium V2.8</small>", unsafe_allow_html=True)
 
+# Função para buscar e ler as tabelas do Google Sheets via API pública formatada em CSV
+@st.cache_data(ttl=15)
 def carregar_dados_planilha(sheet_id):
     try:
         url_palpites = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Palpites"
@@ -213,6 +221,7 @@ def carregar_dados_planilha(sheet_id):
     except Exception:
         return None, None
 
+# Função de processamento das regras de negócio do Bolão para calcular pontos individuais
 def calcular_ranking_real(df_palpites, df_resultados):
     if df_palpites is None or df_resultados is None or df_palpites.empty or df_resultados.empty:
         return pd.DataFrame()
@@ -287,7 +296,7 @@ def calcular_ranking_real(df_palpites, df_resultados):
         
     return ranking_df
 
-# Carregamento prévio dos dados
+# Carregamento prévio dos dados da planilha conectada
 df_p, df_r = carregar_dados_planilha(st.session_state.spreadsheet_id)
 
 if aba_selecionada == "📊 Tabela de Classificação":
@@ -349,69 +358,118 @@ if aba_selecionada == "📊 Tabela de Classificação":
         
         Como resolver de forma instantânea em 2 passos:
         1. Confirme se as abas estão devidamente criadas no seu Google Sheets.
-        2. Vá na aba **Portal Admin** usando a sua senha de acesso administrativo para salvar as configurações!
+        2. Vá na aba **Portal Admin** usando a sua senha de acesso administrativo para salvar as configurações e inicializar!
         """)
 
 elif aba_selecionada == "📝 Fazer Palpite":
     st.markdown('<div class="main-title">📝 Enviar Meus Palpites</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Registre os seus resultados para a fase de grupos do torneio</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-title">Registre os seus palpites de forma reativa e livre de duplicidades</div>', unsafe_allow_html=True)
     
-    with st.form("form_palpites"):
-        st.markdown("#### 👤 Seus Dados de Identificação")
-        c1, c2 = st.columns(2)
-        with c1:
-            nome_user = st.text_input("Nome Completo", placeholder="Ex: João Silva")
-        with c2:
-            email_user = st.text_input("E-mail Corporativo", placeholder="Ex: joao.silva@feltrim.com")
+    # Campo de identificação em destaque
+    st.markdown("#### 👤 1. Identifique-se")
+    col_e1, col_e2 = st.columns(2)
+    with col_e1:
+        email_user = st.text_input(
+            "E-mail Corporativo", 
+            value=st.session_state.saved_email, 
+            placeholder="Ex: joao.silva@feltrim.com"
+        ).strip().lower()
+        
+    with col_e2:
+        nome_user = st.text_input(
+            "Nome Completo", 
+            value=st.session_state.saved_name, 
+            placeholder="Ex: João Silva"
+        ).strip()
+
+    # Salvamento reativo imediato das credenciais digitadas
+    if email_user != st.session_state.saved_email:
+        st.session_state.saved_email = email_user
+    if nome_user != st.session_state.saved_name:
+        st.session_state.saved_name = nome_user
+
+    # Filtro Dinâmico de Jogos Pendentes
+    jogos_disponiveis = []
+    lista_jogos_betted = set()
+
+    if email_user and "@" in email_user and "." in email_user:
+        if df_p is not None and not df_p.empty:
+            cols = [c.lower().strip() for c in df_p.columns]
+            email_col_name = None
+            for idx, c in enumerate(df_p.columns):
+                if "email" in c.lower() or "e-mail" in c.lower() or "usuário" in c.lower():
+                    email_col_name = c
+                    break
             
+            if email_col_name:
+                user_row = df_p[df_p[email_col_name].astype(str).str.strip().str.lower() == email_user]
+                if not user_row.empty:
+                    # Encontrar quais jogos já têm votos registrados (contendo hífens)
+                    for jogo_item in JOGOS_CADASTRADOS:
+                        nome_jogo = jogo_item["Jogo"]
+                        if nome_jogo in df_p.columns:
+                            val = str(user_row[nome_jogo].values[0]).strip()
+                            if val and val != "nan" and "-" in val:
+                                lista_jogos_betted.add(nome_jogo)
+
+        # Filtrar a lista completa de forma que jogos votados desapareçam da visão do usuário
+        jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
+
         st.markdown("---")
-        st.markdown("#### ⚽ Seu Palpite Real")
+        st.markdown(f"#### ⚽ 2. Seus Palpites Disponíveis ({len(jogos_disponiveis)} restantes)")
         
-        jogo_selecionado = st.selectbox(
-            "Selecione a partida que deseja palpitar:",
-            options=[j["Jogo"] for j in JOGOS_CADASTRADOS]
-        )
-        
-        col_m, col_div, col_v = st.columns([2, 1, 2])
-        with col_m:
-            gols_m = st.number_input("Mandante", min_value=0, max_value=25, value=0, step=1)
-        with col_div:
-            st.markdown("<h3 style='text-align: center; margin-top: 1.5rem;'>x</h3>", unsafe_allow_html=True)
-        with col_v:
-            gols_v = st.number_input("Visitante", min_value=0, max_value=25, value=0, step=1)
-            
-        st.markdown("<br>", unsafe_allow_html=True)
-        submetido = st.form_submit_button("🚀 Enviar Meu Voto")
-        
-        if submetido:
-            if not nome_user or not email_user:
-                st.error("Por favor, preencha o seu nome e e-mail para validar o seu palpite!")
-            elif "@" not in email_user or "." not in email_user:
-                st.error("E-mail num formato inválido! Verifique a digitação.")
-            else:
-                match = next((item for item in JOGOS_CADASTRADOS if item["Jogo"] == jogo_selecionado), None)
-                if match:
-                    payload = {
-                        "action": "fazerPalpite",
-                        "spreadsheet_id": st.session_state.spreadsheet_id,
-                        "email": email_user.strip(),
-                        "nome": nome_user.strip(),
-                        "id_jogo": match["ID_Jogo"],
-                        "palpite": f"{gols_m}-{gols_v}"
-                    }
-                    try:
-                        resp = requests.post(
-                            st.session_state.web_app_url,
-                            data=json.dumps(payload),
-                            headers={"Content-Type": "application/json"}
-                        )
-                        dados_api = resp.json()
-                        if dados_api.get("status") == "success":
-                            st.success(f"Excelente! Palpite de {gols_m} x {gols_v} para o jogo '{jogo_selecionado}' enviado com sucesso!")
-                        else:
-                            st.error(f"Erro ao gravar na planilha: {dados_api.get('message')}")
-                    except Exception as ex:
-                        st.error(f"Erro ao conectar com a API: {str(ex)}")
+        if len(jogos_disponiveis) == 0:
+            st.success("🏆 Sensacional! Você já cadastrou palpites para todas as 72 partidas da Fase de Grupos!")
+        else:
+            with st.form("form_palpites"):
+                jogo_selecionado = st.selectbox(
+                    "Selecione a partida que deseja palpitar (apenas jogos pendentes serão listados):",
+                    options=[j["Jogo"] for j in jogos_disponiveis]
+                )
+                
+                col_m, col_div, col_v = st.columns([2, 1, 2])
+                with col_m:
+                    gols_m = st.number_input("Mandante", min_value=0, max_value=25, value=0, step=1)
+                with col_div:
+                    st.markdown("<h3 style='text-align: center; margin-top: 1.5rem;'>x</h3>", unsafe_allow_html=True)
+                with col_v:
+                    gols_v = st.number_input("Visitante", min_value=0, max_value=25, value=0, step=1)
+                    
+                st.markdown("<br>", unsafe_allow_html=True)
+                submetido = st.form_submit_button("🚀 Enviar Meu Voto")
+                
+                if submetido:
+                    if not nome_user:
+                        st.error("Por favor, preencha o seu nome completo para validar o palpite!")
+                    else:
+                        match = next((item for item in JOGOS_CADASTRADOS if item["Jogo"] == jogo_selecionado), None)
+                        if match:
+                            payload = {
+                                "action": "fazerPalpite",
+                                "spreadsheet_id": st.session_state.spreadsheet_id,
+                                "email": email_user,
+                                "nome": nome_user,
+                                "id_jogo": match["ID_Jogo"],
+                                "palpite": f"{gols_m}-{gols_v}"
+                            }
+                            try:
+                                resp = requests.post(
+                                    st.session_state.web_app_url,
+                                    data=json.dumps(payload),
+                                    headers={"Content-Type": "application/json"}
+                                )
+                                dados_api = resp.json()
+                                if dados_api.get("status") == "success":
+                                    st.success(f"Excelente! Palpite de {gols_m} x {gols_v} para o jogo '{jogo_selecionado}' enviado com sucesso!")
+                                    # Limpar cache e recarregar a página para atualizar o filtro e sumir com o jogo votado
+                                    st.cache_data.clear()
+                                    st.rerun()
+                                else:
+                                    st.error(f"Erro ao gravar na planilha: {dados_api.get('message')}")
+                            except Exception as ex:
+                                st.error(f"Erro ao conectar com a API: {str(ex)}")
+    else:
+        st.info("Insira um e-mail corporativo válido acima para desbloquear e carregar os seus jogos disponíveis.")
 
 elif aba_selecionada == "🔧 Portal Admin":
     st.markdown('<div class="main-title">🔧 Portal do Administrador</div>', unsafe_allow_html=True)
@@ -431,6 +489,7 @@ elif aba_selecionada == "🔧 Portal Admin":
                 st.session_state.spreadsheet_id = novo_id
                 st.session_state.web_app_url = nova_url
                 st.success("Configurações atualizadas localmente!")
+                st.cache_data.clear()
                 st.rerun()
 
         st.markdown("### 🧪 Diagnóstico de Conexão")
@@ -452,50 +511,10 @@ elif aba_selecionada == "🔧 Portal Admin":
                     st.error(f"Erro na requisição: {str(ex)}")
 
         st.markdown("---")
-        st.markdown("### ⚽ Lançar Resultados Reais e Alterar Status")
-        
-        with st.form("form_admin_placar"):
-            jogo_adm = st.selectbox("Selecione a partida para atualizar:", options=[j["Jogo"] for j in JOGOS_CADASTRADOS])
-            status_adm = st.selectbox("Novo Status do Jogo", ["🕒 Agendado", "🟡 Em Andamento", "🟢 Encerrado"])
-            
-            c1, c2 = st.columns(2)
-            with c1:
-                g_m = st.number_input("Gols do Mandante Oficial", min_value=0, max_value=25, value=0, step=1)
-            with c2:
-                g_v = st.number_input("Gols do Visitante Oficial", min_value=0, max_value=25, value=0, step=1)
-                
-            bt_placar = st.form_submit_button("💾 Salvar Placar Oficial")
-            
-            if bt_placar:
-                placar_payload = {
-                    "action": "atualizarPlacar",
-                    "spreadsheet_id": st.session_state.spreadsheet_id,
-                    "senha": "feltrim2026",
-                    "jogo": jogo_adm,
-                    "placar_m": int(g_m),
-                    "placar_v": int(g_v),
-                    "status": status_adm
-                }
-                try:
-                    r = requests.post(
-                        st.session_state.web_app_url,
-                        data=json.dumps(placar_payload),
-                        headers={"Content-Type": "application/json"}
-                    )
-                    ret_api = r.json()
-                    if ret_api.get("status") == "success":
-                        st.success("Placar e status atualizados com sucesso na planilha!")
-                    else:
-                        st.error(f"Erro na gravação: {ret_api.get('message')}")
-                except Exception as ex:
-                    st.error(f"Erro de conexão com o script Google: {str(ex)}")
-                    
-        st.markdown("---")
-        st.markdown("### ⚠️ Zona de Risco")
-        
-        if st.button("🚀 Inicializar Todos os 72 Jogos na Planilha"):
-            with st.spinner("Gerando planilhas e limpando dados antigos..."):
-                init_payload = {
+        st.markdown("### 🚀 Ações em Massa")
+        if st.button("Inicializar Todos os 72 Jogos na Planilha"):
+            with st.spinner("Apagando tabelas antigas e recriando estrutura oficial..."):
+                payload = {
                     "action": "inicializarNovoBolao",
                     "spreadsheet_id": st.session_state.spreadsheet_id,
                     "senha": "feltrim2026"
@@ -503,24 +522,11 @@ elif aba_selecionada == "🔧 Portal Admin":
                 try:
                     r = requests.post(
                         st.session_state.web_app_url,
-                        data=json.dumps(init_payload),
+                        data=json.dumps(payload),
                         headers={"Content-Type": "application/json"}
                     )
-                    res_init = r.json()
-                    if res_init.get("status") == "success":
-                        st.success("Planilha configurada com sucesso com todos os 72 jogos oficiais!")
-                    else:
-                        st.error(f"Erro ao inicializar: {res_init.get('message')}")
-                except Exception as ex:
-                    st.error(f"Erro ao inicializar a planilha: {str(ex)}")
-    elif senha_digitada:
-        st.error("Senha incorreta! Acesso restrito apenas ao administrador do bolão.")
-```
-eof
-
-### 🏆 Conclusão & Próximos Passos:
-O código do **`app_bolao.py`** foi totalmente saneado e está livre de qualquer bug de indentação ou caractere incorreto!
-
-1. Substitua o código no seu repositório do **GitHub**.
-2. O Streamlit Cloud irá detectar o commit e reiniciar a aplicação instantaneamente.
-3. Se o site avisar que a planilha não está carregada, use a senha `feltrim2026` na aba **Portal Admin**, cole a sua URL do Apps Script e clique no botão **"🚀 Inicializar Todos os 72 Jogos na Planilha"** para recriar as tabelas oficiais de forma limpa e com as datas reais de transmissão!
+                    st.json(r.json())
+                    st.cache_data.clear()
+                    st.success("Ação enviada! Verifique a sua planilha do Google.")
+                except Exception as e:
+                    st.error(f"Falha: {str(e)}")
