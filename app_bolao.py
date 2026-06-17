@@ -155,59 +155,58 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 48 Jogos Reais em Ordem Cronológica Consistente (Sintaxe Python Corrigida com #)
 JOGOS_ESTATICOS = [
     # --- RODADA 1 ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs Tchéquia (11/06)", "Horário": "23:00"},
-    {"ID_Jogo": "JOGO_03", "Jogo": "⚽ Canadá vs Bósnia-Herzegovina (12/06)", "Horário": "20:00"},
+    {"ID_Jogo": "JOGO_03", "Jogo": "⚽ Canadá vs Bósnia-Herzegovina (12/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_04", "Jogo": "⚽ Estados Unidos vs Paraguai (12/06)", "Horário": "22:00"},
-    {"ID_Jogo": "JOGO_05", "Jogo": "⚽ Catar vs Suíça (13/06)", "Horário": "20:00"},
+    {"ID_Jogo": "JOGO_05", "Jogo": "⚽ Catar vs Suíça (13/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_06", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "19:00"},
     {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "22:00"},
     {"ID_Jogo": "JOGO_08", "Jogo": "⚽ Austrália vs Turquia (14/06)", "Horário": "01:00"},
-    {"ID_Jogo": "JOGO_09", "Jogo": "⚽ Alemanha vs Curaçao (14/06)", "Horário": "17:00"},
-    {"ID_Jogo": "JOGO_10", "Jogo": "⚽ Holanda vs Japão (14/06)", "Horário": "20:00"},
-    {"ID_Jogo": "JOGO_11", "Jogo": "⚽ Costa do Marfim vs Equador (14/06)", "Horário": "23:00"},
-    {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Suécia vs Tunísia (15/06)", "Horário": "02:00"},
-    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Espanha vs Cabo Verde (15/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Bélgica vs Egito (15/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Arábia Saudita vs Uruguai (15/06)", "Horário": "22:00"},
-    {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Irã vs Nova Zelândia (16/06)", "Horário": "01:00"},
-    {"ID_Jogo": "JOGO_17", "Jogo": "⚽ França vs Senegal (16/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_18", "Jogo": "⚽ Iraque vs Noruega (16/06)", "Horário": "22:00"},
-    {"ID_Jogo": "JOGO_19", "Jogo": "⚽ Argentina vs Argélia (17/06)", "Horário": "01:00"},
-    {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Áustria vs Jordânia (17/06)", "Horário": "04:00"},
-    {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "17:00"},
-    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "20:00"},
-    {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "23:00"},
-    {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Uzbequistão vs Colômbia (18/06)", "Horário": "02:00"},
+    {"ID_Jogo": "JOGO_09", "Jogo": "⚽ Alemanha vs Curaçao (14/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_10", "Jogo": "⚽ Holanda vs Japão (14/06)", "Horário": "17:00"},
+    {"ID_Jogo": "JOGO_11", "Jogo": "⚽ Costa do Marfim vs Equador (14/06)", "Horário": "20:00"},
+    {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Suécia vs Tunísia (14/06)", "Horário": "23:00"},
+    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Espanha vs Cabo Verde (15/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Bélgica vs Egito (15/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Arábia Saudita vs Uruguai (15/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Irã vs Nova Zelândia (15/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_17", "Jogo": "⚽ França vs Senegal (16/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_18", "Jogo": "⚽ Iraque vs Noruega (16/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_19", "Jogo": "⚽ Argentina vs Argélia (16/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Áustria vs Jordânia (17/06)", "Horário": "01:00"},
+    {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "17:00"},
+    {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "20:00"},
+    {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Uzbequistão vs Colômbia (17/06)", "Horário": "23:00"},
     # --- RODADA 2 ---
-    {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Tchéquia vs África do Sul (18/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_26", "Jogo": "⚽ Suíça vs Bósnia-Herzegovina (18/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Canadá vs Catar (18/06)", "Horário": "22:00"},
-    {"ID_Jogo": "JOGO_28", "Jogo": "⚽ México vs Coreia do Sul (19/06)", "Horário": "01:00"},
-    {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Estados Unidos vs Austrália (19/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "22:00"},
-    {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Brasil vs Haiti (20/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Turquia vs Paraguai (20/06)", "Horário": "03:00"},
-    {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Holanda vs Suécia (20/06)", "Horário": "17:00"},
-    {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Alemanha vs Costa do Marfim (20/06)", "Horário": "20:00"},
-    {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Equador vs Curaçao (21/06)", "Horário": "00:00"},
-    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Tunísia vs Japão (21/06)", "Horário": "04:00"},
-    {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Espanha vs Arábia Saudita (21/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Irã (21/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguai vs Cabo Verde (21/06)", "Horário": "22:00"},
-    {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (22/06)", "Horário": "01:00"},
+    {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Tchéquia vs África do Sul (18/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_26", "Jogo": "⚽ Suíça vs Bósnia-Herzegovina (18/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Canadá vs Catar (18/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_28", "Jogo": "⚽ México vs Coreia do Sul (18/06)", "Horário": "22:00"},
+    {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Estados Unidos vs Austrália (19/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21:30"},
+    {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Turquia vs Paraguai (20/06)", "Horário": "00:00"},
+    {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Holanda vs Suécia (20/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Alemanha vs Costa do Marfim (20/06)", "Horário": "17:00"},
+    {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Equador vs Curaçao (20/06)", "Horário": "21:00"},
+    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Tunísia vs Japão (21/06)", "Horário": "01:00"},
+    {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Espanha vs Arábia Saudita (21/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Irã (21/06)", "Horário": "16:00"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguai vs Cabo Verde (21/06)", "Horário": "19:00"},
+    {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "22:00"},
     {"ID_Jogo": "JOGO_41", "Jogo": "⚽ França vs Iraque (22/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_42", "Jogo": "⚽ Noruega vs Senegal (22/06)", "Horário": "21:00"},
-    {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "22:30"},
-    {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (23/06)", "Horário": "08:30"},
+    {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "14:00"},
+    {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (23/06)", "Horário": "00:00"},
     # --- RODADA 3 (SELECIONADOS) ---
     {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Senegal vs Iraque (26/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Haiti vs Marrocos (25/06)", "Horário": "15:30"}
+    {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Haiti vs Marrocos (24/06)", "Horário": "19:00"}
 ]
 
 @st.cache_data(ttl=5)
@@ -480,7 +479,6 @@ with tabs[0]:
         st.cache_data.clear()
         st.rerun()
 
-# ==================== ABA 2: JOGOS & RESULTADOS ====================
 with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
     
@@ -542,10 +540,8 @@ with tabs[1]:
         </div>
         """, unsafe_allow_html=True)
 
-# ==================== ABA 3: DAR PALPITE ====================
 with tabs[2]:
     st.markdown("### 📝 Registrar seu Palpite")
-    
     st.write("Digite o seu e-mail corporativo cadastrado para filtrar e selecionar as partidas disponíveis.")
     
     user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
@@ -623,7 +619,6 @@ with tabs[2]:
     else:
         st.info("💡 Digite o seu e-mail corporativo completo e seu nome para listar os palpites em aberto.")
 
-# ==================== ABA 4: MEUS PALPITES ====================
 with tabs[3]:
     st.markdown("### 🎟️ Meus Tickets de Apostas")
     st.write("Digite o seu e-mail corporativo cadastrado para visualizar todo o seu histórico de palpites.")
@@ -690,7 +685,6 @@ with tabs[3]:
                     if not algum_palpite:
                         st.info("Nenhum palpite preenchido até o momento por este usuário.")
 
-# ==================== ABA 5: PORTAL ADMIN ====================
 with tabs[4]:
     st.markdown("### 🔑 Controle de Acesso Administrativo")
     st.write("Insira o código de segurança para habilitar os recursos de lançamento e configurações:")
@@ -758,7 +752,7 @@ with tabs[4]:
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated com sucesso!")
                                 st.cache_data.clear()
                             else:
                                 st.error(f"Erro: {p_json.get('message')}")
