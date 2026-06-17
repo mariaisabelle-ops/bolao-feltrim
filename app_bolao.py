@@ -3,8 +3,10 @@ import pandas as pd
 import requests
 import json
 
-# LISTA OFICIAL CRONOLÓGICA DE 72 JOGOS DA COPA DO MUNDO FIFA 2026 (FASE DE GRUPOS)
-# Todos os horários e datas estão baseados estritamente no fuso de Brasília (UTC-3).
+# ==========================================
+# 🏆 1. LISTA OFICIAL CRONOLÓGICA DE 72 JOGOS
+# ==========================================
+# Todos os horários e datas estão baseados estritamente na imagem oficial enviada.
 JOGOS_CADASTRADOS = [
     # --- 11/06 ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "15:00"},
@@ -162,6 +164,13 @@ st.markdown("""
         margin-bottom: 1rem;
         border: 1px solid #f0f0f0;
     }
+    .podium-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
     .podium-1 {
         background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
         color: #111;
@@ -205,10 +214,9 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("<small>Versão Premium V2.8</small>", unsafe_allow_html=True)
+    st.markdown("<small>Versão Premium V2.9</small>", unsafe_allow_html=True)
 
-# Função para buscar e ler as tabelas do Google Sheets via API pública formatada em CSV
-@st.cache_data(ttl=15)
+@st.cache_data(ttl=10)
 def carregar_dados_planilha(sheet_id):
     try:
         url_palpites = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet=Palpites"
@@ -221,7 +229,6 @@ def carregar_dados_planilha(sheet_id):
     except Exception:
         return None, None
 
-# Função de processamento das regras de negócio do Bolão para calcular pontos individuais
 def calcular_ranking_real(df_palpites, df_resultados):
     if df_palpites is None or df_resultados is None or df_palpites.empty or df_resultados.empty:
         return pd.DataFrame()
@@ -347,7 +354,7 @@ if aba_selecionada == "📊 Tabela de Classificação":
                     st.markdown('<div class="card" style="text-align:center;">Vago</div>', unsafe_allow_html=True)
             
             st.markdown("---")
-            st.markdown("### 📊 Classificação Completa")
+            st.markdown("### 📊 Classificação Completa (Resultado Geral)")
             st.dataframe(rank, use_container_width=True, hide_index=True)
         else:
             st.info("Nenhum palpite cadastrado ainda! Comece enviando os palpites na aba ao lado.")
@@ -365,7 +372,6 @@ elif aba_selecionada == "📝 Fazer Palpite":
     st.markdown('<div class="main-title">📝 Enviar Meus Palpites</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Registre os seus palpites de forma reativa e livre de duplicidades</div>', unsafe_allow_html=True)
     
-    # Campo de identificação em destaque
     st.markdown("#### 👤 1. Identifique-se")
     col_e1, col_e2 = st.columns(2)
     with col_e1:
@@ -382,13 +388,11 @@ elif aba_selecionada == "📝 Fazer Palpite":
             placeholder="Ex: João Silva"
         ).strip()
 
-    # Salvamento reativo imediato das credenciais digitadas
     if email_user != st.session_state.saved_email:
         st.session_state.saved_email = email_user
     if nome_user != st.session_state.saved_name:
         st.session_state.saved_name = nome_user
 
-    # Filtro Dinâmico de Jogos Pendentes
     jogos_disponiveis = []
     lista_jogos_betted = set()
 
@@ -404,7 +408,6 @@ elif aba_selecionada == "📝 Fazer Palpite":
             if email_col_name:
                 user_row = df_p[df_p[email_col_name].astype(str).str.strip().str.lower() == email_user]
                 if not user_row.empty:
-                    # Encontrar quais jogos já têm votos registrados (contendo hífens)
                     for jogo_item in JOGOS_CADASTRADOS:
                         nome_jogo = jogo_item["Jogo"]
                         if nome_jogo in df_p.columns:
@@ -412,7 +415,6 @@ elif aba_selecionada == "📝 Fazer Palpite":
                             if val and val != "nan" and "-" in val:
                                 lista_jogos_betted.add(nome_jogo)
 
-        # Filtrar a lista completa de forma que jogos votados desapareçam da visão do usuário
         jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
 
         st.markdown("---")
@@ -461,7 +463,6 @@ elif aba_selecionada == "📝 Fazer Palpite":
                                 dados_api = resp.json()
                                 if dados_api.get("status") == "success":
                                     st.success(f"Excelente! Palpite de {gols_m} x {gols_v} para o jogo '{jogo_selecionado}' enviado com sucesso!")
-                                    # Limpar cache e recarregar a página para atualizar o filtro e sumir com o jogo votado
                                     st.cache_data.clear()
                                     st.rerun()
                                 else:
@@ -488,7 +489,7 @@ elif aba_selecionada == "🔧 Portal Admin":
             if st.button("💾 Salvar Configurações de Conexão"):
                 st.session_state.spreadsheet_id = novo_id
                 st.session_state.web_app_url = nova_url
-                st.success("Configurações atualizadas localmente!")
+                st.success("Configurações updated localmente!")
                 st.cache_data.clear()
                 st.rerun()
 
