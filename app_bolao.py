@@ -18,7 +18,7 @@ JOGOS_CADASTRADOS = [
     # --- 13/06 ---
     {"ID_Jogo": "JOGO_05", "Jogo": "⚽ Catar vs Suíça (13/06)", "Horário": "15:00", "Data": "13/06 (Sábado)", "Time_M": "Catar", "Emoji_M": "🇶🇦", "Time_V": "Suíça", "Emoji_V": "🇨🇭"},
     {"ID_Jogo": "JOGO_06", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "18:00", "Data": "13/06 (Sábado)", "Time_M": "Brasil", "Emoji_M": "🇧🇷", "Time_V": "Marrocos", "Emoji_V": "🇲🇦"},
-    {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "21:00", "Data": "13/06 (Sábado)", "Time_M": "Haiti", "Emoji_M": "🇭🇹", "Time_V": "Escócia", "Emoji_V": "🏴󠁧󠁢󠁳󠁣󠁴󠁿"},
+    {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "21:00", "Data": "13/06 (Sábado)", "Time_M": "Haiti", "Emoji_M": "🇭🇹", "Time_V": "Escócia", "Emoji_V": "⚽"},
 
     # --- 14/06 ---
     {"ID_Jogo": "JOGO_08", "Jogo": "⚽ Austrália vs Turquia (14/06)", "Horário": "00:00", "Data": "14/06 (Domingo)", "Time_M": "Austrália", "Emoji_M": "🇦🇺", "Time_V": "Turquia", "Emoji_V": "🇹🇷"},
@@ -41,7 +41,7 @@ JOGOS_CADASTRADOS = [
     # --- 17/06 ---
     {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Áustria vs Jordânia (17/06)", "Horário": "00:00", "Data": "17/06 (Quarta)", "Time_M": "Áustria", "Emoji_M": "🇦🇹", "Time_V": "Jordânia", "Emoji_V": "🇯🇴"},
     {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "13:00", "Data": "17/06 (Quarta)", "Time_M": "Portugal", "Emoji_M": "🇵🇹", "Time_V": "RD Congo", "Emoji_V": "🇨🇩"},
-    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "16:00", "Data": "17/06 (Quarta)", "Time_M": "Inglaterra", "Emoji_M": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Time_V": "Croácia", "Emoji_V": "🇭🇷"},
+    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "16:00", "Data": "17/06 (Quarta)", "Time_M": "Inglaterra", "Emoji_M": "⚽", "Time_V": "Croácia", "Emoji_V": "🇭🇷"},
     {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "19:00", "Data": "17/06 (Quarta)", "Time_M": "Gana", "Emoji_M": "🇬🇭", "Time_V": "Panamá", "Emoji_V": "🇵🇦"},
     {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Uzbequistão vs Colômbia (17/06)", "Horário": "22:00", "Data": "17/06 (Quarta)", "Time_M": "Uzbequistão", "Emoji_M": "🇺🇿", "Time_V": "Colômbia", "Emoji_V": "🇨🇴"},
 
@@ -53,7 +53,7 @@ JOGOS_CADASTRADOS = [
 
     # --- 19/06 ---
     {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Estados Unidos vs Austrália (19/06)", "Horário": "15:00", "Data": "19/06 (Sexta)", "Time_M": "Estados Unidos", "Emoji_M": "🇺🇸", "Time_V": "Austrália", "Emoji_V": "🇦🇺"},
-    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "18:00", "Data": "19/06 (Sexta)", "Time_M": "Escócia", "Emoji_M": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Time_V": "Marrocos", "Emoji_V": "🇲🇦"},
+    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "18:00", "Data": "19/06 (Sexta)", "Time_M": "Escócia", "Emoji_M": "⚽", "Time_V": "Marrocos", "Emoji_V": "🇲🇦"},
     {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21:30", "Data": "19/06 (Sexta)", "Time_M": "Brasil", "Emoji_M": "🇧🇷", "Time_V": "Haiti", "Emoji_V": "🇭🇹"},
     {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Turquia vs Paraguai (19/06)", "Horário": "23:00", "Data": "19/06 (Sexta)", "Time_M": "Turquia", "Emoji_M": "🇹🇷", "Time_V": "Paraguai", "Emoji_V": "🇵🇾"},
 
@@ -77,14 +77,14 @@ JOGOS_CADASTRADOS = [
 
     # --- 23/06 ---
     {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "13:00", "Data": "23/06 (Terça)", "Time_M": "Portugal", "Emoji_M": "🇵🇹", "Time_V": "Uzbequistão", "Emoji_V": "🇺🇿"},
-    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "Emoji_M": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Time_V": "Gana", "Emoji_V": "🇬🇭"},
+    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "Emoji_M": "⚽", "Time_V": "Gana", "Emoji_V": "🇬🇭"},
     {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "19:00", "Data": "23/06 (Terça)", "Time_M": "Panamá", "Emoji_M": "🇵🇦", "Time_V": "Croácia", "Emoji_V": "🇭🇷"},
     {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "22:00", "Data": "23/06 (Terça)", "Time_M": "Colômbia", "Emoji_M": "🇨🇴", "Time_V": "RD Congo", "Emoji_V": "🇨🇩"},
 
     # --- 24/06 ---
     {"ID_Jogo": "JOGO_49", "Jogo": "⚽ Suíça vs Canadá (24/06)", "Horário": "15:00", "Data": "24/06 (Quarta)", "Time_M": "Suíça", "Emoji_M": "🇨🇭", "Time_V": "Canadá", "Emoji_V": "🇨🇦"},
     {"ID_Jogo": "JOGO_50", "Jogo": "⚽ Bósnia e Herzegovina vs Catar (24/06)", "Horário": "15:00", "Data": "24/06 (Quarta)", "Time_M": "Bósnia e Herzegovina", "Emoji_M": "🇧🇦", "Time_V": "Catar", "Emoji_V": "🇶🇦"},
-    {"ID_Jogo": "JOGO_51", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Escócia", "Emoji_M": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Time_V": "Brasil", "Emoji_V": "🇧🇷"},
+    {"ID_Jogo": "JOGO_51", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Escócia", "Emoji_M": "⚽", "Time_V": "Brasil", "Emoji_V": "🇧🇷"},
     {"ID_Jogo": "JOGO_52", "Jogo": "⚽ Marrocos vs Haiti (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Marrocos", "Emoji_M": "🇲🇦", "Time_V": "Haiti", "Emoji_V": "🇭🇹"},
     {"ID_Jogo": "JOGO_53", "Jogo": "⚽ Tchéquia vs México (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "Tchéquia", "Emoji_M": "🇨🇿", "Time_V": "México", "Emoji_V": "🇲🇽"},
     {"ID_Jogo": "JOGO_54", "Jogo": "⚽ África do Sul vs Coreia do Sul (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "África do Sul", "Emoji_M": "🇿🇦", "Time_V": "Coreia do Sul", "Emoji_V": "🇰🇷"},
@@ -106,7 +106,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_66", "Jogo": "⚽ Egito vs Irã (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Egito", "Emoji_M": "🇪🇬", "Time_V": "Irã", "Emoji_V": "🇮🇷"},
 
     # --- 27/06 ---
-    {"ID_Jogo": "JOGO_67", "Jogo": "⚽ Panamá vs Inglaterra (27/06)", "Horário": "17:00", "Data": "27/06 (Sábado)", "Time_M": "Panamá", "Emoji_M": "🇵🇦", "Time_V": "Inglaterra", "Emoji_V": "🏴󠁧󠁢󠁥󠁮󠁧󠁿"},
+    {"ID_Jogo": "JOGO_67", "Jogo": "⚽ Panamá vs Inglaterra (27/06)", "Horário": "17:00", "Data": "27/06 (Sábado)", "Time_M": "Panamá", "Emoji_M": "🇵🇦", "Time_V": "Inglaterra", "Emoji_V": "⚽"},
     {"ID_Jogo": "JOGO_68", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "17:00", "Data": "27/06 (Sábado)", "Time_M": "Croácia", "Emoji_M": "🇭🇷", "Time_V": "Gana", "Emoji_V": "🇬🇭"},
     {"ID_Jogo": "JOGO_69", "Jogo": "⚽ Colômbia vs Portugal (27/06)", "Horário": "19:30", "Data": "27/06 (Sábado)", "Time_M": "Colômbia", "Emoji_M": "🇨🇴", "Time_V": "Portugal", "Emoji_V": "🇵🇹"},
     {"ID_Jogo": "JOGO_70", "Jogo": "⚽ RD Congo vs Uzbequistão (27/06)", "Horário": "19:30", "Data": "27/06 (Sábado)", "Time_M": "RD Congo", "Emoji_M": "🇨🇩", "Time_V": "Uzbequistão", "Emoji_V": "🇺🇿"},
@@ -626,7 +626,7 @@ if aba_selecionada == "📊 Classificação Geral":
     else:
         st.warning("""
         **Planilha Desconectada ou em Configuração!**  
-        Seja bem-vindo ao Bolão Feltrim Correa. O administrador configurará o painel em breve.
+        Seja bem-vindo ao Bolão Feltrim Correa. O administrador configurará o painel usando as diretrizes de acesso do Google.
         """)
 
 # ==========================================
@@ -769,7 +769,7 @@ elif aba_selecionada == "📝 Registrar Palpites":
                 st.markdown("<hr style='border: 1px solid #f1f5f9; margin: 2rem 0;' />", unsafe_allow_html=True)
 
 # ==========================================
-# 🔧 ABA 3: PORTAL DO ADMINISTRADOR
+# 🔧 PORTAL DO ADMINISTRADOR
 # ==========================================
 elif aba_selecionada == "🔧 Portal de Controle":
     st.markdown('<div class="hero-title">🔧 Portal de Controle</div>', unsafe_allow_html=True)
