@@ -549,7 +549,7 @@ with tabs[1]:
         
         **Como resolver de forma instantânea em 2 passos:**
         1. Confirme se as abas estão devidamente criadas no seu Google Sheets.
-        2. Vá na aba **Portal Admin** usando a senha `feltrim2026`, cole o **ID da sua Planilha** e a **URL do seu Web App (Apps Script)** nos campos e clique em **Inicializar todos os 72 jogos**!
+        2. Vá na aba **Portal Admin** usando a sua senha de acesso administrativo, cole o **ID da sua Planilha** e a **URL do seu Web App (Apps Script)** nos campos e clique em **Inicializar todos os 72 jogos**!
         
         *Atualmente conectado ao ID padrão:* `{st.session_state.spreadsheet_id}`
         """)
