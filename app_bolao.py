@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 import json
 
-# Configuração de Página Premium do Streamlit no Padrão Feltrim Correa
+# Configuração de Página Premium do Streamlit
 st.set_page_config(
     page_title="Feltrim Correa - Bolão Corporativo",
     page_icon="🏆",
@@ -132,7 +132,7 @@ st.markdown("""
     
     /* Configuração da Barra Lateral (Sidebar) no padrão Feltrim Correa */
     [data-testid="stSidebar"] {
-        background-color: #FFFFFF !important;
+        background-color: #000000 !important; /* Fundo Preto de Grife no Sidebar */
         border-right: 1px solid rgba(197, 160, 89, 0.3) !important;
     }
     
@@ -196,18 +196,18 @@ st.markdown("""
         border-color: #0B1B3D !important;
     }
     
-    /* Menu de Navegação Premium Sem Círculos de Opção */
+    /* Menu de Navegação Premium Sem Círculos de Opção - Estilo SaaS Premium */
     div[data-testid="stSidebar"] div[role="radiogroup"] {
         gap: 8px !important;
     }
     
     div[data-testid="stSidebar"] div[role="radiogroup"] [data-baseweb="radio"] > div:first-child {
-        display: none !important; /* Remove as bolinhas pretas/vermelhas feias */
+        display: none !important; /* Remove as bolinhas feias do formulário */
     }
     
     div[data-testid="stSidebar"] div[role="radiogroup"] label {
-        background-color: #FAF9F6 !important;
-        border: 1px solid rgba(197, 160, 89, 0.2) !important;
+        background-color: transparent !important;
+        border: 1px solid rgba(197, 160, 89, 0.15) !important;
         padding: 12px 16px !important;
         border-radius: 10px !important;
         margin-bottom: 2px !important;
@@ -216,19 +216,20 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         width: 100% !important;
+        color: #FFFFFF !important; /* Texto branco no sidebar preto */
     }
     
     div[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        border-color: #C5A059 !important;
-        background-color: rgba(197, 160, 89, 0.05) !important;
+        border-color: #E696F0 !important; /* Borda Magenta no hover */
+        background-color: rgba(230, 150, 240, 0.05) !important;
         transform: translateX(4px);
     }
     
     div[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-        background: linear-gradient(135deg, #0B1B3D 0%, #1A365D 100%) !important;
+        background: linear-gradient(135deg, #F0660D 0%, #000000 100%) !important; /* Seleção Laranja do escritório */
         color: #FFFFFF !important;
         border-color: #C5A059 !important;
-        box-shadow: 0 4px 15px rgba(11, 27, 61, 0.15) !important;
+        box-shadow: 0 4px 15px rgba(240, 102, 13, 0.35) !important;
     }
     
     div[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) span {
@@ -277,7 +278,7 @@ st.markdown("""
     
     .silver-box {
         background: #FFFFFF;
-        border-top: 6px solid #94A3B8 !important; /* Prata */
+        border-top: 6px solid #8893FF !important; /* Azul do Escritório */
         height: 160px;
         z-index: 2;
     }
@@ -390,7 +391,7 @@ st.markdown("""
     }
     
     .rank-1 { background: #C5A059; }
-    .rank-2 { background: #94A3B8; }
+    .rank-2 { background: #8893FF; color: #000000 !important; } /* Azul do Escritório */
     .rank-3 { background: #CD7F32; }
     .rank-other { background: #0B1B3D; }
     
@@ -404,8 +405,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.image("https://img.icons8.com/color/120/trophy.png", width=50) # Trocado para o Troféu real em vez da caneca de café
-    st.markdown("<h3 style='color:#0B1B3D; margin-bottom: 0;'>🏆 Feltrim Correa</h3>", unsafe_allow_html=True)
+    st.image("https://img.icons8.com/color/120/trophy.png", width=50) # Ícone de Troféu corrigido de caneca de café
+    st.markdown("<h3 style='color:#FFFFFF; margin-bottom: 0;'>🏆 Feltrim Correa</h3>", unsafe_allow_html=True)
     st.markdown("<small style='color:#C5A059; font-weight:700;'>Copa do Mundo FIFA 2026</small>", unsafe_allow_html=True)
     st.markdown("---")
     
@@ -545,7 +546,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
                 
                 podium_html = f"""<div class="podium-section">
 <div class="podium-col">
-<span class="badge-rank" style="background:#94A3B8; color:#000000;">2º Lugar</span>
+<span class="badge-rank" style="background:#8893FF; color:#000000;">2º Lugar</span>
 <div class="avatar-circle">🥈</div>
 <div class="podium-box silver-box">
 <div class="podium-name">{p2_nome}</div>
@@ -607,7 +608,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
 <td style="font-weight: 700; color: #0B1B3D;">{row['Nome']}</td>
 <td style="text-align: center; font-weight: 600;">{row['Palpites Feitos']}</td>
 <td style="text-align: center; color: #C5A059; font-weight: 700;">{row['Acertos Exatos']}</td>
-<td style="text-align: center; color: #94A3B8; font-weight: 700;">{row['Acertos Vencedor']}</td>
+<td style="text-align: center; color: #8893FF; font-weight: 700;">{row['Acertos Vencedor']}</td>
 <td style="text-align: right; font-weight: 800; font-size: 1.1rem; color: #0B1B3D; padding-right: 1.5rem;">{row['Pontos']} pts</td>
 </tr>"""
                     
@@ -701,7 +702,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
                             
                             st.markdown(f"<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem;'>Seu palpite: <strong>{palpite_u}</strong> • {badge_pontos}</div>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem; color:#0B1B3D;'>Seu palpite salvo: <strong style='color:#C5A059; background:#FFFFFF; border:1px solid #C5A059; padding:0.2rem 0.6rem; border-radius:30px;'>{palpite_u}</strong></div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem; color:#0B1B3D;'>Seu palpite saved: <strong style='color:#C5A059; background:#FFFFFF; border:1px solid #C5A059; padding:0.2rem 0.6rem; border-radius:30px;'>{palpite_u}</strong></div>", unsafe_allow_html=True)
                     elif st.session_state.saved_email:
                         st.markdown("<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem; color:#C5A059; font-weight:700;'>⚠️ Você ainda não palpitou nesta partida!</div>", unsafe_allow_html=True)
         else:
@@ -769,7 +770,7 @@ elif aba_selecionada == "📝 Registrar Palpites":
                                 lista_jogos_betted.add(nome_jogo)
 
         # Filtragem de partidas disponíveis para o usuário
-        jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_joged_betted] if 'lista_joged_betted' in locals() else [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
+        jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
         
         st.markdown("---")
         st.markdown(f"<h4 style='color:#0B1B3D; font-weight:800;'>🏟️ Seus Palpites Disponíveis ({len(jogos_disponiveis)} jogos restantes)</h4>", unsafe_allow_html=True)
