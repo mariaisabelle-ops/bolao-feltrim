@@ -6,7 +6,7 @@ import io
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
-#st.set_page_config(
+st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
     layout="wide",
@@ -22,7 +22,7 @@ DEFAULT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4
 # Fuso Horário de Brasília (UTC-3)
 agora_brasil = (datetime.now(timezone.utc) - timedelta(hours=3)).replace(tzinfo=None)
 
-#if "spreadsheet_id" not in st.session_state:
+if "spreadsheet_id" not in st.session_state:
     st.session_state.spreadsheet_id = DEFAULT_SPREADSHEET_ID
 
 if "web_app_url" not in st.session_state:
@@ -31,7 +31,7 @@ if "web_app_url" not in st.session_state:
 if "erro_conexao" not in st.session_state:
     st.session_state.erro_conexao = None
 
-#st.markdown("""
+st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700&display=swap');
     
@@ -154,7 +154,7 @@ if "erro_conexao" not in st.session_state:
 </style>
 """, unsafe_allow_html=True)
 
-#JOGOS_ESTATICOS = [
+JOGOS_ESTATICOS = [
     # --- GRUPO A ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs R. Tcheca (11/06)", "Horário": "23:00"},
@@ -252,7 +252,7 @@ if "erro_conexao" not in st.session_state:
     {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "18:00"}
 ]
 
-#with st.sidebar:
+with st.sidebar:
     st.image("https://img.icons8.com/color/96/trophy.png", width=60)
     st.markdown("### ⚽ Bolão Feltrim Correa")
     st.write("Bem-vindo ao portal oficial do nosso bolão corporativo!")
@@ -261,7 +261,7 @@ if "erro_conexao" not in st.session_state:
     st.write("2. Escolha o confronto em aberto e envie seu placar.")
     st.write("3. Acompanhe a classificação em tempo real.")
 
-#@st.cache_data(ttl=5)
+@st.cache_data(ttl=5)
 def puxar_planilha_segura(sheet_name):
     """
     Carrega dados de uma aba com tratamento avançado de URLs e diagnóstico de erros.
@@ -300,7 +300,7 @@ def carregar_aba_com_fallback(lista_nomes):
             return df, nome
     return pd.DataFrame(), None
 
-#df_resultados_raw, aba_resultados_nome = carregar_aba_com_fallback([
+df_resultados_raw, aba_resultados_nome = carregar_aba_com_fallback([
     "Resultados Oficiais", "🎯 Resultados Oficiais", "Resultados", "🎯 Resultados"
 ])
 
@@ -349,7 +349,7 @@ def obter_datetime_jogo(jogo_nome, horario_str):
         pass
     return datetime(2026, 6, 25, 23, 59)
 
-#df_resultados['Data_Ordenacao'] = df_resultados.apply(
+df_resultados['Data_Ordenacao'] = df_resultados.apply(
     lambda r: obter_datetime_jogo(r.get('Jogo', ''), r.get('Horário', '15:00')), axis=1
 )
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').copy()
@@ -540,7 +540,7 @@ with tabs[0]:
 with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
     
-    #    if planilha_precisa_inicializar:
+    if planilha_precisa_inicializar:
         motivo_diagnostico = st.session_state.erro_conexao if st.session_state.erro_conexao else "Planilha vazia ou com abas não configuradas."
         st.warning(f"""
         ⚠️ **Planilha Desconectada ou em Branco!**
@@ -608,7 +608,7 @@ with tabs[2]:
     user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
     user_nome = st.text_input("👤 Nome Completo:", key="user_nome_input").strip()
     
-    #    if user_email and "@" in user_email and len(user_nome) >= 3:
+    if user_email and "@" in user_email and len(user_nome) >= 3:
         col_email = ""
         palpites_feitos_usuario = []
         for c in df_palpites_raw.columns:
@@ -689,7 +689,7 @@ with tabs[3]:
     
     email_busca = st.text_input("📧 Pesquisar Histórico pelo seu E-mail:", "", key="email_busca_input").strip().lower()
     
-    #    if email_busca:
+    if email_busca:
         if df_palpites_raw.empty:
             st.info("Nenhum palpite registrado no banco de dados ainda.")
         else:
@@ -756,7 +756,7 @@ with tabs[4]:
     
     admin_pass = st.text_input("🔑 Código de Segurança:", type="password", key="senha_admin_field").strip()
     
-    #    if admin_pass == "feltrim2026":
+    if admin_pass == "feltrim2026":
         st.success("✅ Acesso administrativo liberado!")
         st.divider()
         
