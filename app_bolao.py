@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# STREAMING_CHUNK: Declarando o mapeamento de jogos com ISO de bandeiras reais da API Flagcdn...
+# STREAMING_CHUNK: Declarando a tabela oficial de 72 confrontos com mapeamento ISO de bandeiras...
 JOGOS_CADASTRADOS = [
     # --- 11/06 ---
     {"ID_Jogo": "JOGO_01", "Jogo": "México vs África do Sul (11/06)", "Horário": "15:00", "Data": "11/06 (Quinta)", "Time_M": "México", "ISO_M": "mx", "Time_V": "África do Sul", "ISO_V": "za"},
@@ -116,21 +116,28 @@ if "saved_email" not in st.session_state:
 if "saved_name" not in st.session_state:
     st.session_state.saved_name = ""
 
-# STREAMING_CHUNK: Aplicando o Design System Corporativo CSS Premium...
+# STREAMING_CHUNK: Injetando a folha de estilos CSS com a paleta do escritório e o design de botões premium...
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
-    html, body, [data-testid="stSidebar"], .stApp {
+    html, body, .stApp {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #f8fafc;
+        background-color: #FFFAE6; /* Fundo Bege suave do escritório */
+        color: #000000;
     }
     
-    /* Identidade Corporativa e Banner de Títulos */
+    /* Configuração de cor de fundo da Barra Lateral (Sidebar) com Bege do Escritório */
+    [data-testid="stSidebar"] {
+        background-color: #FFFAE6 !important;
+        border-right: 2px solid #F0660D !important;
+    }
+    
+    /* Cabeçalho Hero com Degradê Laranja e Preto */
     .hero-title {
         font-weight: 800;
-        font-size: 2.5rem;
-        background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
+        font-size: 2.6rem;
+        background: linear-gradient(135deg, #F0660D 0%, #000000 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
@@ -140,26 +147,54 @@ st.markdown("""
     
     .hero-subtitle {
         font-size: 1.05rem;
-        color: #64748b;
+        color: #F0660D;
         text-align: center;
         margin-bottom: 2rem;
-        font-weight: 500;
+        font-weight: 600;
     }
     
-    /* Perfil Conectado Banner */
+    /* Banner do Perfil Conectado utilizando Laranja, Preto e Azul do escritório */
     .profile-banner {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        color: white;
+        background: linear-gradient(135deg, #000000 0%, #F0660D 100%);
+        color: #FFFAE6;
         padding: 1.25rem 2rem;
         border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1.5rem;
-        border: 1px solid #334155;
+        border: 2px solid #8893FF;
+        box-shadow: 0 8px 24px rgba(240, 102, 13, 0.15);
     }
     
-    /* Pódio Corporativo 3D Sólido e sem vazamentos de código */
+    /* Estilização Avançada de Botões Streamlit com a Paleta do Escritório */
+    .stButton > button {
+        background: linear-gradient(135deg, #F0660D 0%, #000000 100%) !important;
+        color: #FFFAE6 !important;
+        border: none !important;
+        padding: 0.65rem 1.4rem !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        letter-spacing: -0.01em !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 4px 12px rgba(240, 102, 13, 0.25) !important;
+        width: 100%;
+        margin-top: 5px;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(240, 102, 13, 0.45) !important;
+        background: linear-gradient(135deg, #8893FF 0%, #F0660D 100%) !important; /* Azul e Laranja no Hover */
+        color: #FFFFFF !important;
+    }
+    
+    .stButton > button:active {
+        transform: translateY(1px) !important;
+    }
+    
+    /* Pódio Corporativo 3D com as Cores de Grife do Escritório */
     .podium-section {
         display: flex;
         justify-content: center;
@@ -187,24 +222,27 @@ st.markdown("""
         justify-content: center;
         padding: 1.75rem 1rem;
         text-align: center;
-        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        border: 2px solid #000000;
     }
     
+    /* 1º Lugar: Laranja para Magenta */
     .gold-box {
-        background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
+        background: linear-gradient(135deg, #F0660D 0%, #E696F0 100%);
         height: 220px;
         z-index: 3;
     }
     
+    /* 2º Lugar: Azul para Bege */
     .silver-box {
-        background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+        background: linear-gradient(135deg, #8893FF 0%, #FFFAE6 100%);
         height: 180px;
         z-index: 2;
     }
     
+    /* 3º Lugar: Verde para Bege */
     .bronze-box {
-        background: linear-gradient(135deg, #ffedd5 0%, #ca8a04 100%);
+        background: linear-gradient(135deg, #C9DE1C 0%, #FFFAE6 100%);
         height: 150px;
         z-index: 1;
     }
@@ -213,19 +251,20 @@ st.markdown("""
         width: 55px;
         height: 55px;
         border-radius: 50%;
-        background-color: white;
+        background-color: #000000;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.4rem;
         margin-bottom: 0.75rem;
-        box-shadow: 0 8px 16px rgba(15,23,42,0.08);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        color: #FFFAE6;
     }
     
     .podium-name {
         font-size: 1rem;
         font-weight: 700;
-        color: #0f172a;
+        color: #000000;
         margin-bottom: 0.2rem;
         white-space: nowrap;
         overflow: hidden;
@@ -236,22 +275,22 @@ st.markdown("""
     .podium-score {
         font-size: 1.3rem;
         font-weight: 800;
-        color: #0f172a;
+        color: #000000;
     }
     
     .badge-rank {
         position: absolute;
         top: -15px;
-        padding: 0.2rem 0.75rem;
+        padding: 0.25rem 0.85rem;
         border-radius: 30px;
         font-size: 0.75rem;
         font-weight: 800;
         text-transform: uppercase;
         color: white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
     
-    /* Tabela de Classificação Premium Customizada (Estilo Glide/Sheets) */
+    /* Tabela de Classificação Customizada com tons do escritório */
     .premium-table {
         width: 100%;
         border-collapse: separate;
@@ -260,39 +299,39 @@ st.markdown("""
     }
     
     .premium-table th {
-        background: #f1f5f9;
-        color: #475569;
+        background: #000000;
+        color: #FFFAE6;
         font-weight: 700;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
-        padding: 1rem;
+        padding: 1.1rem;
         text-align: left;
     }
     
-    .premium-table th:first-child { border-radius: 8px 0 0 8px; }
-    .premium-table th:last-child { border-radius: 0 8px 8px 0; }
+    .premium-table th:first-child { border-radius: 12px 0 0 12px; }
+    .premium-table th:last-child { border-radius: 0 12px 12px 0; }
     
     .premium-row {
-        background: #ffffff;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.01);
+        background: #FFFFFF;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
     }
     
     .premium-row td {
-        padding: 1.1rem 1rem;
-        border-top: 1px solid #f1f5f9;
-        border-bottom: 1px solid #f1f5f9;
+        padding: 1.2rem 1.1rem;
+        border-top: 1px solid #FFFAE6;
+        border-bottom: 1px solid #FFFAE6;
         font-size: 0.95rem;
-        color: #334155;
+        color: #000000;
     }
     
     .premium-row td:first-child {
-        border-left: 1px solid #f1f5f9;
+        border-left: 2px solid #F0660D;
         border-radius: 12px 0 0 12px;
         font-weight: 700;
     }
     
     .premium-row td:last-child {
-        border-right: 1px solid #f1f5f9;
+        border-right: 1px solid #FFFAE6;
         border-radius: 0 12px 12px 0;
     }
     
@@ -300,36 +339,39 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        font-weight: 700;
-        font-size: 0.8rem;
+        font-weight: 800;
+        font-size: 0.85rem;
+        color: white;
     }
     
-    .rank-1 { background: #fef08a; color: #854d0e; }
-    .rank-2 { background: #e2e8f0; color: #475569; }
-    .rank-3 { background: #ffedd5; color: #9a3412; }
-    .rank-other { background: #f1f5f9; color: #64748b; }
+    .rank-1 { background: #F0660D; color: #FFFAE6; } /* Laranja */
+    .rank-2 { background: #8893FF; color: #000000; } /* Azul */
+    .rank-3 { background: #C9DE1C; color: #000000; } /* Verde */
+    .rank-other { background: #000000; color: #FFFAE6; } /* Preto */
     
-    /* Bandeiras reais redondas */
-    .flag-icon-mini {
-        width: 22px;
-        height: 16px;
-        border-radius: 2px;
-        object-fit: cover;
-        vertical-align: middle;
-        margin-right: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    /* Configuração de Inputs do Streamlit para combinar com o design Bege/Laranja */
+    input {
+        background-color: #FFFFFF !important;
+        border: 2px solid #000000 !important;
+        border-radius: 10px !important;
+        color: #000000 !important;
+    }
+    
+    input:focus {
+        border-color: #F0660D !important;
+        box-shadow: 0 0 0 2px rgba(240, 102, 13, 0.2) !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# STREAMING_CHUNK: Desenhando menu de navegação lateral sofisticado...
+# STREAMING_CHUNK: Montando barra lateral unificada Bege/Laranja...
 with st.sidebar:
     st.image("https://img.icons8.com/color/120/cup.png", width=60)
-    st.markdown("### 🏆 Feltrim Correa")
-    st.markdown("<small style='color:#64748b; font-weight:500;'>Copa do Mundo FIFA 2026</small>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#000000;'>🏆 Feltrim Correa</h3>", unsafe_allow_html=True)
+    st.markdown("<small style='color:#F0660D; font-weight:700;'>Copa do Mundo FIFA 2026</small>", unsafe_allow_html=True)
     st.markdown("---")
     
     aba_selecionada = st.radio(
@@ -338,9 +380,9 @@ with st.sidebar:
         key="menu_navegacao"
     )
     st.markdown("---")
-    st.markdown("<small style='color:#94a3b8;'>Plataforma Premium V4.0</small>", unsafe_allow_html=True)
+    st.markdown("<small style='color:#000000; opacity:0.6;'>Plataforma Premium V5.0</small>", unsafe_allow_html=True)
 
-# STREAMING_CHUNK: Carregando dados da planilha do Google de forma protegida...
+# STREAMING_CHUNK: Carregando dados de forma assíncrona com tratamento de erros...
 @st.cache_data(ttl=5)
 def carregar_dados_planilha(sheet_id):
     try:
@@ -386,7 +428,7 @@ def calcular_pontos_palpite(palpite_str, real_m, real_v):
     except Exception:
         return 0, "Erro"
 
-# STREAMING_CHUNK: Calculando o ranking consolidado com ordenação oficial...
+# STREAMING_CHUNK: Processando e ordenando o ranking corporativo...
 def calcular_ranking_real(df_palpites, df_resultados):
     if df_palpites is None or df_resultados is None or df_palpites.empty or df_resultados.empty:
         return pd.DataFrame()
@@ -455,7 +497,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
             rank = calcular_ranking_real(df_p, df_r)
             
             if not rank.empty:
-                # STREAMING_CHUNK: Montando o Pódio com layout limpo em HTML esterilizado...
+                # STREAMING_CHUNK: Desenhando o Pódio com a nova estética integrada do escritório...
                 p1_nome = rank.iloc[0]['Nome'] if len(rank) >= 1 else "Vago"
                 p1_pontos = rank.iloc[0]['Pontos'] if len(rank) >= 1 else 0
                 
@@ -467,7 +509,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
                 
                 podium_html = f"""<div class="podium-section">
 <div class="podium-col">
-<span class="badge-rank" style="background:#94a3b8;">2º Lugar</span>
+<span class="badge-rank" style="background:#8893FF; color:#000000;">2º Lugar</span>
 <div class="avatar-circle">🥈</div>
 <div class="podium-box silver-box">
 <div class="podium-name">{p2_nome}</div>
@@ -475,15 +517,15 @@ if aba_selecionada == "📊 Classificação & Resultados":
 </div>
 </div>
 <div class="podium-col">
-<span class="badge-rank" style="background:#eab308;">Líder do Pódio</span>
+<span class="badge-rank" style="background:#F0660D; color:#FFFAE6;">Líder do Pódio</span>
 <div class="avatar-circle">👑</div>
 <div class="podium-box gold-box">
-<div class="podium-name" style="font-size:1.25rem; font-weight:800;">{p1_nome}</div>
-<div class="podium-score" style="font-size:1.65rem;">{p1_pontos} pts</div>
+<div class="podium-name" style="font-size:1.25rem; font-weight:800; color:#000000;">{p1_nome}</div>
+<div class="podium-score" style="font-size:1.65rem; color:#000000;">{p1_pontos} pts</div>
 </div>
 </div>
 <div class="podium-col">
-<span class="badge-rank" style="background:#ea580c;">3º Lugar</span>
+<span class="badge-rank" style="background:#C9DE1C; color:#000000;">3º Lugar</span>
 <div class="avatar-circle">🥉</div>
 <div class="podium-box bronze-box">
 <div class="podium-name">{p3_nome}</div>
@@ -493,9 +535,9 @@ if aba_selecionada == "📊 Classificação & Resultados":
 </div>"""
                 st.markdown(podium_html.replace("\n", " "), unsafe_allow_html=True)
                 
-                st.markdown("### 📊 Resultado Geral da Classificação")
+                st.markdown("<h3 style='color:#000000; font-weight:800;'>📊 Resultado Geral da Classificação</h3>", unsafe_allow_html=True)
                 
-                # STREAMING_CHUNK: Desenhando Tabela de Classificação Premium higienizada de quebras de linha...
+                # STREAMING_CHUNK: Desenhando Tabela de Líderes com as novas classes estilizadas do escritório...
                 table_html = """<table class="premium-table">
 <thead>
 <tr>
@@ -526,11 +568,11 @@ if aba_selecionada == "📊 Classificação & Resultados":
                         
                     table_html += f"""<tr class="premium-row">
 <td style="text-align: center;"><span class="rank-indicator {rank_class}">{badge}</span></td>
-<td style="font-weight: 600; color: #0f172a;">{row['Nome']}</td>
-<td style="text-align: center; font-weight: 500;">{row['Palpites Feitos']}</td>
-<td style="text-align: center; color: #16a34a; font-weight: 600;">{row['Acertos Exatos']}</td>
-<td style="text-align: center; color: #2563eb; font-weight: 600;">{row['Acertos Vencedor']}</td>
-<td style="text-align: right; font-weight: 800; font-size: 1.1rem; color: #0f172a; padding-right: 1.5rem;">{row['Pontos']} pts</td>
+<td style="font-weight: 700; color: #000000;">{row['Nome']}</td>
+<td style="text-align: center; font-weight: 600;">{row['Palpites Feitos']}</td>
+<td style="text-align: center; color: #F0660D; font-weight: 700;">{row['Acertos Exatos']}</td>
+<td style="text-align: center; color: #8893FF; font-weight: 700;">{row['Acertos Vencedor']}</td>
+<td style="text-align: right; font-weight: 800; font-size: 1.15rem; color: #000000; padding-right: 1.5rem;">{row['Pontos']} pts</td>
 </tr>"""
                     
                 table_html += "</tbody></table>"
@@ -540,7 +582,7 @@ if aba_selecionada == "📊 Classificação & Resultados":
                 st.info("Nenhum palpite foi cadastrado ainda! Registre os seus palpites na aba ao lado.")
         else:
             st.error("⚠️ Planilha Desconectada ou em Branco!")
-            st.info("Para sincronizar o sistema do bolão, configure o ID e a API do seu Sheets de forma dinâmica no **Portal de Controle**.")
+            st.info("Para sincronizar o sistema do bolão, configure o ID e a API do seu Sheets de forma dinâmica no Portal de Controle.")
             
     with tab_jogos:
         if df_r is not None and not df_r.empty:
@@ -564,12 +606,12 @@ if aba_selecionada == "📊 Classificação & Resultados":
                                 if val and val != "nan" and "-" in val:
                                     user_bets[j["ID_Jogo"]] = val
 
-            st.markdown("### 🏟️ Tabela de Jogos e Resultados em Tempo Real")
+            st.markdown("<h3 style='color:#000000; font-weight:800;'>🏟️ Tabela de Jogos e Resultados em Tempo Real</h3>", unsafe_allow_html=True)
             filtro_dia = st.selectbox("📅 Filtrar Jogos por Data", sorted(list(set([j["Data"] for j in JOGOS_CADASTRADOS])), key=lambda x: x[:5]))
             
             jogos_filtrados = [j for j in JOGOS_CADASTRADOS if j["Data"] == filtro_dia]
             
-            # STREAMING_CHUNK: Renderizando os cards de confrontos reais com bandeiras PNG HD carregadas via CDN...
+            # STREAMING_CHUNK: Renderizando os cards de confrontos na aba principal com bandeiras reais...
             for j in jogos_filtrados:
                 jogo_id = j["ID_Jogo"]
                 info_real = res_map.get(jogo_id, {"m": None, "v": None, "status": "Agendado"})
@@ -581,38 +623,38 @@ if aba_selecionada == "📊 Classificação & Resultados":
                 elif "Ao Vivo" in status_real or "Andamento" in status_real:
                     status_badge = "🔴 Ao Vivo"
                 
-                # Renderizando card unificado em Streamlit para evitar quebras visuais
+                # Renderizando card unificado em Streamlit
                 with st.container(border=True):
                     # Topo do Card
                     col_t1, col_t2 = st.columns([2, 1])
                     with col_t1:
                         st.markdown(f"**🏆 Rodada de Grupos** — {j['Data']}")
                     with col_t2:
-                        st.markdown(f"<p style='text-align:right; margin:0; font-weight:700; color:#2563eb;'>{status_badge}</p>", unsafe_allow_html=True)
+                        st.markdown(f"<p style='text-align:right; margin:0; font-weight:700; color:#F0660D;'>{status_badge}</p>", unsafe_allow_html=True)
                     
                     st.markdown("---")
                     
-                    # Times e Placar com bandeiras de alta resolução Flagcdn
+                    # Times e Placar
                     col_team_m, col_score, col_team_v = st.columns([3, 2, 3])
                     
                     with col_team_m:
                         st.markdown(f"""
                         <div style='text-align:center;'>
-                            <img src="https://flagcdn.com/w160/{j['ISO_M']}.png" style="width:75px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
-                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin-top:8px;'>{j['Time_M']}</strong>
+                            <img src="https://flagcdn.com/w160/{j['ISO_M']}.png" style="width:75px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15); border:2px solid #000000;"><br>
+                            <strong style='color:#000000; font-size:1.05rem; display:block; margin-top:8px;'>{j['Time_M']}</strong>
                         </div>""", unsafe_allow_html=True)
                     
                     with col_score:
                         if "Encerrado" in status_real or "Ao Vivo" in status_real:
-                            st.markdown(f"<h1 style='text-align:center; margin:0; color:#0f172a; font-weight:800; font-size:2.5rem; margin-top:5px;'>{info_real['m']} - {info_real['v']}</h1>", unsafe_allow_html=True)
+                            st.markdown(f"<h1 style='text-align:center; margin:0; color:#000000; font-weight:800; font-size:2.5rem; margin-top:5px;'>{info_real['m']} - {info_real['v']}</h1>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<div style='text-align:center; padding:10px; background:#f1f5f9; border-radius:30px; font-weight:700; color:#475569; font-size:1rem; max-width:140px; margin:15px auto 0 auto;'>🕒 {j['Horário']}</div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='text-align:center; padding:10px; background:#8893FF; border-radius:30px; font-weight:800; color:#000000; font-size:1rem; max-width:140px; margin:15px auto 0 auto;'>🕒 {j['Horário']}</div>", unsafe_allow_html=True)
                     
                     with col_team_v:
                         st.markdown(f"""
                         <div style='text-align:center;'>
-                            <img src="https://flagcdn.com/w160/{j['ISO_V']}.png" style="width:75px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
-                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>
+                            <img src="https://flagcdn.com/w160/{j['ISO_V']}.png" style="width:75px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15); border:2px solid #000000;"><br>
+                            <strong style='color:#000000; font-size:1.05rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>
                         </div>""", unsafe_allow_html=True)
                     
                     # Palpite do Usuário Conectado
@@ -621,17 +663,17 @@ if aba_selecionada == "📊 Classificação & Resultados":
                         if "Encerrado" in status_real:
                             pts, tipo_acerto = calcular_pontos_palpite(palpite_u, info_real["m"], info_real["v"])
                             if tipo_acerto == "Exato":
-                                badge_pontos = f"<span style='background-color:#dcfce7; color:#15803d; padding:0.4rem 1rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>⭐ +10 pts (Placar Exato)</span>"
+                                badge_pontos = f"<span style='background-color:#C9DE1C; color:#000000; padding:0.4rem 1rem; border-radius:30px; font-weight:800; font-size:0.85rem;'>⭐ +10 pts (Placar Exato)</span>"
                             elif tipo_acerto == "Vencedor":
-                                badge_pontos = f"<span style='background-color:#dbeafe; color:#1d4ed8; padding:0.4rem 1rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>⭐ +5 pts (Vencedor)</span>"
+                                badge_pontos = f"<span style='background-color:#8893FF; color:#000000; padding:0.4rem 1rem; border-radius:30px; font-weight:800; font-size:0.85rem;'>⭐ +5 pts (Vencedor)</span>"
                             else:
-                                badge_pontos = f"<span style='background-color:#fee2e2; color:#b91c1c; padding:0.4rem 1rem; border-radius:30px; font-weight:700; font-size:0.85rem;'>❌ 0 pts (Errou)</span>"
+                                badge_pontos = f"<span style='background-color:#E696F0; color:#000000; padding:0.4rem 1rem; border-radius:30px; font-weight:800; font-size:0.85rem;'>❌ 0 pts (Errou)</span>"
                             
-                            st.markdown(f"<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#334155;'>Seu palpite foi: <strong>{palpite_u}</strong> — {badge_pontos}</p>", unsafe_allow_html=True)
+                            st.markdown(f"<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#000000;'>Seu palpite foi: <strong>{palpite_u}</strong> — {badge_pontos}</p>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#475569;'>Seu palpite salvo: <strong style='color:#2563eb; background:#eff6ff; padding:0.25rem 0.75rem; border-radius:30px;'>{palpite_u}</strong></p>", unsafe_allow_html=True)
+                            st.markdown(f"<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#000000;'>Seu palpite salvo: <strong style='color:#F0660D; background:#FFFFFF; border:1.5px solid #F0660D; padding:0.25rem 0.75rem; border-radius:30px;'>{palpite_u}</strong></p>", unsafe_allow_html=True)
                     elif st.session_state.saved_email:
-                        st.markdown("<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#ef4444; font-weight:600;'>⚠️ Você ainda não palpitou nesta partida!</p>", unsafe_allow_html=True)
+                        st.markdown("<p style='margin-top:1.5rem; text-align:center; font-size:0.95rem; color:#F0660D; font-weight:700;'>⚠️ Você ainda não palpitou nesta partida!</p>", unsafe_allow_html=True)
         else:
             st.info("Central de resultados oficiais indisponível no momento.")
 
@@ -645,7 +687,7 @@ elif aba_selecionada == "📝 Registrar Palpites":
     # Perfil e Login do Colaborador
     if not st.session_state.saved_email or not st.session_state.saved_name:
         with st.container(border=True):
-            st.markdown("#### 👤 1. Identificação de Acesso")
+            st.markdown("<h4 style='color:#000000; font-weight:800;'>👤 1. Identificação de Acesso</h4>", unsafe_allow_html=True)
             col_p1, col_p2 = st.columns(2)
             with col_p1:
                 email_input = st.text_input("E-mail Corporativo", placeholder="Ex: joao.silva@feltrim.com").strip().lower()
@@ -661,12 +703,12 @@ elif aba_selecionada == "📝 Registrar Palpites":
                 else:
                     st.error("Por favor, digite um e-mail corporativo válido e o seu nome completo.")
     else:
-        # Card Elegante de Identificação do Colaborador Ativo
+        # Card Elegante de Identificação do Colaborador Ativo com gradiente da marca
         st.markdown(f"""
         <div class="profile-banner">
             <div>
-                <span style="font-size:0.85rem; text-transform:uppercase; font-weight:700; opacity:0.8;">Colaborador Conectado</span>
-                <div style="font-size:1.35rem; font-weight:800; margin-top:2px;">⚽ {st.session_state.saved_name}</div>
+                <span style="font-size:0.85rem; text-transform:uppercase; font-weight:800; opacity:0.8; color:#8893FF;">Colaborador Conectado</span>
+                <div style="font-size:1.45rem; font-weight:800; margin-top:2px;">⚽ {st.session_state.saved_name}</div>
                 <span style="font-size:0.85rem; opacity:0.9;">{st.session_state.saved_email}</span>
             </div>
         </div>
@@ -700,7 +742,7 @@ elif aba_selecionada == "📝 Registrar Palpites":
         jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
         
         st.markdown("---")
-        st.markdown(f"### 🏟️ Seus Palpites Disponíveis ({len(jogos_disponiveis)} jogos restantes)")
+        st.markdown(f"<h3 style='color:#000000; font-weight:800;'>🏟️ Seus Palpites Disponíveis ({len(jogos_disponiveis)} jogos restantes)</h3>", unsafe_allow_html=True)
         
         if len(jogos_disponiveis) == 0:
             st.success("🏆 Espetacular! Você já registrou palpites para todas as 72 partidas da Fase de Grupos!")
@@ -715,7 +757,7 @@ elif aba_selecionada == "📝 Registrar Palpites":
             
             jogos_do_dia = [j for j in jogos_disponiveis if j["Data"] == dia_selecionado]
             
-            # STREAMING_CHUNK: Desenhando formulários reativos de palpites com bandeiras HD em cada card...
+            # STREAMING_CHUNK: Desenhando o formulário interativo de gols com as cores e botões de alta performance...
             for jogo in jogos_do_dia:
                 with st.container(border=True):
                     # Cabeçalho Interno do Card
@@ -723,7 +765,7 @@ elif aba_selecionada == "📝 Registrar Palpites":
                     with col_h1:
                         st.markdown("**🏆 Rodada de Grupos**")
                     with col_h2:
-                        st.markdown(f"<p style='text-align:right; margin:0; font-weight:700; color:#64748b;'>🕒 {jogo['Horário']}</p>", unsafe_allow_html=True)
+                        st.markdown(f"<p style='text-align:right; margin:0; font-weight:700; color:#F0660D;'>🕒 {jogo['Horário']}</p>", unsafe_allow_html=True)
                     
                     st.markdown("---")
                     
@@ -733,19 +775,19 @@ elif aba_selecionada == "📝 Registrar Palpites":
                     with col_m:
                         st.markdown(f"""
                         <div style='text-align:center;'>
-                            <img src="https://flagcdn.com/w160/{jogo['ISO_M']}.png" style="width:70px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
-                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin:8px 0;'>{jogo['Time_M']}</strong>
+                            <img src="https://flagcdn.com/w160/{jogo['ISO_M']}.png" style="width:70px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15); border:2px solid #000000;"><br>
+                            <strong style='color:#000000; font-size:1.05rem; display:block; margin:8px 0;'>{jogo['Time_M']}</strong>
                         </div>""", unsafe_allow_html=True)
                         gols_m = st.number_input("Gols Mandante", min_value=0, max_value=20, value=0, key=f"m_{jogo['ID_Jogo']}", step=1)
                         
                     with col_vs:
-                        st.markdown("<h2 style='text-align: center; margin-top: 1.5rem; color:#cbd5e1;'>x</h2>", unsafe_allow_html=True)
+                        st.markdown("<h2 style='text-align: center; margin-top: 1.5rem; color:#000000;'>x</h2>", unsafe_allow_html=True)
                         
                     with col_v:
                         st.markdown(f"""
                         <div style='text-align:center;'>
-                            <img src="https://flagcdn.com/w160/{jogo['ISO_V']}.png" style="width:70px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); border:1px solid #e2e8f0;"><br>
-                            <strong style='color:#0f172a; font-size:1.05rem; display:block; margin:8px 0;'>{jogo['Time_V']}</strong>
+                            <img src="https://flagcdn.com/w160/{jogo['ISO_V']}.png" style="width:70px; height:auto; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.15); border:2px solid #000000;"><br>
+                            <strong style='color:#000000; font-size:1.05rem; display:block; margin:8px 0;'>{jogo['Time_V']}</strong>
                         </div>""", unsafe_allow_html=True)
                         gols_v = st.number_input("Gols Visitante", min_value=0, max_value=20, value=0, key=f"v_{jogo['ID_Jogo']}", step=1)
                     
@@ -790,7 +832,7 @@ elif aba_selecionada == "🔧 Portal de Controle":
         if senha_digitada == "feltrim2026":
             st.success("Acesso administrativo desbloqueado com sucesso!")
             
-            st.markdown("### 🔗 Endereçamento e Conexões com Planilhas Google")
+            st.markdown("<h3 style='color:#000000;'>🔗 Endereçamento e Conexões com Planilhas Google</h3>", unsafe_allow_html=True)
             novo_id = st.text_input("ID do Google Sheets", value=st.session_state.spreadsheet_id)
             nova_url = st.text_input("URL do App da Web (Google Apps Script)", value=st.session_state.web_app_url)
             
@@ -802,7 +844,7 @@ elif aba_selecionada == "🔧 Portal de Controle":
                 st.rerun()
                 
             st.markdown("---")
-            st.markdown("### 🧪 Painel de Diagnóstico em Tempo Real")
+            st.markdown("<h3 style='color:#000000;'>🧪 Painel de Diagnóstico em Tempo Real</h3>", unsafe_allow_html=True)
             if st.button("Executar Testes de Comunicação", use_container_width=True):
                 with st.spinner("Verificando integridade da API..."):
                     try:
@@ -821,7 +863,7 @@ elif aba_selecionada == "🔧 Portal de Controle":
                         st.error(f"Não foi possível conectar: {str(ex)}")
                         
             st.markdown("---")
-            st.markdown("### 🚀 Ações Globais e em Lote")
+            st.markdown("<h3 style='color:#000000;'>🚀 Ações Globais e em Lote</h3>", unsafe_allow_html=True)
             if st.button("⚡ Inicializar Todos os 72 Jogos na Planilha", use_container_width=True):
                 with st.spinner("Apagando registros obsoletos e recriando tabela oficial..."):
                     payload = {
