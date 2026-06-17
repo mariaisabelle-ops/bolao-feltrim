@@ -155,8 +155,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# 48 Jogos Reais em Ordem Cronológica Consistente
 JOGOS_ESTATICOS = [
-    # --- RODADA 1 ---
+    // --- RODADA 1 ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs Tchéquia (11/06)", "Horário": "23:00"},
     {"ID_Jogo": "JOGO_03", "Jogo": "⚽ Canadá vs Bósnia-Herzegovina (12/06)", "Horário": "20:00"},
@@ -181,7 +182,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "20:00"},
     {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "23:00"},
     {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Uzbequistão vs Colômbia (18/06)", "Horário": "02:00"},
-    # --- RODADA 2 ---
+    // --- RODADA 2 ---
     {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Tchéquia vs África do Sul (18/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_26", "Jogo": "⚽ Suíça vs Bósnia-Herzegovina (18/06)", "Horário": "19:00"},
     {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Canadá vs Catar (18/06)", "Horário": "22:00"},
@@ -202,7 +203,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_42", "Jogo": "⚽ Noruega vs Senegal (22/06)", "Horário": "21:00"},
     {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "22:30"},
     {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (23/06)", "Horário": "08:30"},
-    # --- RODADA 3 (SELECIONADOS) ---
+    // --- RODADA 3 (SELECIONADOS) ---
     {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Senegal vs Iraque (26/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "19:00"},
@@ -278,6 +279,21 @@ if not planilha_valida:
 else:
     df_resultados = df_resultados_raw.copy()
     planilha_precisa_inicializar = False
+
+def obter_datetime_jogo(jogo_nome, horario_str):
+    try:
+        if "(" in str(jogo_nome) and "/" in str(jogo_nome):
+            parte_data = str(jogo_nome).split("(")[-1].split(")")[0]
+            dia, mes = map(int, parte_data.split("/"))
+            horario_str = str(horario_str).strip()
+            if ":" in horario_str:
+                hora, minuto = map(int, horario_str.split(":"))
+            else:
+                hora, minuto = 15, 0
+            return datetime(2026, mes, dia, hora, minuto)
+    except Exception:
+        pass
+    return datetime(2026, 6, 25, 23, 59)
 
 df_resultados['Data_Ordenacao'] = df_resultados.apply(
     lambda r: obter_datetime_jogo(r.get('Jogo', ''), r.get('Horário', '15:00')), axis=1
@@ -367,7 +383,7 @@ tabs = st.tabs([
     "📅 Jogos & Resultados", 
     "📝 Dar Palpite", 
     "🎟️ Meus Palpites", 
-    "⚙️ Painel Admin"
+    "🔑 Portal Admin"
 ])
 
 with tabs[0]:
@@ -558,7 +574,7 @@ with tabs[2]:
             jogo_nome = j_row.get('Jogo', '')
             limite = j_row.get('Data_Ordenacao') - timedelta(hours=1)
             
-            # Palpites abertos: antes do limite cronológico e não palpito
+            # Palpites abertos: antes do limite cronológico e não palpitados
             if agora_brasil < limite and "encerrado" not in str(j_row.get('Status', '')).lower():
                 if jogo_nome not in palpites_feitos_usuario:
                     jogos_disponiveis.append(jogo_nome)
@@ -742,7 +758,7 @@ with tabs[4]:
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated successfully!")
                                 st.cache_data.clear()
                             else:
                                 st.error(f"Erro: {p_json.get('message')}")
