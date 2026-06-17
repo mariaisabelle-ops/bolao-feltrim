@@ -154,81 +154,101 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 JOGOS_ESTATICOS = [
-    # --- RODADA 1 ---
-    {"ID_Jogo": "JOGO_01", "Jogo": "⚽ Estados Unidos vs Austrália (11/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_02", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_03", "Jogo": "⚽ Canadá vs Nova Zelândia (12/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_04", "Jogo": "⚽ Uruguai vs Japão (12/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_05", "Jogo": "⚽ Itália vs Camarões (13/06)", "Horário": "12:00"},
-    {"ID_Jogo": "JOGO_06", "Jogo": "⚽ Colômbia vs Coreia do Sul (13/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Portugal vs Irã (13/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_08", "Jogo": "⚽ Espanha vs Costa Rica (13/06)", "Horário": "21:00"},
-    {"ID_Jogo": "JOGO_09", "Jogo": "⚽ Inglaterra vs Tunísia (14/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_10", "Jogo": "⚽ Alemanha vs Equador (14/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_11", "Jogo": "⚽ Croácia vs Jamaica (14/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Holanda vs Arábia Saudita (14/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Argentina vs Nigéria (15/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Bélgica vs Honduras (15/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Suécia vs Marrocos (15/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Suíça vs Panamá (15/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_17", "Jogo": "⚽ França vs Senegal (16/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_18", "Jogo": "⚽ Chile vs Romênia (16/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_19", "Jogo": "⚽ Ucrânia vs Gana (16/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Dinamarca vs Peru (16/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Polônia vs Egito (17/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Áustria vs Iraque (17/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "14:00"},
-    {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Noruega vs Catar (17/06)", "Horário": "21:30"},
-    # --- RODADA 2 ---
-    {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Estados Unidos vs Jamaica (18/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_26", "Jogo": "⚽ México vs Tunísia (18/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Itália vs Coreia do Sul (18/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_28", "Jogo": "⚽ Colômbia vs Camarões (18/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Canadá vs Equador (19/06)", "Horário": "12:00"},
-    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Uruguai vs Nigéria (19/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Alemanha vs Costa Rica (19/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21:30"}, # Confirmado em 19/06 às 21:30!
-    {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Espanha vs Nova Zelândia (20/06)", "Horário": "12:00"},
-    {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Portugal vs Romênia (20/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Inglaterra vs Austrália (20/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Holanda vs Gana (20/06)", "Horário": "21:00"},
-    {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Croácia vs África do Sul (21/06)", "Horário": "12:00"},
-    {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Argentina vs Senegal (21/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Bélgica vs Panamá (21/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Ucrânia vs Arábia Saudita (21/06)", "Horário": "21:00"},
-    {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Suíça vs Honduras (22/06)", "Horário": "12:00"},
-    {"ID_Jogo": "JOGO_42", "Jogo": "⚽ França vs Nigéria (22/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Chile vs Marrocos (22/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Dinamarca vs Iraque (22/06)", "Horário": "21:00"},
-    {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Suécia vs Argélia (23/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Polônia vs Haiti (23/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Áustria vs Catar (23/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Noruega vs Tchéquia (23/06)", "Horário": "21:30"},
-    # --- RODADA 3 (FASE FINAL DE GRUPOS) ---
-    {"ID_Jogo": "JOGO_49", "Jogo": "⚽ Austrália vs Jamaica (24/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_50", "Jogo": "⚽ África do Sul vs Tunísia (24/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_51", "Jogo": "⚽ Nova Zelândia vs Equador (24/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_52", "Jogo": "⚽ Japão vs Nigéria (24/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_53", "Jogo": "⚽ Camarões vs Coreia do Sul (25/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_54", "Jogo": "⚽ Colômbia vs Costa Rica (25/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_55", "Jogo": "⚽ Portugal vs Senegal (25/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Espanha vs Haiti (25/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_57", "Jogo": "⚽ Romênia vs Argélia (26/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_58", "Jogo": "⚽ Suécia vs Catar (26/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_59", "Jogo": "⚽ Egito vs Tchéquia (26/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_60", "Jogo": "⚽ Noruega vs Iraque (26/06)", "Horário": "21:30"},
-    {"ID_Jogo": "JOGO_61", "Jogo": "⚽ Argentina vs Honduras (27/06)", "Horário": "12:00"},
-    {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Bélgica vs Arábia Saudita (27/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Suíça vs Panamá (27/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_64", "Jogo": "⚽ Ucrânia vs Gana (27/06)", "Horário": "21:00"},
-    {"ID_Jogo": "JOGO_65", "Jogo": "⚽ França vs Peru (28/06)", "Horário": "12:00"},
-    {"ID_Jogo": "JOGO_66", "Jogo": "⚽ Chile vs Marrocos (28/06)", "Horário": "15:00"},
-    {"ID_Jogo": "JOGO_67", "Jogo": "⚽ Dinamarca vs Marrocos (28/06)", "Horário": "18:00"},
-    {"ID_Jogo": "JOGO_68", "Jogo": "⚽ Polônia vs Brasil (28/06)", "Horário": "21:00"},
-    {"ID_Jogo": "JOGO_69", "Jogo": "⚽ Áustria vs Itália (29/06)", "Horário": "13:00"},
-    {"ID_Jogo": "JOGO_70", "Jogo": "⚽ Alemanha vs Equador (29/06)", "Horário": "16:00"},
-    {"ID_Jogo": "JOGO_71", "Jogo": "⚽ Inglaterra vs Canadá (29/06)", "Horário": "19:00"},
-    {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Uruguai vs Holanda (29/06)", "Horário": "21:30"}
+    # --- GRUPO A ---
+    {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "18h"},
+    {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs R. Tcheca (11/06)", "Horário": "23h"},
+    {"ID_Jogo": "JOGO_03", "Jogo": "⚽ R. Tcheca vs África do Sul (18/06)", "Horário": "13h"},
+    {"ID_Jogo": "JOGO_04", "Jogo": "⚽ México vs Coreia do Sul (18/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_05", "Jogo": "⚽ R. Tcheca vs México (24/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_06", "Jogo": "⚽ África do Sul vs Coreia do Sul (24/06)", "Horário": "22h"},
+
+    # --- GRUPO B ---
+    {"ID_Jogo": "JOGO_07", "Jogo": "⚽ Canadá vs Bósnia (12/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_08", "Jogo": "⚽ Qatar vs Suíça (12/06)", "Horário": "19h"},
+    {"ID_Jogo": "JOGO_09", "Jogo": "⚽ Suíça vs Bósnia (18/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_10", "Jogo": "⚽ Canadá vs Qatar (18/06)", "Horário": "19h"},
+    {"ID_Jogo": "JOGO_11", "Jogo": "⚽ Suíça vs Canadá (24/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Bósnia vs Qatar (24/06)", "Horário": "16h"},
+
+    # --- GRUPO C ---
+    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "13h"},
+    {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "19h"},
+    {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21h30"},
+    {"ID_Jogo": "JOGO_17", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "19h"},
+    {"ID_Jogo": "JOGO_18", "Jogo": "⚽ Marrocos vs Haiti (24/06)", "Horário": "19h"},
+
+    # --- GRUPO D ---
+    {"ID_Jogo": "JOGO_19", "Jogo": "⚽ EUA vs Paraguai (12/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_20", "Jogo": "⚽ Austrália vs Turquia (14/06)", "Horário": "01h"},
+    {"ID_Jogo": "JOGO_21", "Jogo": "⚽ Turquia vs Paraguai (20/06)", "Horário": "00h"},
+    {"ID_Jogo": "JOGO_22", "Jogo": "⚽ EUA vs Austrália (19/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Turquia vs EUA (25/06)", "Horário": "23h"},
+    {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Paraguai vs Austrália (25/06)", "Horário": "23h"},
+
+    # --- GRUPO E ---
+    {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Alemanha vs Curaçao (14/06)", "Horário": "14h"},
+    {"ID_Jogo": "JOGO_26", "Jogo": "⚽ C. do Marfim vs Equador (14/06)", "Horário": "20h"},
+    {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Alemanha vs C. do Marfim (20/06)", "Horário": "21h"},
+    {"ID_Jogo": "JOGO_28", "Jogo": "⚽ Equador vs Curaçao (20/06)", "Horário": "21h"},
+    {"ID_Jogo": "JOGO_29", "Jogo": "⚽ Equador vs Alemanha (25/06)", "Horário": "17h"},
+    {"ID_Jogo": "JOGO_30", "Jogo": "⚽ Curaçao vs C. do Marfim (25/06)", "Horário": "17h"},
+
+    # --- GRUPO F ---
+    {"ID_Jogo": "JOGO_31", "Jogo": "⚽ Holanda vs Japão (14/06)", "Horário": "17h"},
+    {"ID_Jogo": "JOGO_32", "Jogo": "⚽ Suécia vs Tunísia (14/06)", "Horário": "23h"},
+    {"ID_Jogo": "JOGO_33", "Jogo": "⚽ Tunísia vs Japão (20/06)", "Horário": "23h"},
+    {"ID_Jogo": "JOGO_34", "Jogo": "⚽ Holanda vs Suécia (20/06)", "Horário": "14h"},
+    {"ID_Jogo": "JOGO_35", "Jogo": "⚽ Tunísia vs Holanda (25/06)", "Horário": "20h"},
+    {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Japão vs Suécia (25/06)", "Horário": "20h"},
+
+    # --- GRUPO G ---
+    {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Bélgica vs Egito (15/06)", "Horário": "18h"},
+    {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Iraque vs Nova Zelândia (15/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Bélgica vs Iraque (21/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Nova Zelândia vs Bélgica (27/06)", "Horário": "15h"},
+    {"ID_Jogo": "JOGO_42", "Jogo": "⚽ Egito vs Iraque (27/06)", "Horário": "15h"},
+
+    # --- GRUPO H ---
+    {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Espanha vs Cabo Verde (15/06)", "Horário": "13h"},
+    {"ID_Jogo": "JOGO_44", "Jogo": "⚽ A. Saudita vs Uruguai (15/06)", "Horário": "19h"},
+    {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Espanha vs A. Saudita (21/06)", "Horário": "13h"},
+    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Uruguai vs Cabo Verde (20/06)", "Horário": "21h"},
+    {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Uruguai vs Espanha (26/06)", "Horário": "21h"},
+    {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Cabo Verde vs A. Saudita (26/06)", "Horário": "21h"},
+
+    # --- GRUPO I ---
+    {"ID_Jogo": "JOGO_49", "Jogo": "⚽ França vs Senegal (15/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_50", "Jogo": "⚽ Áustria vs Noruega (16/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_51", "Jogo": "⚽ França vs Áustria (22/06)", "Horário": "18h"},
+    {"ID_Jogo": "JOGO_52", "Jogo": "⚽ Noruega vs Senegal (22/06)", "Horário": "00h"},
+    {"ID_Jogo": "JOGO_53", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "18h"},
+    {"ID_Jogo": "JOGO_54", "Jogo": "⚽ Senegal vs Áustria (26/06)", "Horário": "18h"},
+
+    # --- GRUPO J ---
+    {"ID_Jogo": "JOGO_55", "Jogo": "⚽ Argentina vs Argélia (16/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Jordânia vs Ucrânia (17/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_57", "Jogo": "⚽ Ucrânia vs Argentina (23/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_58", "Jogo": "⚽ Jordânia vs Argélia (23/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_59", "Jogo": "⚽ Ucrânia vs Argélia (27/06)", "Horário": "22h"},
+    {"ID_Jogo": "JOGO_60", "Jogo": "⚽ Argentina vs Jordânia (27/06)", "Horário": "22h"},
+
+    # --- GRUPO K ---
+    {"ID_Jogo": "JOGO_61", "Jogo": "⚽ Portugal vs RD Congo (17/06)", "Horário": "14h"},
+    {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Uzbequistão vs Colômbia (17/06)", "Horário": "16h"},
+    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "14h"},
+    {"ID_Jogo": "JOGO_64", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "20h"},
+    {"ID_Jogo": "JOGO_65", "Jogo": "⚽ Colômbia vs Portugal (27/06)", "Horário": "20h30"},
+    {"ID_Jogo": "JOGO_66", "Jogo": "⚽ RD Congo vs Uzbequistão (27/06)", "Horário": "20h30"},
+
+    # --- GRUPO L ---
+    {"ID_Jogo": "JOGO_67", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "17h"},
+    {"ID_Jogo": "JOGO_68", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "21h"},
+    {"ID_Jogo": "JOGO_69", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "17h"},
+    {"ID_Jogo": "JOGO_70", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "23h"},
+    {"ID_Jogo": "JOGO_71", "Jogo": "⚽ Panamá vs Inglaterra (27/06)", "Horário": "18h"},
+    {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "18h"}
 ]
 
 # Configuração de ID Personalizado de Planilha na Barra Lateral
@@ -321,12 +341,18 @@ def obter_datetime_jogo(jogo_nome, horario_str):
         if "(" in str(jogo_nome) and "/" in str(jogo_nome):
             parte_data = str(jogo_nome).split("(")[-1].split(")")[0]
             dia, mes = map(int, parte_data.split("/"))
-            horario_str = str(horario_str).strip()
+            horario_str = str(horario_str).strip().lower()
+            if "h" in horario_str:
+                horario_str = horario_str.replace("h", ":")
+            
             if ":" in horario_str:
-                hora, minuto = map(int, horario_str.split(":"))
+                partes = horario_str.split(":")
+                hora = int(partes[0])
+                minuto = int(partes[1]) if partes[1].strip() else 0
             else:
-                hora, minuto = 15, 0
-            return datetime(2026, mes, dia, hora, minuto)
+                hora = int(horario_str)
+                minuto = 0
+            return datetime(2026, mes, dia, hora, minute=minuto)
     except Exception:
         pass
     return datetime(2026, 6, 25, 23, 59)
@@ -794,7 +820,7 @@ with tabs[4]:
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated successfully!")
                                 st.cache_data.clear()
                             else:
                                 r_json_msg = p_json.get('message')
