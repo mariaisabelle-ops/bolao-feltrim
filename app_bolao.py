@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import io
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
@@ -14,7 +15,7 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# ⚠️ COLOQUE O ID DA SUA PLANILHA ENTRE AS ASPAS ABAIXO PARA FICAR SALVO PARA SEMPRE:
+# ID Oficial da Planilha Feltrim Correa configurado com sucesso
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 # ==============================================================================
 
@@ -23,10 +24,14 @@ WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qL
 # Fuso Horário de Brasília (UTC-3) - Sem Timezone Offset para evitar erros de comparação
 agora_brasil = (datetime.now(timezone.utc) - timedelta(hours=3)).replace(tzinfo=None)
 
-# Inicialização do ID da planilha em cache de sessão
+# Inicialização de estados em cache de sessão
 if "spreadsheet_id" not in st.session_state:
     st.session_state.spreadsheet_id = DEFAULT_SPREADSHEET_ID
 
+if "erro_conexao" not in st.session_state:
+    st.session_state.erro_conexao = None
+
+# Injeção de CSS para estilização premium e responsiva
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700&display=swap');
@@ -80,7 +85,7 @@ st.markdown("""
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    /* Destacar Especialmente a Guia de Palpite */
+    /* Destaque para a Guia de Palpite */
     button[data-baseweb="tab"]:nth-child(3) {
         background: linear-gradient(135deg, #004b23 0%, #007200 100%) !important;
         color: white !important;
@@ -150,7 +155,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 56 Jogos da Copa do Mundo em Ordem Cronológica Real (Corrigido JOGO_39)
+# 56 Jogos da Copa do Mundo em Ordem Cronológica Real
 JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ Estados Unidos vs Austrália (11/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "21:30"},
@@ -210,20 +215,6 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Espanha vs Haiti (25/06)", "Horário": "21:30"}
 ]
 
-st.markdown("""
-<div class="header-container">
-    <div class="header-title">🏆 Bolão Corporativo Feltrim Correa</div>
-    <div class="header-subtitle">Consulte a classificação oficial, envie seus palpites e acompanhe os placares em tempo real!</div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown(f"""
-<div class="timezone-bar">
-    <span>🕒</span>
-    <span><b>HORA OFICIAL DE BRASÍLIA (UTC-3):</b> {agora_brasil.strftime('%d/%m/%Y %H:%M:%S')}</span>
-</div>
-""", unsafe_allow_html=True)
-
 # Configuração de ID Personalizado de Planilha na Barra Lateral
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/google-sheets.png", width=60)
@@ -231,42 +222,84 @@ with st.sidebar:
     user_sid = st.text_input(
         "ID da sua Planilha Google:", 
         value=st.session_state.spreadsheet_id,
-        help="Copie o ID longo presente na URL da sua planilha e cole aqui para conectar o seu bolão pessoal."
+        help="Copie o ID longo presente na URL da sua planilha e cole aqui."
     ).strip()
     if user_sid and user_sid != st.session_state.spreadsheet_id:
         st.session_state.spreadsheet_id = user_sid
         st.cache_data.clear()
         st.rerun()
-    st.info("💡 Lembre-se: Para o site conseguir ler a planilha, ela precisa estar compartilhada como 'Qualquer pessoa com o link pode ler' no Google Sheets.")
+    st.info("💡 Lembre-se: Para o site conseguir ler a planilha, ela precisa estar compartilhada como 'Qualquer pessoa com o link pode ler' como Leitor.")
 
 @st.cache_data(ttl=5)
 def puxar_planilha_segura(sheet_name):
     """
-    Carrega os dados de uma aba com tratamento de falhas e blindagem de conexões.
+    Carrega dados de uma aba com tratamento avançado de URLs e desvios de bloqueio.
     """
     try:
         sheet_encoded = urllib.parse.quote(sheet_name)
         url = f"https://docs.google.com/spreadsheets/d/{st.session_state.spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_encoded}"
-        df = pd.read_csv(url)
+        resposta = requests.get(url, timeout=10)
+        
+        if resposta.status_code == 404:
+            st.session_state.erro_conexao = "ID da Planilha não encontrado. Verifique se copiou corretamente."
+            return pd.DataFrame()
+        elif resposta.status_code != 200:
+            st.session_state.erro_conexao = f"Falha HTTP {resposta.status_code} na API do Google."
+            return pd.DataFrame()
+            
+        conteudo = resposta.text
+        # Se retornar HTML, a planilha está privada e requer login
+        if "html" in resposta.headers.get("Content-Type", "").lower() or "<html" in conteudo[:200].lower():
+            st.session_state.erro_conexao = "Planilha Privada! Vá em Compartilhar > Qualquer pessoa com o link pode ler."
+            return pd.DataFrame()
+            
+        df = pd.read_csv(io.StringIO(conteudo))
         df = df.dropna(how='all', axis=1)
         df.columns = [str(c).strip() for c in df.columns]
+        
+        st.session_state.erro_conexao = None
         return df
-    except Exception:
+    except Exception as e:
+        st.session_state.erro_conexao = f"Erro físico de conexão: {str(e)}"
         return pd.DataFrame()
 
-# Carregamento seguro dos dados
-df_resultados_raw = puxar_planilha_segura("Resultados Oficiais")
-df_palpites_raw = puxar_planilha_segura("Palpites")
+# ==================== CARREGAMENTO DE ABAS ROBUSTO ====================
+def carregar_aba_com_fallback(lista_nomes):
+    """
+    Procura na planilha pelas abas na ordem de prioridade estipulada.
+    """
+    for nome in lista_nomes:
+        df = puxar_planilha_segura(nome)
+        if not df.empty:
+            return df, nome
+    return pd.DataFrame(), None
 
-# Validação minuciosa de colunas obrigatórias
+# Busca inteligente por Resultados Oficiais
+df_resultados_raw, aba_resultados_nome = carregar_aba_com_fallback([
+    "Resultados Oficiais", "🎯 Resultados Oficiais", "Resultados", "🎯 Resultados"
+])
+
+# Busca inteligente por Palpites
+df_palpites_raw, aba_palpites_nome = carregar_aba_com_fallback([
+    "Palpites", "Respostas_Formulario", "Respostas ao formulário 1", "Form Responses 1", "Respostas do formulário 1"
+])
+
+# Mapeamento e Normalização inteligente de Colunas
+if not df_resultados_raw.empty:
+    col_map = {}
+    for col in df_resultados_raw.columns:
+        col_lower = col.lower().strip()
+        if col_lower in ['id_jogo', 'id_confronto']: col_map[col] = 'ID_Jogo'
+        elif col_lower in ['jogo', 'confronto']: col_map[col] = 'Jogo'
+        elif col_lower in ['placar real mandante', 'placar mandante', 'placar_m']: col_map[col] = 'Placar Real Mandante'
+        elif col_lower in ['placar real visitante', 'placar visitante', 'placar_v']: col_map[col] = 'Placar Real Visitante'
+        elif col_lower == 'status': col_map[col] = 'Status'
+        elif col_lower in ['horário', 'horario']: col_map[col] = 'Horário'
+    df_resultados_raw = df_resultados_raw.rename(columns=col_map)
+
+# Validação se as colunas essenciais existem de fato
 colunas_obrigatorias = ['ID_Jogo', 'Jogo', 'Placar Real Mandante', 'Placar Real Visitante', 'Status', 'Horário']
-planilha_valida = not df_resultados_raw.empty
-
-if planilha_valida:
-    for col in colunas_obrigatorias:
-        if col not in df_resultados_raw.columns:
-            planilha_valida = False
-            break
+planilha_valida = not df_resultados_raw.empty and all(col in df_resultados_raw.columns for col in colunas_obrigatorias)
 
 if not planilha_valida:
     df_resultados = pd.DataFrame(JOGOS_ESTATICOS)
@@ -293,11 +326,13 @@ def obter_datetime_jogo(jogo_nome, horario_str):
         pass
     return datetime(2026, 6, 25, 23, 59)
 
+# Ordenação sem erros de data
 df_resultados['Data_Ordenacao'] = df_resultados.apply(
-    lambda r: obter_datetime_jogo(r['Jogo'], r['Horário']), axis=1
+    lambda r: obter_datetime_jogo(r.get('Jogo', ''), r.get('Horário', '15:00')), axis=1
 )
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').copy()
 
+# Cálculo blindado de pontuação
 def calcular_pontos_palpite(palpite, placar_m, placar_v):
     try:
         if pd.isna(placar_m) or pd.isna(placar_v) or str(placar_m).strip() == "" or str(placar_v).strip() == "":
@@ -350,7 +385,7 @@ if not df_palpites_raw.empty and len(df_palpites_raw.columns) > 3:
                 tabela_ranking[email] = {"Nome": nome, "Pontos": 0, "Acertos_Exatos": 0, "Acertos_Simples": 0, "Palpites_Feitos": 0}
                 
             for j_idx, j_row in df_resultados_sorted.iterrows():
-                jogo_nome = j_row['Jogo']
+                jogo_nome = j_row.get('Jogo', '')
                 if jogo_nome in df_palpites_raw.columns:
                     palpite_usuario = row[jogo_nome]
                     if pd.notna(palpite_usuario) and str(palpite_usuario).strip() != "":
@@ -484,14 +519,18 @@ with tabs[0]:
 with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
     
-    # Exibe diagnóstico se a planilha estiver inativa
+    # Exibe diagnóstico inteligente de compartilhamento
     if planilha_precisa_inicializar:
-        st.warning("""
+        motivo_diagnostico = st.session_state.erro_conexao if st.session_state.erro_conexao else "Planilha vazia ou com abas não configuradas."
+        st.warning(f"""
         ⚠️ **Planilha Desconectada ou em Branco!**
-        O aplicativo está rodando com dados locais salvos. Para conectar à sua planilha, certifique-se de:
-        1. Copiar o ID da **sua** planilha Google Sheets (presente na URL dela) e colá-lo na caixa de texto do menu lateral esquerdo.
-        2. Compartilhar a planilha no Google Sheets como **"Qualquer pessoa com o link pode ler"**.
-        3. Se for o administrador do bolão, acesse a aba **Portal Admin** para inicializar as abas na sua planilha!
+        
+        **Mensagem Técnica:** {motivo_diagnostico}
+        
+        *O app está operando de forma segura no modo local.* Para que o site reconheça a sua planilha no Google Sheets:
+        1. Confirme se copiou exatamente o ID `{st.session_state.spreadsheet_id}` da URL da planilha.
+        2. Clique em **Compartilhar** no Google Sheets e configure o **Acesso Geral** como **"Qualquer pessoa com o link pode ler"** (como Leitor).
+        3. Vá na aba **Portal Admin** usando a senha para gerar as tabelas na sua planilha!
         """)
 
     for idx, row in df_resultados_sorted.iterrows():
@@ -543,9 +582,6 @@ with tabs[1]:
 with tabs[2]:
     st.markdown("### 📝 Registrar seu Palpite")
     
-    if planilha_precisa_inicializar:
-        st.info("ℹ️ **Nota de Conectividade:** O site está a funcionar em modo local porque ainda não foi configurado o seu ID de planilha no GitHub. Pode enviar os seus palpites normalmente, pois eles serão gravados com sucesso!")
-    
     st.write("Digite o seu e-mail corporativo cadastrado para filtrar e selecionar as partidas disponíveis.")
     
     user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
@@ -565,15 +601,15 @@ with tabs[2]:
                 linha_user = usuario_existente.iloc[0]
                 for col in df_palpites_raw.columns:
                     if col not in ["Carimbo de data/hora", "E-mail do Usuário", "Nome Completo", "email", "e-mail", col_email]:
-                        voto_realizado = str(linha_user[col]).strip()
+                        voto_realizado = str(linha_user.get(col, '')).strip()
                         if voto_realizado and voto_realizado != "nan" and voto_realizado != "":
                             palpites_feitos_usuario.append(col)
 
         # Filtrar e remover jogos expirados ou já palpitados pelo colaborador
         jogos_disponiveis = []
         for j_idx, j_row in df_resultados_sorted.iterrows():
-            jogo_nome = j_row['Jogo']
-            limite = j_row['Data_Ordenacao'] - timedelta(hours=1)
+            jogo_nome = j_row.get('Jogo', '')
+            limite = j_row.get('Data_Ordenacao') - timedelta(hours=1)
             
             # Regra estrita de palpites livres: antes do limite cronológico e não palpitado
             if agora_brasil < limite and "encerrado" not in str(j_row.get('Status', '')).lower():
@@ -618,9 +654,7 @@ with tabs[2]:
                                 else:
                                     st.error(f"Erro ao registar: {res_json.get('message')}")
                             except ValueError:
-                                st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma página inválida. Verifique se o seu App da Web está implantado como acesso público para 'Qualquer Pessoa'.")
-                                with st.expander("🔍 Detalhes técnicos da Resposta"):
-                                    st.code(resposta.text[:1000], language="html")
+                                st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma resposta inválida. Verifique se o seu App da Web está configurado corretamente como público.")
                         except Exception as e:
                             st.error(f"Falha de conexão com a API do Google Sheets. Detalhes: {e}")
     else:
@@ -654,9 +688,9 @@ with tabs[3]:
                     
                     algum_palpite = False
                     for j_idx, j_row in df_resultados_sorted.iterrows():
-                        jogo_c = j_row['Jogo']
+                        jogo_c = j_row.get('Jogo', '')
                         if jogo_c in df_palpites_raw.columns:
-                            voto_cadastrado = str(linha_user[jogo_c]).strip()
+                            voto_cadastrado = str(linha_user.get(jogo_c, '')).strip()
                             if voto_cadastrado and voto_cadastrado != "nan" and voto_cadastrado != "":
                                 algum_palpite = True
                                 pts_obtidos = calcular_pontos_palpite(
