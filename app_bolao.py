@@ -155,9 +155,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 48 Jogos Reais em Ordem Cronológica Consistente
+# 48 Jogos Reais em Ordem Cronológica Consistente (Sintaxe Python Corrigida com #)
 JOGOS_ESTATICOS = [
-    // --- RODADA 1 ---
+    # --- RODADA 1 ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs Tchéquia (11/06)", "Horário": "23:00"},
     {"ID_Jogo": "JOGO_03", "Jogo": "⚽ Canadá vs Bósnia-Herzegovina (12/06)", "Horário": "20:00"},
@@ -182,7 +182,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_22", "Jogo": "⚽ Inglaterra vs Croácia (17/06)", "Horário": "20:00"},
     {"ID_Jogo": "JOGO_23", "Jogo": "⚽ Gana vs Panamá (17/06)", "Horário": "23:00"},
     {"ID_Jogo": "JOGO_24", "Jogo": "⚽ Uzbequistão vs Colômbia (18/06)", "Horário": "02:00"},
-    // --- RODADA 2 ---
+    # --- RODADA 2 ---
     {"ID_Jogo": "JOGO_25", "Jogo": "⚽ Tchéquia vs África do Sul (18/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_26", "Jogo": "⚽ Suíça vs Bósnia-Herzegovina (18/06)", "Horário": "19:00"},
     {"ID_Jogo": "JOGO_27", "Jogo": "⚽ Canadá vs Catar (18/06)", "Horário": "22:00"},
@@ -203,7 +203,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_42", "Jogo": "⚽ Noruega vs Senegal (22/06)", "Horário": "21:00"},
     {"ID_Jogo": "JOGO_43", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "22:30"},
     {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (23/06)", "Horário": "08:30"},
-    // --- RODADA 3 (SELECIONADOS) ---
+    # --- RODADA 3 (SELECIONADOS) ---
     {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Senegal vs Iraque (26/06)", "Horário": "16:00"},
     {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "19:00"},
@@ -758,7 +758,7 @@ with tabs[4]:
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated successfully!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
                                 st.cache_data.clear()
                             else:
                                 st.error(f"Erro: {p_json.get('message')}")
