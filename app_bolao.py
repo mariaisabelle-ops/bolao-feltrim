@@ -6,8 +6,7 @@ import io
 from datetime import datetime, timezone, timedelta
 import urllib.parse
 
-# Configurações iniciais de página e tema responsivo de alta qualidade
-st.set_page_config(
+#st.set_page_config(
     page_title="Feltrim Correa - Bolão Copa 2026",
     page_icon="🏆",
     layout="wide",
@@ -15,24 +14,24 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# ID Oficial da Planilha Feltrim Correa (Padrão e Oculto para Usuários Comuns)
+# ID Oficial da Planilha Feltrim Correa (Padrão para inicialização)
 DEFAULT_SPREADSHEET_ID = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
+DEFAULT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 # ==============================================================================
-
-WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
 # Fuso Horário de Brasília (UTC-3)
 agora_brasil = (datetime.now(timezone.utc) - timedelta(hours=3)).replace(tzinfo=None)
 
-# Inicialização de estados em cache de sessão
-if "spreadsheet_id" not in st.session_state:
+#if "spreadsheet_id" not in st.session_state:
     st.session_state.spreadsheet_id = DEFAULT_SPREADSHEET_ID
+
+if "web_app_url" not in st.session_state:
+    st.session_state.web_app_url = DEFAULT_WEB_APP_URL
 
 if "erro_conexao" not in st.session_state:
     st.session_state.erro_conexao = None
 
-# Injeção de CSS para estilização premium e responsiva
-st.markdown("""
+#st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700&display=swap');
     
@@ -155,8 +154,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 72 Jogos da Copa do Mundo em Ordem Cronológica Real e Oficial do PDF (Sem Polônia)
-JOGOS_ESTATICOS = [
+#JOGOS_ESTATICOS = [
     # --- GRUPO A ---
     {"ID_Jogo": "JOGO_01", "Jogo": "⚽ México vs África do Sul (11/06)", "Horário": "18:00"},
     {"ID_Jogo": "JOGO_02", "Jogo": "⚽ Coreia do Sul vs R. Tcheca (11/06)", "Horário": "23:00"},
@@ -174,7 +172,7 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_12", "Jogo": "⚽ Bósnia vs Qatar (24/06)", "Horário": "16:00"},
 
     # --- GRUPO C ---
-    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "13:00"},
+    {"ID_Jogo": "JOGO_13", "Jogo": "⚽ Brasil vs Marrocos (13/06)", "Horário": "19:00"},
     {"ID_Jogo": "JOGO_14", "Jogo": "⚽ Haiti vs Escócia (13/06)", "Horário": "22:00"},
     {"ID_Jogo": "JOGO_15", "Jogo": "⚽ Escócia vs Marrocos (19/06)", "Horário": "19:00"},
     {"ID_Jogo": "JOGO_16", "Jogo": "⚽ Brasil vs Haiti (19/06)", "Horário": "21:30"},
@@ -254,16 +252,16 @@ JOGOS_ESTATICOS = [
     {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Croácia vs Gana (27/06)", "Horário": "18:00"}
 ]
 
-with st.sidebar:
+#with st.sidebar:
     st.image("https://img.icons8.com/color/96/trophy.png", width=60)
     st.markdown("### ⚽ Bolão Feltrim Correa")
     st.write("Bem-vindo ao portal oficial do nosso bolão corporativo!")
     st.write("📌 **Como participar?**")
     st.write("1. Registre seu e-mail e nome completo na guia **'Dar Palpite'**.")
     st.write("2. Escolha o confronto em aberto e envie seu placar.")
-    st.write("3. Acompanhe a tabela e o ranking em tempo real.")
+    st.write("3. Acompanhe a classificação em tempo real.")
 
-@st.cache_data(ttl=5)
+#@st.cache_data(ttl=5)
 def puxar_planilha_segura(sheet_name):
     """
     Carrega dados de uma aba com tratamento avançado de URLs e diagnóstico de erros.
@@ -282,7 +280,7 @@ def puxar_planilha_segura(sheet_name):
             
         conteudo = resposta.text
         if "html" in resposta.headers.get("Content-Type", "").lower() or "<html" in conteudo[:200].lower():
-            st.session_state.erro_conexao = "Acesso Bloqueado! Sua planilha está Privada. Mude o compartilhamento para 'Qualquer pessoa com o link'."
+            st.session_state.erro_conexao = "Acesso Bloqueado! Sua planilha está Privada. Mude o compartilhamento para 'Qualquer pessoa com o link pode ler'."
             return pd.DataFrame()
             
         df = pd.read_csv(io.StringIO(conteudo))
@@ -302,7 +300,7 @@ def carregar_aba_com_fallback(lista_nomes):
             return df, nome
     return pd.DataFrame(), None
 
-df_resultados_raw, aba_resultados_nome = carregar_aba_com_fallback([
+#df_resultados_raw, aba_resultados_nome = carregar_aba_com_fallback([
     "Resultados Oficiais", "🎯 Resultados Oficiais", "Resultados", "🎯 Resultados"
 ])
 
@@ -351,7 +349,7 @@ def obter_datetime_jogo(jogo_nome, horario_str):
         pass
     return datetime(2026, 6, 25, 23, 59)
 
-df_resultados['Data_Ordenacao'] = df_resultados.apply(
+#df_resultados['Data_Ordenacao'] = df_resultados.apply(
     lambda r: obter_datetime_jogo(r.get('Jogo', ''), r.get('Horário', '15:00')), axis=1
 )
 df_resultados_sorted = df_resultados.sort_values(by='Data_Ordenacao').copy()
@@ -449,31 +447,28 @@ with tabs[0]:
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        html_part = """
+        st.markdown(f"""
         <div style="background-color: #f8f9fa; border-left: 5px solid #004b23; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
             <div style="font-size: 0.9rem; color: #666; text-transform: uppercase;">Participantes</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #004b23; margin-top: 5px;">{TOTAL}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #004b23; margin-top: 5px;">{len(df_ranking)}</div>
         </div>
-        """.replace("{TOTAL}", str(len(df_ranking)))
-        st.markdown(html_part, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     with col2:
         top_name = df_ranking.iloc[0]['Nome'] if not df_ranking.empty else "Nenhum"
-        html_lider = """
+        st.markdown(f"""
         <div style="background-color: #f8f9fa; border-left: 5px solid #d4af37; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
             <div style="font-size: 0.9rem; color: #666; text-transform: uppercase;">Líder Atual 👑</div>
-            <div style="font-size: 1.4rem; font-weight: 700; color: #b8860b; margin-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{LIDER}</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #b8860b; margin-top: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{top_name}</div>
         </div>
-        """.replace("{LIDER}", str(top_name))
-        st.markdown(html_lider, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     with col3:
         media_pts = round(df_ranking['Pontos'].mean(), 1) if not df_ranking.empty else 0.0
-        html_media = """
+        st.markdown(f"""
         <div style="background-color: #f8f9fa; border-left: 5px solid #007200; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);">
             <div style="font-size: 0.9rem; color: #666; text-transform: uppercase;">Média de Pontuação</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #007200; margin-top: 5px;">{MEDIA} pts</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #007200; margin-top: 5px;">{media_pts} pts</div>
         </div>
-        """.replace("{MEDIA}", str(media_pts))
-        st.markdown(html_media, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     st.write("")
     
@@ -484,39 +479,36 @@ with tabs[0]:
         with cols_podio[0]:
             if len(df_ranking) >= 1:
                 p1 = df_ranking.iloc[0]
-                html_p1 = """
+                st.markdown(f"""
                 <div style="background: linear-gradient(135deg, #fffaf0 0%, #fff0d4 100%); border: 2px solid #d4af37; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 6px 15px rgba(212,175,55,0.15);">
                     <div style="font-size: 2.5rem; margin-bottom: 5px;">🥇</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: #856404;">{NOME}</div>
-                    <div style="font-size: 1.5rem; font-weight: 700; color: #004b23; margin-top: 5px;">{PONTOS} pts</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{EXATOS} placares exatos</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #856404;">{p1['Nome']}</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #004b23; margin-top: 5px;">{p1['Pontos']} pts</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{p1['Acertos_Exatos']} placares exatos</div>
                 </div>
-                """.replace("{NOME}", str(p1['Nome'])).replace("{PONTOS}", str(p1['Pontos'])).replace("{EXATOS}", str(p1['Acertos_Exatos']))
-                st.markdown(html_p1, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
         with cols_podio[1]:
             if len(df_ranking) >= 2:
                 p2 = df_ranking.iloc[1]
-                html_p2 = """
+                st.markdown(f"""
                 <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1.5px solid #adb5bd; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                     <div style="font-size: 2.5rem; margin-bottom: 5px;">🥈</div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: #495057;">{NOME}</div>
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{PONTOS} pts</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{EXATOS} placares exatos</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #495057;">{p2['Nome']}</div>
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{p2['Pontos']} pts</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{p2['Acertos_Exatos']} placares exatos</div>
                 </div>
-                """.replace("{NOME}", str(p2['Nome'])).replace("{PONTOS}", str(p2['Pontos'])).replace("{EXATOS}", str(p2['Acertos_Exatos']))
-                st.markdown(html_p2, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
         with cols_podio[2]:
             if len(df_ranking) >= 3:
                 p3 = df_ranking.iloc[2]
-                html_p3 = """
+                st.markdown(f"""
                 <div style="background: linear-gradient(135deg, #fdf6f0 0%, #f5e6d3 100%); border: 1.5px solid #cd7f32; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                     <div style="font-size: 2.5rem; margin-bottom: 5px;">🥉</div>
-                    <div style="font-size: 1.1rem; font-weight: 700; color: #8a4f1c;">{NOME}</div>
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{PONTOS} pts</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{EXATOS} placares exatos</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #8a4f1c;">{p3['Nome']}</div>
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #004b23; margin-top: 5px;">{p3['Pontos']} pts</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">{p3['Acertos_Exatos']} placares exatos</div>
                 </div>
-                """.replace("{NOME}", str(p3['Nome'])).replace("{PONTOS}", str(p3['Pontos'])).replace("{EXATOS}", str(p3['Acertos_Exatos']))
-                st.markdown(html_p3, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
         st.markdown("#### 📋 Classificação Completa")
         
@@ -548,17 +540,18 @@ with tabs[0]:
 with tabs[1]:
     st.markdown("### 📅 Agenda de Jogos e Resultados")
     
-    if planilha_precisa_inicializar:
+    #    if planilha_precisa_inicializar:
         motivo_diagnostico = st.session_state.erro_conexao if st.session_state.erro_conexao else "Planilha vazia ou com abas não configuradas."
         st.warning(f"""
         ⚠️ **Planilha Desconectada ou em Branco!**
         
         **Mensagem Técnica:** {motivo_diagnostico}
         
-        *O app está operando de forma segura no modo local.* Para que o site reconheça a sua planilha no Google Sheets:
+        **Como resolver de forma instantânea em 2 passos:**
         1. Confirme se as abas estão devidamente criadas no seu Google Sheets.
-        2. Clique em **Compartilhar** no Google Sheets e configure o **Acesso Geral** como **"Qualquer pessoa com o link pode ler"** (como Leitor).
-        3. Vá na aba **Portal Admin** usando a senha para gerar as tabelas na sua planilha!
+        2. Vá na aba **Portal Admin** usando a senha `feltrim2026`, cole o **ID da sua Planilha** e a **URL do seu Web App (Apps Script)** nos campos e clique em **Inicializar todos os 72 jogos**!
+        
+        *Atualmente conectado ao ID padrão:* `{st.session_state.spreadsheet_id}`
         """)
 
     for idx, row in df_resultados_sorted.iterrows():
@@ -615,7 +608,7 @@ with tabs[2]:
     user_email = st.text_input("📧 E-mail Corporativo do Colaborador:", key="user_email_input").strip().lower()
     user_nome = st.text_input("👤 Nome Completo:", key="user_nome_input").strip()
     
-    if user_email and "@" in user_email and len(user_nome) >= 3:
+    #    if user_email and "@" in user_email and len(user_nome) >= 3:
         col_email = ""
         palpites_feitos_usuario = []
         for c in df_palpites_raw.columns:
@@ -639,7 +632,7 @@ with tabs[2]:
             jogo_nome = j_row.get('Jogo', '')
             limite = j_row.get('Data_Ordenacao') - timedelta(hours=1)
             
-            # Regra estrita de palpites livres: antes do limite cronológico e não palpitado
+            # Regra de palpites: antes do limite cronológico
             if agora_brasil < limite and "encerrado" not in str(j_row.get('Status', '')).lower():
                 if jogo_nome not in palpites_feitos_usuario:
                     jogos_disponiveis.append(jogo_nome)
@@ -667,20 +660,21 @@ with tabs[2]:
                         "email": user_email,
                         "nome": user_nome,
                         "id_jogo": jogo_selecionado,
-                        "palpite": palpite_texto
+                        "palpite": palpite_texto,
+                        "spreadsheet_id": st.session_state.spreadsheet_id
                     }
                     
-                    with st.spinner("Registando o seu palpite no Google Sheets..."):
+                    with st.spinner("Registrando o seu palpite no Google Sheets..."):
                         try:
-                            resposta = requests.post(WEB_APP_URL, json=dados_envio, timeout=35)
+                            resposta = requests.post(st.session_state.web_app_url, json=dados_envio, timeout=35)
                             try:
                                 res_json = resposta.json()
                                 if res_json.get("status") == "success":
-                                    st.success(f"🎉 Palpite registado com sucesso para o jogo: {jogo_selecionado}!")
+                                    st.success(f"🎉 Palpite registrado com sucesso para o jogo: {jogo_selecionado}!")
                                     st.balloons()
                                     st.cache_data.clear()
                                 else:
-                                    st.error(f"Erro ao registar: {res_json.get('message')}")
+                                    st.error(f"Erro ao registrar: {res_json.get('message')}")
                             except ValueError:
                                 st.error("⚠️ Erro de Resposta: O Google Apps Script retornou uma resposta inválida. Verifique se o seu App da Web está configurado corretamente como público.")
                         except Exception as e:
@@ -695,7 +689,7 @@ with tabs[3]:
     
     email_busca = st.text_input("📧 Pesquisar Histórico pelo seu E-mail:", "", key="email_busca_input").strip().lower()
     
-    if email_busca:
+    #    if email_busca:
         if df_palpites_raw.empty:
             st.info("Nenhum palpite registrado no banco de dados ainda.")
         else:
@@ -762,24 +756,24 @@ with tabs[4]:
     
     admin_pass = st.text_input("🔑 Código de Segurança:", type="password", key="senha_admin_field").strip()
     
-    if admin_pass == "feltrim2026":
+    #    if admin_pass == "feltrim2026":
         st.success("✅ Acesso administrativo liberado!")
         st.divider()
         
-        st.markdown("#### ⚙️ Configurações de Banco de Dados")
-        user_sid = st.text_input(
-            "ID da Planilha Google Sheets:",
-            value=st.session_state.spreadsheet_id,
-            help="Altere o ID da planilha para conectar outro banco de dados do bolão de forma segura."
-        ).strip()
+        st.markdown("#### ⚙️ Configuração Dinâmica de Conexão")
+        st.write("Para evitar a edição manual de arquivos no GitHub, altere o ID da planilha e o link da API por aqui:")
         
-        if user_sid and user_sid != st.session_state.spreadsheet_id:
-            st.session_state.spreadsheet_id = user_sid
+        cfg_sheet_id = st.text_input("📝 ID da Planilha Google (Google Sheets):", value=st.session_state.spreadsheet_id)
+        cfg_web_url = st.text_input("🔗 URL do Web App do Apps Script (terminada em /exec):", value=st.session_state.web_app_url)
+        
+        if st.button("💾 Salvar Configurações de Conexão"):
+            st.session_state.spreadsheet_id = cfg_sheet_id.strip()
+            st.session_state.web_app_url = cfg_web_url.strip()
             st.cache_data.clear()
+            st.success("🎉 Configurações de Conexão atualizadas com sucesso para esta sessão!")
             st.rerun()
             
         st.divider()
-        
         st.markdown("#### ✨ Inicialização das Abas e Jogos")
         st.write(f"Crie as abas necessárias para rodar o bolão na planilha atual (**ID:** `{st.session_state.spreadsheet_id}`):")
         
@@ -787,14 +781,14 @@ with tabs[4]:
             with st.spinner("Conectando ao banco de dados e gerando jogos..."):
                 try:
                     res_init = requests.post(
-                        WEB_APP_URL, 
-                        json={"action": "inicializarNovoBolao", "senha": "feltrim2026"}, 
+                        st.session_state.web_app_url, 
+                        json={"action": "inicializarNovoBolao", "senha": "feltrim2026", "spreadsheet_id": st.session_state.spreadsheet_id}, 
                         timeout=35
                     )
                     try:
                         r_json = res_init.json()
                         if r_json.get("status") == "success":
-                            st.success("🎉 Todas as tabelas e os 72 jogos foram criados com sucesso!")
+                            st.success("🎉 Todas as tabelas e os 72 jogos foram criados com sucesso na sua planilha!")
                             st.cache_data.clear()
                         else:
                             st.error(f"Erro na criação: {r_json.get('message')}")
@@ -828,16 +822,17 @@ with tabs[4]:
                     "jogo": jogo_placar_sel,
                     "placar_m": int(placar_real_m),
                     "placar_v": int(placar_real_v),
-                    "status": status_oficial
+                    "status": status_oficial,
+                    "spreadsheet_id": st.session_state.spreadsheet_id
                 }
                 
                 with st.spinner("Salvando placar..."):
                     try:
-                        res_p = requests.post(WEB_APP_URL, json=payload_oficial, timeout=35)
+                        res_p = requests.post(st.session_state.web_app_url, json=payload_oficial, timeout=35)
                         try:
                             p_json = res_p.json()
                             if p_json.get("status") == "success":
-                                st.success(f"🎉 Placar de '{jogo_placar_sel}' updated successfully!")
+                                st.success(f"🎉 Placar de '{jogo_placar_sel}' atualizado com sucesso!")
                                 st.cache_data.clear()
                             else:
                                 st.error(f"Erro: {p_json.get('message')}")
