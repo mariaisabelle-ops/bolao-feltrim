@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS
+# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS (SEM CARACTERES INVÁLIDOS)
 # ==========================================
 JOGOS_CADASTRADOS = [
     # --- 11/06 ---
@@ -73,7 +73,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (22/06)", "Horário": "23:00", "Data": "22/06 (Segunda)", "Time_M": "Jordânia", "ISO_M": "jo", "Time_V": "Argélia", "ISO_V": "dz"},
     # --- 23/06 ---
     {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "13:00", "Data": "23/06 (Terça)", "Time_M": "Portugal", "ISO_M": "pt", "Time_V": "Uzbequistão", "ISO_V": "uz"},
-    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Croácia", "ISO_V": "hr"},
+    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Gana", "ISO_V": "gh"},
     {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "19:00", "Data": "23/06 (Terça)", "Time_M": "Panamá", "ISO_M": "pa", "Time_V": "Croácia", "ISO_V": "hr"},
     {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "22:00", "Data": "23/06 (Terça)", "Time_M": "Colômbia", "ISO_M": "co", "Time_V": "RD Congo", "ISO_V": "cd"},
     # --- 24/06 ---
@@ -93,7 +93,7 @@ JOGOS_CADASTRADOS = [
     # --- 26/06 ---
     {"ID_Jogo": "JOGO_61", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Noruega", "ISO_M": "no", "Time_V": "França", "ISO_V": "fr"},
     {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Senegal vs Iraque (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Senegal", "ISO_M": "sn", "Time_V": "Iraque", "ISO_V": "iq"},
-    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Uruguai vs Espanha (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Espanha", "ISO_V": "es"},
+    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Uruguay vs Espanha (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Espanha", "ISO_V": "es"},
     {"ID_Jogo": "JOGO_64", "Jogo": "⚽ Cabo Verde vs Arábia Saudita (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Cabo Verde", "ISO_M": "cv", "Time_V": "Arábia Saudita", "ISO_V": "sa"},
     {"ID_Jogo": "JOGO_65", "Jogo": "⚽ Nova Zelândia vs Bélgica (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Nova Zelândia", "ISO_M": "nz", "Time_V": "Bélgica", "ISO_V": "be"},
     {"ID_Jogo": "JOGO_66", "Jogo": "⚽ Egito vs Irã (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Egito", "ISO_M": "eg", "Time_V": "Irã", "ISO_V": "ir"},
@@ -106,19 +106,20 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_72", "Jogo": "⚽ Argélia vs Áustria (27/06)", "Horário": "22:00", "Data": "27/06 (Sábado)", "Time_M": "Argélia", "ISO_M": "dz", "Time_V": "Áustria", "ISO_V": "at"}
 ]
 
-# Configurações dinâmicas padrão
+# Configuração de estado para Google Sheets
 if "spreadsheet_id" not in st.session_state:
     st.session_state.spreadsheet_id = "1QEDWCDuV0DRkVq86QQwC9Dr5x_KU209Eypu_hmFsdAc"
 if "web_app_url" not in st.session_state:
     st.session_state.web_app_url = "https://script.google.com/macros/s/AKfycby4zNkmzBsq-vT1J4RQ7wf8qLN1vX0SFgEqjDCqOueoGR5GRuYW3RtmzEOBph4Pn_7Z/exec"
 
+# Armazenamento de credenciais locais
 if "saved_email" not in st.session_state:
     st.session_state.saved_email = ""
 if "saved_name" not in st.session_state:
     st.session_state.saved_name = ""
 
 # ==========================================
-# 🎨 ESTILIZAÇÃO COMPLETA DE ALTO PADRÃO (LARANJA, ROSA E VERDE DO ESCRITÓRIO)
+# 🎨 ESTILIZAÇÃO E CARACTERIZAÇÃO VISUAL PREMIUM (SEM PRETO)
 # ==========================================
 st.markdown("""
 <style>
@@ -126,20 +127,20 @@ st.markdown("""
     
     html, body, .stApp {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #FFFAE6 !important; /* Bege suave do escritório */
-        color: #000000 !important;
+        background-color: #FFFDF5 !important; /* Bege Areia Quente muito leve e luxuoso */
+        color: #2C2520 !important; /* Marrom-cinza elegante para leitura agradável */
     }
     
-    /* Configuração da Barra Lateral (Sidebar) com as cores do escritório */
+    /* Configuração da Barra Lateral (Sidebar) Macia e Neutra */
     [data-testid="stSidebar"] {
-        background-color: #000000 !important; /* Preto do escritório */
-        border-right: 2px solid #F0660D !important; /* Laranja do escritório */
+        background-color: #FFFDF5 !important;
+        border-right: 1.5px solid rgba(240, 102, 13, 0.2) !important;
     }
     
-    /* Título com as Cores em Laranja e Rosa */
+    /* Cabeçalho de Título com Degradê Laranja e Rosa */
     .hero-title {
         font-weight: 850;
-        font-size: 2.7rem;
+        font-size: 2.8rem;
         background: linear-gradient(135deg, #F0660D 0%, #E696F0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -149,80 +150,89 @@ st.markdown("""
     }
     
     .hero-subtitle {
-        font-size: 0.95rem;
-        color: #F0660D; /* Laranja */
+        font-size: 1rem;
+        color: #F0660D;
         text-align: center;
         margin-bottom: 2rem;
         font-weight: 700;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
     }
     
-    /* Card de Identificação com Rosa e Laranja */
+    /* Cápsula de Conexão do Colaborador */
     .profile-banner {
-        background: linear-gradient(135deg, #000000 0%, #F0660D 100%);
-        color: #FFFFFF;
-        padding: 1.2rem 1.6rem;
-        border-radius: 12px;
+        background: linear-gradient(135deg, #FFFDF5 0%, #FFF9E6 100%);
+        color: #2C2520;
+        padding: 1.25rem;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1.5rem;
-        border-left: 5px solid #E696F0; /* Toque Rosa */
-        box-shadow: 0 4px 20px rgba(240, 102, 13, 0.25);
+        border: 2px solid #E696F0; /* Rosa */
+        box-shadow: 0 4px 15px rgba(230, 150, 240, 0.12);
     }
     
-    /* Customização das Abas Nativas (Top Tabs) em Laranja e Rosa */
+    /* Redesenho Total das Abas Nativas (Floating Pills Premium) */
     button[data-baseweb="tab"] {
-        color: #000000 !important;
-        background-color: transparent !important;
+        color: #2C2520 !important;
+        background-color: #FFFFFF !important;
+        border: 1.5px solid rgba(240, 102, 13, 0.15) !important;
         font-weight: 700 !important;
-        font-size: 1.1rem !important;
-        border-bottom: 3px solid transparent !important;
+        font-size: 1rem !important;
         padding: 10px 24px !important;
-        transition: all 0.3s ease !important;
+        border-radius: 30px !important; /* Formato de Cápsula */
+        margin-right: 8px !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
     }
     
     button[data-baseweb="tab"]:hover {
-        color: #E696F0 !important; /* Rosa no Hover */
-        background-color: rgba(230, 150, 240, 0.05) !important;
+        color: #E696F0 !important;
+        border-color: #E696F0 !important;
+        transform: translateY(-1px);
     }
     
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #F0660D !important; /* Laranja quando ativo */
-        border-bottom: 4px solid #F0660D !important;
+        background: linear-gradient(135deg, #F0660D 0%, #E696F0 100%) !important; /* Laranja para Rosa */
+        color: #FFFFFF !important;
+        border-color: transparent !important;
+        box-shadow: 0 6px 15px rgba(240, 102, 13, 0.25) !important;
     }
     
-    /* Botões em Laranja e Rosa com transições fluidas */
+    /* Esconde a linha nativa horizontal cinza do Streamlit */
+    div[data-testid="stTabs"] [data-baseweb="tab-highlight-bar"] {
+        display: none !important;
+    }
+    
+    /* Botões em Cápsula do Escritório */
     .stButton > button {
         background: linear-gradient(135deg, #F0660D 0%, #E696F0 100%) !important;
         color: #FFFFFF !important;
-        border: 2px solid #000000 !important;
-        padding: 0.65rem 1.2rem !important;
-        border-radius: 10px !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+        padding: 0.65rem 1.4rem !important;
+        border-radius: 30px !important; /* Formato Pílula */
         font-weight: 700 !important;
-        font-size: 0.95rem !important;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-        box-shadow: 0 4px 12px rgba(240, 102, 13, 0.2) !important;
-        width: 100%;
         text-transform: uppercase;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.03em;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(240, 102, 13, 0.2) !important;
+        width: 100%;
     }
     
     .stButton > button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 6px 18px rgba(230, 150, 240, 0.45) !important;
-        background: linear-gradient(135deg, #E696F0 0%, #C9DE1C 100%) !important; /* Muda para Rosa/Verde ao passar mouse */
-        color: #000000 !important;
-        border-color: #000000 !important;
+        box-shadow: 0 6px 20px rgba(230, 150, 240, 0.4) !important;
+        background: linear-gradient(135deg, #E696F0 0%, #C9DE1C 100%) !important; /* Rosa para Verde */
+        color: #2C2520 !important;
     }
     
-    /* Pódio Corporativo Laranja, Rosa e Verde */
+    /* Pódio Corporativo Minimalista e Harmonizado */
     .podium-section {
         display: flex;
         justify-content: center;
         align-items: flex-end;
-        gap: 1.25rem;
+        gap: 1.5rem;
         margin: 2.2rem auto;
         max-width: 800px;
         padding: 0 1rem;
@@ -238,56 +248,55 @@ st.markdown("""
     
     .podium-box {
         width: 100%;
-        border-radius: 12px;
+        border-radius: 16px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 1.5rem 1rem;
         text-align: center;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-        border: 2px solid #000000;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+        border: 1.5px solid rgba(240, 102, 13, 0.15);
+        background-color: #FFFFFF;
     }
     
+    /* Cores Nobres do Pódio nas Bordas */
     .gold-box {
-        background: #FFFFFF;
-        border-top: 6px solid #F0660D !important; /* Laranja no Líder */
-        height: 195px;
+        border-top: 6px solid #F0660D !important; /* Laranja no 1º */
+        height: 200px;
         z-index: 3;
     }
     
     .silver-box {
-        background: #FFFFFF;
-        border-top: 6px solid #E696F0 !important; /* Rosa no 2º lugar */
-        height: 160px;
+        border-top: 6px solid #E696F0 !important; /* Rosa no 2º */
+        height: 165px;
         z-index: 2;
     }
     
     .bronze-box {
-        background: #FFFFFF;
-        border-top: 6px solid #C9DE1C !important; /* Verde no 3º lugar */
+        border-top: 6px solid #C9DE1C !important; /* Verde no 3º */
         height: 135px;
         z-index: 1;
     }
     
     .avatar-circle {
-        width: 48px;
-        height: 48px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
-        background-color: #FFFAE6;
+        background-color: #FFFDF5;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         margin-bottom: 0.5rem;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        border: 1.5px solid #000000;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+        border: 1.5px solid rgba(240, 102, 13, 0.15);
     }
     
     .podium-name {
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 700;
-        color: #000000;
+        color: #2C2520;
         margin-bottom: 0.1rem;
         white-space: nowrap;
         overflow: hidden;
@@ -296,25 +305,26 @@ st.markdown("""
     }
     
     .podium-score {
-        font-size: 1.15rem;
+        font-size: 1.2rem;
         font-weight: 850;
-        color: #F0660D; /* Laranja */
+        color: #F0660D;
     }
     
     .badge-rank {
         position: absolute;
         top: -12px;
-        padding: 0.2rem 0.75rem;
+        padding: 0.25rem 0.85rem;
         border-radius: 30px;
         font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
-        color: #000000;
-        border: 1.5px solid #000000;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        color: #2C2520;
+        background-color: #FFFFFF;
+        border: 1.5px solid rgba(240, 102, 13, 0.15);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
     }
     
-    /* Tabela de Classificação Customizada */
+    /* Tabelas Corporativas Elegantes */
     .premium-table {
         width: 100%;
         border-collapse: separate;
@@ -323,8 +333,8 @@ st.markdown("""
     }
     
     .premium-table th {
-        background: #000000;
-        color: #FFFAE6;
+        background: linear-gradient(135deg, #F0660D 0%, #E696F0 100%);
+        color: #FFFFFF;
         font-weight: 700;
         font-size: 0.85rem;
         text-transform: uppercase;
@@ -342,20 +352,20 @@ st.markdown("""
     
     .premium-row td {
         padding: 1rem;
-        border-top: 1px solid rgba(0, 0, 0, 0.03);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        border-top: 1px solid rgba(0,0,0,0.02);
+        border-bottom: 1px solid rgba(0,0,0,0.02);
         font-size: 0.95rem;
-        color: #000000;
+        color: #2C2520;
     }
     
     .premium-row td:first-child {
-        border-left: 4px solid #F0660D; /* Borda Laranja */
+        border-left: 4px solid #F0660D;
         border-radius: 8px 0 0 8px;
         font-weight: 700;
     }
     
     .premium-row td:last-child {
-        border-right: 1px solid rgba(0,0,0,0.03);
+        border-right: 1px solid rgba(0,0,0,0.02);
         border-radius: 0 8px 8px 0;
     }
     
@@ -371,46 +381,46 @@ st.markdown("""
         color: white;
     }
     
-    .rank-1 { background: #F0660D; color: #FFFFFF; } /* Laranja */
-    .rank-2 { background: #E696F0; color: #000000; } /* Rosa */
-    .rank-3 { background: #C9DE1C; color: #000000; } /* Verde */
-    .rank-other { background: #000000; color: #FFFFFF; }
+    .rank-1 { background-color: #F0660D; color: #FFFFFF; }
+    .rank-2 { background-color: #E696F0; color: #2C2520; }
+    .rank-3 { background-color: #C9DE1C; color: #2C2520; }
+    .rank-other { background-color: #FAF6EE; color: #2C2520; border: 1px solid rgba(0,0,0,0.05); }
     
-    /* Formulários nativos robustos */
+    /* Configuração de Containers Nativos do Streamlit */
     div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
-        border: 2px solid #000000 !important;
-        border-radius: 12px !important;
+        border: 1px solid rgba(240, 102, 13, 0.15) !important;
+        border-radius: 16px !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
 with st.sidebar:
     st.image("https://img.icons8.com/color/120/trophy.png", width=55)
-    st.markdown("<h3 style='color:#FFFFFF; margin-bottom: 0;'>🏆 Feltrim Correa</h3>", unsafe_allow_html=True)
-    st.markdown("<small style='color:#C5A059; font-weight:700;'>Copa do Mundo FIFA 2026</small>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#2C2520; margin-bottom: 0;'>🏆 Feltrim Correa</h3>", unsafe_allow_html=True)
+    st.markdown("<small style='color:#F0660D; font-weight:700;'>Copa do Mundo FIFA 2026</small>", unsafe_allow_html=True)
     st.markdown("---")
     
-    # Identificação Compacta do Colaborador no Sidebar
+    # Identificação do usuário logado na barra lateral
     if st.session_state.saved_email and st.session_state.saved_name:
         st.markdown(f"""
-        <div style='background:rgba(255,255,255,0.08); padding:12px; border-radius:8px; border-left:3px solid #E696F0; margin-bottom:10px;'>
-            <span style='font-size:0.75rem; text-transform:uppercase; color:#E696F0; font-weight:700;'>Utilizador</span>
-            <div style='font-weight:800; color:#FFFFFF;'>⚽ {st.session_state.saved_name}</div>
-            <span style='font-size:0.75rem; color:#FFFFFF; opacity:0.8;'>{st.session_state.saved_email}</span>
+        <div style='background-color:#FFFFFF; padding:12px; border-radius:12px; border-left:4px solid #E696F0; margin-bottom:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);'>
+            <span style='font-size:0.75rem; text-transform:uppercase; color:#F0660D; font-weight:700;'>Identificado</span>
+            <div style='font-weight:800; color:#2C2520;'>⚽ {st.session_state.saved_name}</div>
+            <span style='font-size:0.75rem; color:#2C2520; opacity:0.8;'>{st.session_state.saved_email}</span>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🔄 Alternar Conta"):
+        if st.button("🔄 Alternar Utilizador"):
             st.session_state.saved_email = ""
             st.session_state.saved_name = ""
             st.rerun()
     else:
-        st.markdown("<small style='color:#FFFFFF;'>Aceda à aba de palpites para se identificar.</small>", unsafe_allow_html=True)
+        st.markdown("<small style='color:#2C2520; opacity:0.7;'>Identifique-se na aba de palpites para começar.</small>", unsafe_allow_html=True)
         
     st.markdown("---")
-    if st.button("🔄 Recarregar Banco de Dados", use_container_width=True):
+    if st.button("🔄 Sincronizar Agora", use_container_width=True):
         st.cache_data.clear()
-        st.success("Dados atualizados!")
+        st.success("Sincronização efetuada!")
         st.rerun()
 
 @st.cache_data(ttl=60)
@@ -513,20 +523,20 @@ def calcular_ranking_real(df_palpites, df_resultados):
     return ranking_df
 
 # ==========================================
-# 📊 ABA CENTRAL DE NAVEGAÇÃO SUPERIOR (TABS DE ALTA FLUIDEZ)
+# 📊 DESIGN SYSTEM DE ABAS SUPERIORES (TOP TABS)
 # ==========================================
 tab_ranking, tab_palpites, tab_admin = st.tabs([
-    "📊 Classificação & Resultados Oficiais", 
-    "📝 Enviar Meus Palpites", 
-    "🔧 Portal de Controle Administrativo"
+    "📊 Resultados & Classificação Geral", 
+    "📝 Registrar Meus Palpites", 
+    "🔧 Portal de Administração"
 ])
 
-# --- CONTEÚDO DA ABA 1: RANKING E RESULTADOS ---
+# --- ABA 1: RANKING E RESULTADOS ---
 with tab_ranking:
-    st.markdown('<div class="hero-title">🏆 Feltrim Correa</div>', unsafe_allow_html=True)
-    st.markdown('<div class="hero-subtitle">Bolão Oficial da Copa do Mundo FIFA 2026</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hero-title">Feltrim Correa</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hero-subtitle">Bolão Corporativo Oficial da Fase de Grupos</div>', unsafe_allow_html=True)
     
-    sub_tab_rank, sub_tab_jogos = st.tabs(["📊 Classificação Geral", "📅 Tabela de Jogos & Resultados Oficiais"])
+    sub_tab_rank, sub_tab_jogos = st.tabs(["📊 Classificação dos Colaboradores", "📅 Tabela de Jogos e Resultados Oficiais"])
     
     with sub_tab_rank:
         if df_p is not None and df_r is not None:
@@ -544,33 +554,33 @@ with tab_ranking:
                 
                 podium_html = f"""<div class="podium-section">
 <div class="podium-col">
-<span class="badge-rank" style="background:#E696F0; color:#000000;">2º Lugar</span>
+<span class="badge-rank" style="border-color:#E696F0;">2º Lugar</span>
 <div class="avatar-circle">🥈</div>
 <div class="podium-box silver-box">
 <div class="podium-name">{p2_nome}</div>
-<div class="podium-score">{p2_pontos} pts</div>
+<div class="podium-score" style="color:#E696F0;">{p2_pontos} pts</div>
 </div>
 </div>
 <div class="podium-col">
-<span class="badge-rank" style="background:#F0660D; color:#FFFFFF;">Líder 👑</span>
+<span class="badge-rank" style="border-color:#F0660D;">Líder 👑</span>
 <div class="avatar-circle">👑</div>
 <div class="podium-box gold-box">
-<div class="podium-name" style="font-size:1.1rem; font-weight:800; color:#000000;">{p1_nome}</div>
+<div class="podium-name" style="font-size:1.1rem; font-weight:800; color:#2C2520;">{p1_nome}</div>
 <div class="podium-score" style="font-size:1.45rem; color:#F0660D;">{p1_pontos} pts</div>
 </div>
 </div>
 <div class="podium-col">
-<span class="badge-rank" style="background:#C9DE1C; color:#000000;">3º Lugar</span>
+<span class="badge-rank" style="border-color:#C9DE1C;">3º Lugar</span>
 <div class="avatar-circle">🥉</div>
 <div class="podium-box bronze-box">
 <div class="podium-name">{p3_nome}</div>
-<div class="podium-score">{p3_pontos} pts</div>
+<div class="podium-score" style="color:#C9DE1C;">{p3_pontos} pts</div>
 </div>
 </div>
 </div>"""
                 st.markdown(podium_html.replace("\n", " "), unsafe_allow_html=True)
                 
-                st.markdown("<h4 style='color:#000000; font-weight:800; margin-top:2rem;'>📊 Classificação Detalhada</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 style='color:#2C2520; font-weight:800; margin-top:2.5rem;'>📊 Classificação Geral</h4>", unsafe_allow_html=True)
                 
                 table_html = """<table class="premium-table">
 <thead>
@@ -602,11 +612,11 @@ with tab_ranking:
                         
                     table_html += f"""<tr class="premium-row">
 <td style="text-align: center;"><span class="rank-indicator {rank_class}">{badge}</span></td>
-<td style="font-weight: 700; color: #000000;">{row['Nome']}</td>
+<td style="font-weight: 700; color: #2C2520;">{row['Nome']}</td>
 <td style="text-align: center; font-weight: 600;">{row['Palpites Feitos']}</td>
 <td style="text-align: center; color: #F0660D; font-weight: 700;">{row['Acertos Exatos']}</td>
 <td style="text-align: center; color: #E696F0; font-weight: 700;">{row['Acertos Vencedor']}</td>
-<td style="text-align: right; font-weight: 800; font-size: 1.15rem; color: #000000; padding-right: 1.5rem;">{row['Pontos']} pts</td>
+<td style="text-align: right; font-weight: 800; font-size: 1.15rem; color: #2C2520; padding-right: 1.5rem;">{row['Pontos']} pts</td>
 </tr>"""
                     
                 table_html += "</tbody></table>"
@@ -639,7 +649,7 @@ with tab_ranking:
                                 if val and val != "nan" and "-" in val:
                                     user_bets[j["ID_Jogo"]] = val
 
-            st.markdown("<h4 style='color:#000000; font-weight:800;'>🏟️ Tabela de Jogos e Resultados em Tempo Real</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#2C2520; font-weight:800;'>🏟️ Tabela de Jogos e Resultados em Tempo Real</h4>", unsafe_allow_html=True)
             filtro_dia = st.selectbox("📅 Filtrar Jogos por Data", sorted(list(set([j["Data"] for j in JOGOS_CADASTRADOS])), key=lambda x: x[:5]), key="filtro_jogos_dia")
             
             jogos_filtrados = [j for j in JOGOS_CADASTRADOS if j["Data"] == filtro_dia]
@@ -667,33 +677,33 @@ with tab_ranking:
                     
                     with col_team_m:
                         st.image(f"https://flagcdn.com/w160/{j['ISO_M']}.png", width=65)
-                        st.markdown(f"<strong style='color:#000000; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_M']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_M']}</strong>", unsafe_allow_html=True)
                     
                     with col_score:
                         if "Encerrado" in status_real or "Ao Vivo" in status_real:
-                            st.markdown(f"<h1 style='text-align:center; margin:0; color:#000000; font-weight:800; font-size:2.4rem; line-height: 1;'>{info_real['m']} - {info_real['v']}</h1>", unsafe_allow_html=True)
+                            st.markdown(f"<h1 style='text-align:center; margin:0; color:#2C2520; font-weight:800; font-size:2.4rem; line-height: 1;'>{info_real['m']} - {info_real['v']}</h1>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<div style='text-align:center; padding:8px 12px; background:#FFFAE6; border:2px solid #F0660D; border-radius:30px; font-weight:800; color:#000000; font-size:0.9rem; margin-top:10px;'>🕒 {j['Horário']}</div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='text-align:center; padding:8px 12px; background:#FFFAE6; border:1.5px solid #F0660D; border-radius:30px; font-weight:800; color:#2C2520; font-size:0.9rem; margin-top:10px;'>🕒 {j['Horário']}</div>", unsafe_allow_html=True)
                     
                     with col_team_v:
                         st.image(f"https://flagcdn.com/w160/{j['ISO_V']}.png", width=65)
-                        st.markdown(f"<strong style='color:#000000; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>", unsafe_allow_html=True)
                     
                     # Palpite do Usuário Conectado
-                    if juego_id := jogo_id in user_bets:
+                    if jogo_id in user_bets:
                         palpite_u = user_bets[jogo_id]
                         if "Encerrado" in status_real:
                             pts, tipo_acerto = calcular_pontos_palpite(palpite_u, info_real["m"], info_real["v"])
                             if tipo_acerto == "Exato":
-                                badge_pontos = f"<span style='background-color:#C9DE1C; color:#000000; padding:0.35rem 0.85rem; border-radius:30px; font-weight:800; font-size:0.8rem;'>⭐ +10 pts (Placar Exato)</span>"
+                                badge_pontos = f"<span style='background-color:#C9DE1C; color:#2C2520; padding:0.35rem 0.85rem; border-radius:30px; font-weight:800; font-size:0.8rem;'>⭐ +10 pts (Placar Exato)</span>"
                             elif tipo_acerto == "Vencedor":
-                                badge_pontos = f"<span style='background-color:#E696F0; color:#000000; padding:0.35rem 0.85rem; border-radius:30px; font-weight:800; font-size:0.8rem;'>⭐ +5 pts (Vencedor)</span>"
+                                badge_pontos = f"<span style='background-color:#E696F0; color:#2C2520; padding:0.35rem 0.85rem; border-radius:30px; font-weight:800; font-size:0.8rem;'>⭐ +5 pts (Vencedor)</span>"
                             else:
                                 badge_pontos = f"<span style='background-color:#FFFAE6; border:1px solid #F0660D; color:#F0660D; padding:0.35rem 0.85rem; border-radius:30px; font-weight:800; font-size:0.8rem;'>❌ 0 pts (Errou)</span>"
                             
                             st.markdown(f"<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem;'>Seu palpite: <strong>{palpite_u}</strong> • {badge_pontos}</div>", unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem; color:#000000;'>Seu palpite salvo: <strong style='color:#F0660D; background:#FFFFFF; border:1px solid #F0660D; padding:0.2rem 0.6rem; border-radius:30px;'>{palpite_u}</strong></div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem; color:#2C2520;'>Seu palpite salvo: <strong style='color:#F0660D; background:#FFFFFF; border:1px solid #F0660D; padding:0.2rem 0.6rem; border-radius:30px;'>{palpite_u}</strong></div>", unsafe_allow_html=True)
                     elif st.session_state.saved_email:
                         st.markdown("<div style='margin-top:1.25rem; text-align:center; font-size:0.9rem; color:#F0660D; font-weight:700;'>⚠️ Você ainda não palpitou nesta partida!</div>", unsafe_allow_html=True)
 
@@ -705,7 +715,7 @@ with tab_palpites:
     # Perfil e Login do Colaborador
     if not st.session_state.saved_email or not st.session_state.saved_name:
         with st.container(border=True):
-            st.markdown("<h4 style='color:#000000; font-weight:800;'>👤 1. Identificação de Acesso</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#2C2520; font-weight:800;'>👤 1. Identificação de Acesso</h4>", unsafe_allow_html=True)
             col_p1, col_p2 = st.columns(2)
             with col_p1:
                 email_input = st.text_input("E-mail Corporativo", placeholder="Ex: joao.silva@feltrim.com", key="login_email").strip().lower()
@@ -725,7 +735,7 @@ with tab_palpites:
         st.markdown(f"""
         <div class="profile-banner">
             <div>
-                <span style="font-size:0.85rem; text-transform:uppercase; font-weight:800; opacity:0.8; color:#E696F0;">Colaborador Conectado</span>
+                <span style="font-size:0.85rem; text-transform:uppercase; font-weight:800; opacity:0.8; color:#F0660D;">Colaborador Conectado</span>
                 <div style="font-size:1.4rem; font-weight:800; margin-top:2px;">⚽ {st.session_state.saved_name}</div>
                 <span style="font-size:0.85rem; opacity:0.9;">{st.session_state.saved_email}</span>
             </div>
@@ -755,7 +765,7 @@ with tab_palpites:
         jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
         
         st.markdown("---")
-        st.markdown(f"<h4 style='color:#000000; font-weight:800;'>🏟️ Seus Palpites Disponíveis ({len(jogos_disponiveis)} jogos restantes)</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:#2C2520; font-weight:800;'>🏟️ Seus Palpites Disponíveis ({len(jogos_disponiveis)} jogos restantes)</h4>", unsafe_allow_html=True)
         
         if len(jogos_disponiveis) == 0:
             st.success("🏆 Espetacular! Você já registrou palpites para todas as 72 partidas da Fase de Grupos!")
@@ -785,15 +795,15 @@ with tab_palpites:
                     
                     with col_m:
                         st.image(f"https://flagcdn.com/w160/{jogo['ISO_M']}.png", width=65)
-                        st.markdown(f"<strong style='color:#000000; font-size:1.1rem; display:block; margin:8px 0;'>{jogo['Time_M']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin-top:8px;'>{jogo['Time_M']}</strong>", unsafe_allow_html=True)
                         gols_m = st.number_input("Gols Mandante", min_value=0, max_value=20, value=0, key=f"m_{jogo['ID_Jogo']}", step=1)
                         
                     with col_vs:
-                        st.markdown("<h2 style='text-align: center; margin-top: 1.5rem; color:#000000;'>x</h2>", unsafe_allow_html=True)
+                        st.markdown("<h2 style='text-align: center; margin-top: 1.5rem; color:#2C2520;'>x</h2>", unsafe_allow_html=True)
                         
                     with col_v:
                         st.image(f"https://flagcdn.com/w160/{jogo['ISO_V']}.png", width=65)
-                        st.markdown(f"<strong style='color:#000000; font-size:1.1rem; display:block; margin:8px 0;'>{jogo['Time_V']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin-top:8px;'>{jogo['Time_V']}</strong>", unsafe_allow_html=True)
                         gols_v = st.number_input("Gols Visitante", min_value=0, max_value=20, value=0, key=f"v_{jogo['ID_Jogo']}", step=1)
                     
                     # Botão de envio integrado no rodapé de cada card de forma super elegante
@@ -833,9 +843,9 @@ with tab_admin:
         senha_digitada = st.text_input("Senha Administrativa", type="password", key="admin_senha")
         
         if senha_digitada == "feltrim2026":
-            st.success("Acesso administrative desbloqueado com sucesso!")
+            st.success("Acesso administrativo desbloqueado com sucesso!")
             
-            st.markdown("<h4 style='color:#000000; font-weight:800;'>🔗 Endereçamento e Conexões com Planilhas Google</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#2C2520; font-weight:800;'>🔗 Endereçamento e Conexões com Planilhas Google</h4>", unsafe_allow_html=True)
             novo_id = st.text_input("ID do Google Sheets", value=st.session_state.spreadsheet_id, key="sheets_id_input")
             nova_url = st.text_input("URL do App da Web (Google Apps Script)", value=st.session_state.web_app_url, key="web_app_url_input")
             
@@ -847,7 +857,7 @@ with tab_admin:
                 st.rerun()
                 
             st.markdown("---")
-            st.markdown("<h4 style='color:#000000; font-weight:800;'>🧪 Painel de Diagnóstico em Tempo Real</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#2C2520; font-weight:800;'>🧪 Painel de Diagnóstico em Tempo Real</h4>", unsafe_allow_html=True)
             if st.button("Executar Testes de Comunicação", use_container_width=True, key="ping_test_btn"):
                 with st.spinner("Verificando integridade da API..."):
                     try:
@@ -866,7 +876,7 @@ with tab_admin:
                         st.error(f"Não foi possível conectar: {str(ex)}")
                         
             st.markdown("---")
-            st.markdown("<h4 style='color:#000000; font-weight:800;'>🚀 Ações Globais e em Lote</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color:#2C2C20; font-weight:800;'>🚀 Ações Globais e em Lote</h4>", unsafe_allow_html=True)
             if st.button("⚡ Inicializar Todos os 72 Jogos na Planilha", use_container_width=True, key="batch_init_btn"):
                 with st.spinner("Apagando registros obsoletos e recriando tabela oficial..."):
                     payload = {
