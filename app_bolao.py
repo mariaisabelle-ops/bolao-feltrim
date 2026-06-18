@@ -175,37 +175,37 @@ st.markdown("""
     
     /* Redesenho Total das Abas Nativas (Floating Pills Premium) */
     div[data-testid="stTabs"] {
-        background: #FFFFFF;
-        padding: 6px;
-        border-radius: 40px;
-        border: 1px solid rgba(224, 83, 21, 0.12);
-        display: inline-flex;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 15px rgba(224, 83, 21, 0.03);
+        background: #FFFFFF !important;
+        padding: 6px !important;
+        border-radius: 40px !important;
+        border: 1px solid rgba(224, 83, 21, 0.12) !important;
+        display: inline-flex !important;
+        margin-bottom: 2rem !important;
+        box-shadow: 0 4px 15px rgba(224, 83, 21, 0.03) !important;
     }
     
-    button[data-baseweb="tab"] {
+    div[data-testid="stTabs"] button[role="tab"] {
         color: #3C332E !important;
         background-color: transparent !important;
-        border: none !important;
         font-weight: 700 !important;
         font-size: 0.95rem !important;
-        padding: 10px 24px !important;
-        border-radius: 30px !important; /* Formato de Cápsula */
+        padding: 8px 20px !important;
+        border-radius: 20px !important;
         margin-right: 4px !important;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
         box-shadow: none !important;
     }
     
-    button[data-baseweb="tab"]:hover {
+    div[data-testid="stTabs"] button[role="tab"]:hover {
         color: #D972CD !important; /* Rosa Dusty */
         background-color: rgba(217, 114, 205, 0.04) !important;
     }
     
-    button[data-baseweb="tab"][aria-selected="true"] {
+    div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
         background: linear-gradient(135deg, #E05315 0%, #D972CD 100%) !important; /* Laranja para Rosa Dusty */
         color: #FFFFFF !important;
-        box-shadow: 0 6px 15px rgba(224, 83, 21, 0.2) !important;
+        box-shadow: 0 4px 12px rgba(224, 83, 21, 0.18) !important;
     }
     
     /* Esconde a linha nativa horizontal cinza do Streamlit */
@@ -274,7 +274,7 @@ st.markdown("""
         justify-content: center;
         align-items: flex-end;
         gap: 1.5rem;
-        margin: 2.2rem auto;
+        margin: 2.5rem auto 1.5rem auto;
         max-width: 800px;
         padding: 0 1rem;
     }
@@ -359,7 +359,6 @@ st.markdown("""
         font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
-        color: #3C332E;
         background-color: #FFFFFF;
         border: 1px solid rgba(224, 83, 21, 0.12);
         box-shadow: 0 3px 8px rgba(61, 51, 46, 0.04);
@@ -374,17 +373,16 @@ st.markdown("""
     }
     
     .premium-table th {
-        background: linear-gradient(135deg, #E05315 0%, #D972CD 100%);
-        color: #FFFFFF;
-        font-weight: 700;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        padding: 1.1rem 1.2rem;
-        text-align: left;
+        background: #FAF6F0 !important;
+        color: #E05315 !important;
+        font-weight: 800 !important;
+        font-size: 0.85rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 1.1rem 1.2rem !important;
+        text-align: left !important;
+        border-bottom: 2px solid rgba(224, 83, 21, 0.15) !important;
     }
-    
-    .premium-table th:first-child { border-radius: 12px 0 0 12px; }
-    .premium-table th:last-child { border-radius: 0 12px 12px 0; }
     
     .premium-row {
         background: #FFFFFF;
@@ -599,33 +597,35 @@ with tab_ranking:
                 p3_nome = rank.iloc[2]['Nome'] if len(rank) >= 3 else "Vago"
                 p3_pontos = rank.iloc[2]['Pontos'] if len(rank) >= 3 else 0
                 
-                podium_html = f"""<div class="podium-section">
-<div class="podium-col">
-<span class="badge-rank" style="border-color:#D972CD;">2º Lugar</span>
-<div class="avatar-circle">🥈</div>
-<div class="podium-box silver-box">
-<div class="podium-name">{p2_nome}</div>
-<div class="podium-score" style="color:#D972CD;">{p2_pontos} pts</div>
-</div>
-</div>
-<div class="podium-col">
-<span class="badge-rank" style="border-color:#E05315;">Líder 👑</span>
-<div class="avatar-circle">👑</div>
-<div class="podium-box gold-box">
-<div class="podium-name" style="font-size:1.1rem; font-weight:800; color:#3C332E;">{p1_nome}</div>
-<div class="podium-score" style="font-size:1.45rem; color:#E05315;">{p1_pontos} pts</div>
-</div>
-</div>
-<div class="podium-col">
-<span class="badge-rank" style="border-color:#7CA613;">3º Lugar</span>
-<div class="avatar-circle">🥉</div>
-<div class="podium-box bronze-box">
-<div class="podium-name">{p3_nome}</div>
-<div class="podium-score" style="color:#7CA613;">{p3_pontos} pts</div>
-</div>
-</div>
-</div>"""
-                st.markdown(podium_html.replace("\n", " "), unsafe_allow_html=True)
+                podium_html = (
+                    '<div class="podium-section">'
+                      '<div class="podium-col">'
+                        '<span class="badge-rank" style="border-color:#D972CD; color:#D972CD;">2º Lugar</span>'
+                        '<div class="avatar-circle">🥈</div>'
+                        '<div class="podium-box silver-box">'
+                          '<div class="podium-name">' + p2_nome + '</div>'
+                          '<div class="podium-score" style="color:#D972CD;">' + str(p2_pontos) + ' pts</div>'
+                        '</div>'
+                      '</div>'
+                      '<div class="podium-col">'
+                        '<span class="badge-rank" style="border-color:#E05315; color:#E05315; font-weight:800;">Líder 👑</span>'
+                        '<div class="avatar-circle" style="border-color:#E05315;">👑</div>'
+                        '<div class="podium-box gold-box">'
+                          '<div class="podium-name" style="font-size:1.1rem; font-weight:800; color:#3C332E;">' + p1_nome + '</div>'
+                          '<div class="podium-score" style="font-size:1.45rem; color:#E05315;">' + str(p1_pontos) + ' pts</div>'
+                        '</div>'
+                      '</div>'
+                      '<div class="podium-col">'
+                        '<span class="badge-rank" style="border-color:#7CA613; color:#7CA613;">3º Lugar</span>'
+                        '<div class="avatar-circle">🥉</div>'
+                        '<div class="podium-box bronze-box">'
+                          '<div class="podium-name">' + p3_nome + '</div>'
+                          '<div class="podium-score" style="color:#7CA613;">' + str(p3_pontos) + ' pts</div>'
+                        '</div>'
+                      '</div>'
+                    '</div>'
+                )
+                st.markdown(podium_html, unsafe_allow_html=True)
                 
                 st.markdown("<h4 style='color:#3C332E; font-weight:800; margin-top:2.5rem;'>📊 Classificação Geral</h4>", unsafe_allow_html=True)
                 
@@ -667,7 +667,7 @@ with tab_ranking:
 </tr>"""
                     
                 table_html += "</tbody></table>"
-                st.markdown(table_html.replace("\n", " "), unsafe_allow_html=True)
+                st.markdown(table_html, unsafe_allow_html=True)
                 
             else:
                 st.info("Nenhum palpite foi cadastrado ainda! Registre os seus palpites na aba superior.")
@@ -679,6 +679,7 @@ with tab_ranking:
         if df_r is not None and not df_r.empty:
             res_map = obter_resultado_map(df_r)
             
+            # Mapear os palpites do usuário conectado para mostrar nos cards
             user_bets = {}
             if st.session_state.saved_email and df_p is not None and not df_p.empty:
                 email_col_name = None
@@ -713,6 +714,7 @@ with tab_ranking:
                     status_badge = "🔴 Ao Vivo"
                 
                 with st.container(border=True):
+                    # Topo do Card
                     col_t1, col_t2 = st.columns([3, 1])
                     with col_t1:
                         st.markdown(f"**🏆 Fase de Grupos** • {j['Data']}")
@@ -736,7 +738,7 @@ with tab_ranking:
                         st.image(f"https://flagcdn.com/w160/{j['ISO_V']}.png", width=65)
                         st.markdown(f"<strong style='color:#3C332E; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>", unsafe_allow_html=True)
                     
-                    # Palpite do Usuário Conectado
+                    # Palpite do Usuário Conectado - BUG FIX EFETUADO AQUI (CRÍTICO)
                     if jogo_id in user_bets:
                         palpite_u = user_bets[jogo_id]
                         if "Encerrado" in status_real:
