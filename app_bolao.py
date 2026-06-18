@@ -73,7 +73,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (22/06)", "Horário": "23:00", "Data": "22/06 (Segunda)", "Time_M": "Jordânia", "ISO_M": "jo", "Time_V": "Argélia", "ISO_V": "dz"},
     # --- 23/06 ---
     {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "13:00", "Data": "23/06 (Terça)", "Time_M": "Portugal", "ISO_M": "pt", "Time_V": "Uzbequistão", "ISO_V": "uz"},
-    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Gana", "ISO_V": "gh"},
+    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Croácia", "ISO_V": "hr"},
     {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "19:00", "Data": "23/06 (Terça)", "Time_M": "Panamá", "ISO_M": "pa", "Time_V": "Croácia", "ISO_V": "hr"},
     {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "22:00", "Data": "23/06 (Terça)", "Time_M": "Colômbia", "ISO_M": "co", "Time_V": "RD Congo", "ISO_V": "cd"},
     # --- 24/06 ---
@@ -119,7 +119,7 @@ if "saved_name" not in st.session_state:
     st.session_state.saved_name = ""
 
 # ==========================================
-# 🎨 ESTILIZAÇÃO E CARACTERIZAÇÃO VISUAL PREMIUM (SEM PRETO)
+# 🎨 ESTILIZAÇÃO VISUAL PREMIUM E DE ALTO RELEVO (LARANJA, ROSA, VERDE E BEGE)
 # ==========================================
 st.markdown("""
 <style>
@@ -128,13 +128,13 @@ st.markdown("""
     html, body, .stApp {
         font-family: 'Plus Jakarta Sans', sans-serif;
         background-color: #FFFDF5 !important; /* Bege Areia Quente muito leve e luxuoso */
-        color: #2C2520 !important; /* Marrom-cinza elegante para leitura agradável */
+        color: #2C2520 !important; /* Grafite suave e sofisticado, nada de preto puro */
     }
     
     /* Configuração da Barra Lateral (Sidebar) Macia e Neutra */
     [data-testid="stSidebar"] {
         background-color: #FFFDF5 !important;
-        border-right: 1.5px solid rgba(240, 102, 13, 0.2) !important;
+        border-right: 1.5px solid rgba(240, 102, 13, 0.15) !important;
     }
     
     /* Cabeçalho de Título com Degradê Laranja e Rosa */
@@ -161,7 +161,7 @@ st.markdown("""
     
     /* Cápsula de Conexão do Colaborador */
     .profile-banner {
-        background: linear-gradient(135deg, #FFFDF5 0%, #FFF9E6 100%);
+        background: #FFFFFF;
         color: #2C2520;
         padding: 1.25rem;
         border-radius: 16px;
@@ -169,35 +169,43 @@ st.markdown("""
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1.5rem;
-        border: 2px solid #E696F0; /* Rosa */
-        box-shadow: 0 4px 15px rgba(230, 150, 240, 0.12);
+        border: 1.5px solid rgba(230, 150, 240, 0.3); /* Rosa Suave */
+        box-shadow: 0 4px 20px rgba(230, 150, 240, 0.08);
     }
     
     /* Redesenho Total das Abas Nativas (Floating Pills Premium) */
+    div[data-testid="stTabs"] {
+        background: #FFFFFF;
+        padding: 6px;
+        border-radius: 40px;
+        border: 1.5px solid rgba(240, 102, 13, 0.15);
+        display: inline-flex;
+        margin-bottom: 2rem;
+        box-shadow: 0 6px 20px rgba(240, 102, 13, 0.04);
+    }
+    
     button[data-baseweb="tab"] {
         color: #2C2520 !important;
-        background-color: #FFFFFF !important;
-        border: 1.5px solid rgba(240, 102, 13, 0.15) !important;
+        background-color: transparent !important;
         font-weight: 700 !important;
-        font-size: 1rem !important;
+        font-size: 0.95rem !important;
         padding: 10px 24px !important;
         border-radius: 30px !important; /* Formato de Cápsula */
-        margin-right: 8px !important;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02) !important;
+        margin-right: 4px !important;
+        border: none !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: none !important;
     }
     
     button[data-baseweb="tab"]:hover {
         color: #E696F0 !important;
-        border-color: #E696F0 !important;
-        transform: translateY(-1px);
+        background-color: rgba(230, 150, 240, 0.05) !important;
     }
     
     button[data-baseweb="tab"][aria-selected="true"] {
         background: linear-gradient(135deg, #F0660D 0%, #E696F0 100%) !important; /* Laranja para Rosa */
         color: #FFFFFF !important;
-        border-color: transparent !important;
-        box-shadow: 0 6px 15px rgba(240, 102, 13, 0.25) !important;
+        box-shadow: 0 6px 15px rgba(240, 102, 13, 0.2) !important;
     }
     
     /* Esconde a linha nativa horizontal cinza do Streamlit */
@@ -209,25 +217,58 @@ st.markdown("""
     .stButton > button {
         background: linear-gradient(135deg, #F0660D 0%, #E696F0 100%) !important;
         color: #FFFFFF !important;
-        border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
-        padding: 0.65rem 1.4rem !important;
+        border: none !important;
+        padding: 0.75rem 1.5rem !important;
         border-radius: 30px !important; /* Formato Pílula */
         font-weight: 700 !important;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(240, 102, 13, 0.2) !important;
+        letter-spacing: 0.04em;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 4px 15px rgba(240, 102, 13, 0.15) !important;
         width: 100%;
     }
     
     .stButton > button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(230, 150, 240, 0.4) !important;
+        box-shadow: 0 6px 20px rgba(230, 150, 240, 0.35) !important;
         background: linear-gradient(135deg, #E696F0 0%, #C9DE1C 100%) !important; /* Rosa para Verde */
         color: #2C2520 !important;
     }
     
-    /* Pódio Corporativo Minimalista e Harmonizado */
+    /* Card de Container Premium (Efeito Hover Inteligente) */
+    div[data-testid="stVerticalBlockBorder"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid rgba(240, 102, 13, 0.08) !important;
+        border-radius: 20px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 10px 30px rgba(44, 37, 32, 0.015) !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    }
+    
+    div[data-testid="stVerticalBlockBorder"]:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(240, 102, 13, 0.045) !important;
+        border-color: rgba(240, 102, 13, 0.15) !important;
+    }
+    
+    /* Customização de Inputs do Formulário */
+    input[type="number"] {
+        border-radius: 12px !important;
+        border: 1.5px solid rgba(240, 102, 13, 0.12) !important;
+        background-color: #FFFDF8 !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+        color: #2C2520 !important;
+        transition: border-color 0.2s ease !important;
+    }
+    
+    input[type="number"]:focus {
+        border-color: #E696F0 !important;
+        background-color: #FFFFFF !important;
+    }
+    
+    /* Pódio Corporativo Minimalista e Harmonizado (Vidro Esculpido) */
     .podium-section {
         display: flex;
         justify-content: center;
@@ -255,8 +296,8 @@ st.markdown("""
         justify-content: center;
         padding: 1.5rem 1rem;
         text-align: center;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
-        border: 1.5px solid rgba(240, 102, 13, 0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+        border: 1.5px solid rgba(240, 102, 13, 0.12);
         background-color: #FFFFFF;
     }
     
@@ -320,8 +361,8 @@ st.markdown("""
         text-transform: uppercase;
         color: #2C2520;
         background-color: #FFFFFF;
-        border: 1.5px solid rgba(240, 102, 13, 0.15);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        border: 1.5px solid rgba(240, 102, 13, 0.12);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
     }
     
     /* Tabelas Corporativas Elegantes */
@@ -338,35 +379,41 @@ st.markdown("""
         font-weight: 700;
         font-size: 0.85rem;
         text-transform: uppercase;
-        padding: 1rem;
+        padding: 1.1rem 1.2rem;
         text-align: left;
     }
     
-    .premium-table th:first-child { border-radius: 8px 0 0 8px; }
-    .premium-table th:last-child { border-radius: 0 8px 8px 0; }
+    .premium-table th:first-child { border-radius: 12px 0 0 12px; }
+    .premium-table th:last-child { border-radius: 0 12px 12px 0; }
     
     .premium-row {
         background: #FFFFFF;
         box-shadow: 0 2px 6px rgba(0,0,0,0.01);
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    
+    .premium-row:hover {
+        transform: scale(1.004);
+        box-shadow: 0 4px 15px rgba(240, 102, 13, 0.035) !important;
     }
     
     .premium-row td {
-        padding: 1rem;
-        border-top: 1px solid rgba(0,0,0,0.02);
-        border-bottom: 1px solid rgba(0,0,0,0.02);
+        padding: 1.1rem 1.2rem;
+        border-top: 1px solid rgba(0,0,0,0.015);
+        border-bottom: 1px solid rgba(0,0,0,0.015);
         font-size: 0.95rem;
         color: #2C2520;
     }
     
     .premium-row td:first-child {
         border-left: 4px solid #F0660D;
-        border-radius: 8px 0 0 8px;
+        border-radius: 12px 0 0 12px;
         font-weight: 700;
     }
     
     .premium-row td:last-child {
-        border-right: 1px solid rgba(0,0,0,0.02);
-        border-radius: 0 8px 8px 0;
+        border-right: 1px solid rgba(0,0,0,0.015);
+        border-radius: 0 12px 12px 0;
     }
     
     .rank-indicator {
@@ -384,12 +431,12 @@ st.markdown("""
     .rank-1 { background-color: #F0660D; color: #FFFFFF; }
     .rank-2 { background-color: #E696F0; color: #2C2520; }
     .rank-3 { background-color: #C9DE1C; color: #2C2520; }
-    .rank-other { background-color: #FAF6EE; color: #2C2520; border: 1px solid rgba(0,0,0,0.05); }
+    .rank-other { background-color: #FFFDF6; color: #2C2520; border: 1px solid rgba(240,102,13,0.12); }
     
     /* Configuração de Containers Nativos do Streamlit */
     div[data-testid="stForm"] {
         background-color: #FFFFFF !important;
-        border: 1px solid rgba(240, 102, 13, 0.15) !important;
+        border: 1px solid rgba(240, 102, 13, 0.12) !important;
         border-radius: 16px !important;
     }
 </style>
@@ -404,7 +451,7 @@ with st.sidebar:
     # Identificação do usuário logado na barra lateral
     if st.session_state.saved_email and st.session_state.saved_name:
         st.markdown(f"""
-        <div style='background-color:#FFFFFF; padding:12px; border-radius:12px; border-left:4px solid #E696F0; margin-bottom:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);'>
+        <div style='background-color:#FFFFFF; padding:12px; border-radius:12px; border-left:4px solid #E696F0; margin-bottom:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border-right:1px solid rgba(240,102,13,0.05); border-top:1px solid rgba(240,102,13,0.05); border-bottom:1px solid rgba(240,102,13,0.05);'>
             <span style='font-size:0.75rem; text-transform:uppercase; color:#F0660D; font-weight:700;'>Identificado</span>
             <div style='font-weight:800; color:#2C2520;'>⚽ {st.session_state.saved_name}</div>
             <span style='font-size:0.75rem; color:#2C2520; opacity:0.8;'>{st.session_state.saved_email}</span>
@@ -523,7 +570,7 @@ def calcular_ranking_real(df_palpites, df_resultados):
     return ranking_df
 
 # ==========================================
-# 📊 DESIGN SYSTEM DE ABAS SUPERIORES (TOP TABS)
+# 📊 DESIGN SYSTEM DE ABAS SUPERIORES (TOP TABS - FLOATING PILLS)
 # ==========================================
 tab_ranking, tab_palpites, tab_admin = st.tabs([
     "📊 Resultados & Classificação Geral", 
@@ -690,7 +737,7 @@ with tab_ranking:
                         st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>", unsafe_allow_html=True)
                     
                     # Palpite do Usuário Conectado
-                    if jogo_id in user_bets:
+                    if juego_id in user_bets:
                         palpite_u = user_bets[jogo_id]
                         if "Encerrado" in status_real:
                             pts, tipo_acerto = calcular_pontos_palpite(palpite_u, info_real["m"], info_real["v"])
@@ -795,7 +842,7 @@ with tab_palpites:
                     
                     with col_m:
                         st.image(f"https://flagcdn.com/w160/{jogo['ISO_M']}.png", width=65)
-                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin-top:8px;'>{jogo['Time_M']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin:8px 0;'>{jogo['Time_M']}</strong>", unsafe_allow_html=True)
                         gols_m = st.number_input("Gols Mandante", min_value=0, max_value=20, value=0, key=f"m_{jogo['ID_Jogo']}", step=1)
                         
                     with col_vs:
@@ -803,7 +850,7 @@ with tab_palpites:
                         
                     with col_v:
                         st.image(f"https://flagcdn.com/w160/{jogo['ISO_V']}.png", width=65)
-                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin-top:8px;'>{jogo['Time_V']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"<strong style='color:#2C2520; font-size:1.1rem; display:block; margin:8px 0;'>{jogo['Time_V']}</strong>", unsafe_allow_html=True)
                         gols_v = st.number_input("Gols Visitante", min_value=0, max_value=20, value=0, key=f"v_{jogo['ID_Jogo']}", step=1)
                     
                     # Botão de envio integrado no rodapé de cada card de forma super elegante
