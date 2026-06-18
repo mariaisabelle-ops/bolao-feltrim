@@ -247,9 +247,21 @@ st.markdown("""
         box-shadow: none !important;
     }
     
-    /* Esconde a linha nativa horizontal cinza do Streamlit */
+    /* ELIMINAÇÃO TOTAL E COMPLETA DE BARRAS DE HIGHLIGHT E BORDAS DO STREAMLIT QUE CORTAM AS ABAS */
     div[data-testid="stTabs"] [data-baseweb="tab-highlight-bar"] {
         display: none !important;
+        background-color: transparent !important;
+        height: 0px !important;
+    }
+    
+    div[data-testid="stTabs"] [data-baseweb="tab-border"] {
+        display: none !important;
+        height: 0px !important;
+        border: none !important;
+    }
+    
+    div[data-testid="stTabs"] div[role="tablist"] {
+        border-bottom: none !important;
     }
     
     /* Botões em Cápsula do Escritório - Totalmente Sólidos (Sem Gradientes) */
@@ -718,7 +730,6 @@ with tab_ranking:
         if df_r is not None and not df_r.empty:
             res_map = obter_resultado_map(df_r)
             
-            # Mapear os palpites do usuário conectado para mostrar nos cards
             user_bets = {}
             if st.session_state.saved_email and df_p is not None and not df_p.empty:
                 email_col_name = None
@@ -781,7 +792,7 @@ with tab_ranking:
                         else:
                             st.markdown(f"""
                                 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100px;">
-                                    <div style='text-align:center; padding:8px 16px; background:#FFFAE6; border:1.5px solid #E05315; border-radius:30px; font-weight:800; color:#3C332E; font-size:0.9rem;'>🕒 {j['Horário']}</div>
+                                    <div style='text-align:center; padding:8px 12px; background:#FFFAE6; border:1.5px solid #E05315; border-radius:30px; font-weight:800; color:#3C332E; font-size:0.9rem;'>🕒 {j['Horário']}</div>
                                 </div>
                             """, unsafe_allow_html=True)
                     
