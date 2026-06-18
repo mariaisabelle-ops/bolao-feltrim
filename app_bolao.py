@@ -141,9 +141,7 @@ st.markdown("""
     .hero-title {
         font-weight: 850;
         font-size: 2.8rem;
-        background: linear-gradient(135deg, #E05315 0%, #D972CD 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #E05315 !important; /* Laranja Terracota Sólido - Sem gradiente */
         text-align: center;
         margin-bottom: 0.1rem;
         letter-spacing: -0.04em;
@@ -173,7 +171,7 @@ st.markdown("""
         box-shadow: 0 8px 30px rgba(61, 51, 46, 0.02);
     }
     
-    /* Redesenho Total das Abas Nativas (Floating Pills Premium) */
+    /* Redesenho Total das Abas Nativas (Floating Pills Premium) - Sem gradiente */
     div[data-testid="stTabs"] {
         background: #FFFFFF !important;
         padding: 6px !important;
@@ -203,7 +201,7 @@ st.markdown("""
     }
     
     div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-        background: linear-gradient(135deg, #E05315 0%, #D972CD 100%) !important; /* Laranja para Rosa Dusty */
+        background-color: #E05315 !important; /* Solid Laranja Terracota */
         color: #FFFFFF !important;
         box-shadow: 0 4px 12px rgba(224, 83, 21, 0.18) !important;
     }
@@ -241,9 +239,9 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Botões em Cápsula do Escritório */
+    /* Botões em Cápsula do Escritório - Totalmente Sólidos (Sem Gradientes) */
     .stButton > button {
-        background: linear-gradient(135deg, #E05315 0%, #D972CD 100%) !important;
+        background-color: #E05315 !important; /* Cor Sólida Laranja Terracota */
         color: #FFFFFF !important;
         border: none !important;
         padding: 0.75rem 1.5rem !important;
@@ -259,7 +257,7 @@ st.markdown("""
     .stButton > button:hover {
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 20px rgba(217, 114, 205, 0.35) !important;
-        background: linear-gradient(135deg, #D972CD 0%, #7CA613 100%) !important; /* Rosa para Verde Oliva */
+        background-color: #D972CD !important; /* Cor Sólida Rosa Dusty */
         color: #FFFFFF !important;
     }
     
@@ -302,8 +300,8 @@ st.markdown("""
         justify-content: center;
         align-items: flex-end;
         gap: 1.5rem;
-        margin: 2rem auto;
-        max-width: 850px;
+        margin: 2.5rem auto 1.5rem auto;
+        max-width: 800px;
         padding: 0 1rem;
     }
     
@@ -391,7 +389,7 @@ st.markdown("""
         border: 1.5px solid;
     }
     
-    /* Tabelas Corporativas Elegantes */
+    /* Tabelas Corporativas Elegantes - Sem gradiente */
     .premium-table {
         width: 100%;
         border-collapse: separate;
@@ -400,8 +398,8 @@ st.markdown("""
     }
     
     .premium-table th {
-        background: #FAF6F0 !important;
-        color: #E05315 !important;
+        background-color: #E05315 !important; /* Sólido Laranja Terracota */
+        color: #FFFFFF !important;
         font-weight: 800 !important;
         font-size: 0.85rem !important;
         text-transform: uppercase !important;
@@ -707,6 +705,7 @@ with tab_ranking:
         if df_r is not None and not df_r.empty:
             res_map = obter_resultado_map(df_r)
             
+            # Mapear os palpites do usuário conectado para mostrar nos cards
             user_bets = {}
             if st.session_state.saved_email and df_p is not None and not df_p.empty:
                 email_col_name = None
@@ -741,6 +740,7 @@ with tab_ranking:
                     status_badge = "🔴 Ao Vivo"
                 
                 with st.container(border=True):
+                    # Topo do Card
                     col_t1, col_t2 = st.columns([3, 1])
                     with col_t1:
                         st.markdown(f"**🏆 Fase de Grupos** • {j['Data']}")
@@ -751,18 +751,34 @@ with tab_ranking:
                     col_team_m, col_score, col_team_v = st.columns([3, 2, 3])
                     
                     with col_team_m:
-                        st.image(f"https://flagcdn.com/w160/{j['ISO_M']}.png", width=65)
-                        st.markdown(f"<strong style='color:#3C332E; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_M']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"""
+                            <div style="text-align: center;">
+                                <img src="https://flagcdn.com/w160/{j['ISO_M']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
+                                <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px;">{j['Time_M']}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
                     
                     with col_score:
                         if "Encerrado" in status_real or "Ao Vivo" in status_real:
-                            st.markdown(f"<h1 style='text-align:center; margin:0; color:#3C332E; font-weight:800; font-size:2.4rem; line-height: 1;'>{info_real['m']} - {info_real['v']}</h1>", unsafe_allow_html=True)
+                            st.markdown(f"""
+                                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100px; margin-top: 10px;">
+                                    <h1 style='text-align:center; margin:0; color:#3C332E; font-weight:800; font-size:2.4rem;'>{info_real['m']} - {info_real['v']}</h1>
+                                </div>
+                            """, unsafe_allow_html=True)
                         else:
-                            st.markdown(f"<div style='text-align:center; padding:8px 12px; background:#FFFAE6; border:1.5px solid #E05315; border-radius:30px; font-weight:800; color:#3C332E; font-size:0.9rem; margin-top:10px;'>🕒 {j['Horário']}</div>", unsafe_allow_html=True)
+                            st.markdown(f"""
+                                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100px; margin-top: 10px;">
+                                    <div style='text-align:center; padding:8px 16px; background:#FFFAE6; border:1.5px solid #E05315; border-radius:30px; font-weight:800; color:#3C332E; font-size:0.9rem;'>🕒 {j['Horário']}</div>
+                                </div>
+                            """, unsafe_allow_html=True)
                     
                     with col_team_v:
-                        st.image(f"https://flagcdn.com/w160/{j['ISO_V']}.png", width=65)
-                        st.markdown(f"<strong style='color:#3C332E; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>", unsafe_allow_html=True)
+                        st.markdown(f"""
+                            <div style="text-align: center;">
+                                <img src="https://flagcdn.com/w160/{j['ISO_V']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
+                                <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px;">{j['Time_V']}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
                     
                     if jogo_id in user_bets:
                         palpite_u = user_bets[jogo_id]
@@ -868,17 +884,28 @@ with tab_palpites:
                     col_m, col_vs, col_v = st.columns([3, 1, 3])
                     
                     with col_m:
-                        st.image(f"https://flagcdn.com/w160/{jogo['ISO_M']}.png", width=65)
-                        st.markdown(f"<strong style='color:#3C332E; font-size:1.1rem; display:block; margin:8px 0;'>{jogo['Time_M']}</strong>", unsafe_allow_html=True)
-                        gols_m = st.number_input("Gols Mandante", min_value=0, max_value=20, value=0, key=f"m_{jogo['ID_Jogo']}", step=1)
+                        st.markdown(f"""
+                            <div style="text-align: center; margin-bottom: 8px;">
+                                <img src="https://flagcdn.com/w160/{jogo['ISO_M']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
+                                <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px; margin-bottom: 4px;">{jogo['Time_M']}</div>
+                                <div style="font-size:0.85rem; color:#E05315; font-weight:700;">Gols Mandante</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        gols_m = st.number_input("Gols Mandante", min_value=0, max_value=20, value=0, key=f"m_{jogo['ID_Jogo']}", step=1, label_visibility="collapsed")
                         
                     with col_vs:
-                        st.markdown("<h2 style='text-align: center; margin-top: 1.5rem; color:#3C332E;'>x</h2>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center; margin-top: 3.5rem; font-size: 1.8rem; font-weight: 800; color:#3C332E;'>x</div>", unsafe_allow_html=True)
                         
                     with col_v:
                         st.image(f"https://flagcdn.com/w160/{jogo['ISO_V']}.png", width=65)
-                        st.markdown(f"<strong style='color:#3C332E; font-size:1.1rem; display:block; margin:8px 0;'>{jogo['Time_V']}</strong>", unsafe_allow_html=True)
-                        gols_v = st.number_input("Gols Visitante", min_value=0, max_value=20, value=0, key=f"v_{jogo['ID_Jogo']}", step=1)
+                        st.markdown(f"""
+                            <div style="text-align: center; margin-bottom: 8px;">
+                                <img src="https://flagcdn.com/w160/{jogo['ISO_V']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
+                                <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px; margin-bottom: 4px;">{jogo['Time_V']}</div>
+                                <div style="font-size:0.85rem; color:#D972CD; font-weight:700;">Gols Visitante</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        gols_v = st.number_input("Gols Visitante", min_value=0, max_value=20, value=0, key=f"v_{jogo['ID_Jogo']}", step=1, label_visibility="collapsed")
                     
                     # Botão de envio integrado no rodapé de cada card de forma super elegante
                     st.markdown("<br>", unsafe_allow_html=True)
