@@ -64,7 +64,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Tunísia vs Japão (21/06)", "Horário": "00:00", "Data": "21/06 (Domingo)", "Time_M": "Tunísia", "ISO_M": "tn", "Time_V": "Japão", "ISO_V": "jp"},
     {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Espanha vs Arábia Saudita (21/06)", "Horário": "12:00", "Data": "21/06 (Domingo)", "Time_M": "Espanha", "ISO_M": "es", "Time_V": "Arábia Saudita", "ISO_V": "sa"},
     {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Irã (21/06)", "Horário": "15:00", "Data": "21/06 (Domingo)", "Time_M": "Bélgica", "ISO_M": "be", "Time_V": "Irã", "ISO_V": "ir"},
-    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguai vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Cabo Verde", "ISO_V": "cv"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguay vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Cabo Verde", "ISO_V": "cv"},
     {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "21:00", "Data": "21/06 (Domingo)", "Time_M": "Nova Zelândia", "ISO_M": "nz", "Time_V": "Egito", "ISO_V": "eg"},
     # --- 22/06 ---
     {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "13:00", "Data": "22/06 (Segunda)", "Time_M": "Argentina", "ISO_M": "ar", "Time_V": "Áustria", "ISO_V": "at"},
@@ -208,6 +208,34 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(224, 83, 21, 0.18) !important;
     }
     
+    /* Evitar "abas duplas pesadas" ao customizar as sub-abas aninhadas */
+    div[data-testid="stTabs"] div[data-testid="stTabs"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 1.5rem !important;
+    }
+    
+    div[data-testid="stTabs"] div[data-testid="stTabs"] button[role="tab"] {
+        font-size: 0.9rem !important;
+        padding: 6px 16px !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(224, 83, 21, 0.15) !important;
+        background-color: #FFFFFF !important;
+    }
+    
+    div[data-testid="stTabs"] div[data-testid="stTabs"] button[role="tab"]:hover {
+        background-color: rgba(224, 83, 21, 0.03) !important;
+    }
+    
+    div[data-testid="stTabs"] div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+        background: #FAF6F0 !important;
+        color: #E05315 !important;
+        border: 1.5px solid #E05315 !important;
+        box-shadow: none !important;
+    }
+    
     /* Esconde a linha nativa horizontal cinza do Streamlit */
     div[data-testid="stTabs"] [data-baseweb="tab-highlight-bar"] {
         display: none !important;
@@ -268,14 +296,14 @@ st.markdown("""
         background-color: #FFFFFF !important;
     }
     
-    /* Pódio Corporativo Minimalista e Harmonizado (Vidro Esculpido) */
+    /* Pódio Corporativo Minimalista e Harmonizado (Sem sobreposições) */
     .podium-section {
         display: flex;
         justify-content: center;
         align-items: flex-end;
         gap: 1.5rem;
-        margin: 2.5rem auto 1.5rem auto;
-        max-width: 800px;
+        margin: 2rem auto;
+        max-width: 850px;
         padding: 0 1rem;
     }
     
@@ -284,7 +312,6 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         align-items: center;
-        position: relative;
     }
     
     .podium-box {
@@ -293,30 +320,31 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         padding: 1.5rem 1rem;
         text-align: center;
         box-shadow: 0 10px 25px rgba(61, 51, 46, 0.02);
         border: 1px solid rgba(224, 83, 21, 0.12);
         background-color: #FFFFFF;
+        box-sizing: border-box;
     }
     
     /* Cores Nobres do Pódio nas Bordas */
     .gold-box {
         border-top: 6px solid #E05315 !important; /* Laranja no 1º */
-        height: 200px;
+        height: 240px;
         z-index: 3;
     }
     
     .silver-box {
         border-top: 6px solid #D972CD !important; /* Rosa no 2º */
-        height: 165px;
+        height: 200px;
         z-index: 2;
     }
     
     .bronze-box {
         border-top: 6px solid #7CA613 !important; /* Verde no 3º */
-        height: 135px;
+        height: 180px;
         z-index: 1;
     }
     
@@ -329,7 +357,8 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         font-size: 1.3rem;
-        margin-bottom: 0.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.75rem;
         box-shadow: 0 4px 10px rgba(61, 51, 46, 0.04);
         border: 1.5px solid rgba(224, 83, 21, 0.15);
     }
@@ -338,7 +367,7 @@ st.markdown("""
         font-size: 1rem;
         font-weight: 700;
         color: #3C332E;
-        margin-bottom: 0.1rem;
+        margin-bottom: 0.25rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -346,22 +375,20 @@ st.markdown("""
     }
     
     .podium-score {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         font-weight: 850;
         color: #E05315;
     }
     
+    /* Crachás do lugar agora posicionados de forma limpa e estática dentro da caixa */
     .badge-rank {
-        position: absolute;
-        top: -12px;
         padding: 0.25rem 0.85rem;
         border-radius: 30px;
         font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
-        background-color: #FFFFFF;
-        border: 1px solid rgba(224, 83, 21, 0.12);
-        box-shadow: 0 3px 8px rgba(61, 51, 46, 0.04);
+        background-color: #FAF6F0;
+        border: 1.5px solid;
     }
     
     /* Tabelas Corporativas Elegantes */
@@ -597,28 +624,29 @@ with tab_ranking:
                 p3_nome = rank.iloc[2]['Nome'] if len(rank) >= 3 else "Vago"
                 p3_pontos = rank.iloc[2]['Pontos'] if len(rank) >= 3 else 0
                 
+                # Montagem do Pódio perfeitamente simétrica e contida dentro dos cards
                 podium_html = (
                     '<div class="podium-section">'
                       '<div class="podium-col">'
-                        '<span class="badge-rank" style="border-color:#D972CD; color:#D972CD;">2º Lugar</span>'
-                        '<div class="avatar-circle">🥈</div>'
                         '<div class="podium-box silver-box">'
+                          '<span class="badge-rank" style="border-color:#D972CD; color:#D972CD;">2º Lugar</span>'
+                          '<div class="avatar-circle">🥈</div>'
                           '<div class="podium-name">' + p2_nome + '</div>'
                           '<div class="podium-score" style="color:#D972CD;">' + str(p2_pontos) + ' pts</div>'
                         '</div>'
                       '</div>'
                       '<div class="podium-col">'
-                        '<span class="badge-rank" style="border-color:#E05315; color:#E05315; font-weight:800;">Líder 👑</span>'
-                        '<div class="avatar-circle" style="border-color:#E05315;">👑</div>'
                         '<div class="podium-box gold-box">'
+                          '<span class="badge-rank" style="border-color:#E05315; color:#E05315; font-weight:800;">Líder 👑</span>'
+                          '<div class="avatar-circle" style="border-color:#E05315;">👑</div>'
                           '<div class="podium-name" style="font-size:1.1rem; font-weight:800; color:#3C332E;">' + p1_nome + '</div>'
                           '<div class="podium-score" style="font-size:1.45rem; color:#E05315;">' + str(p1_pontos) + ' pts</div>'
                         '</div>'
                       '</div>'
                       '<div class="podium-col">'
-                        '<span class="badge-rank" style="border-color:#7CA613; color:#7CA613;">3º Lugar</span>'
-                        '<div class="avatar-circle">🥉</div>'
                         '<div class="podium-box bronze-box">'
+                          '<span class="badge-rank" style="border-color:#7CA613; color:#7CA613;">3º Lugar</span>'
+                          '<div class="avatar-circle">🥉</div>'
                           '<div class="podium-name">' + p3_nome + '</div>'
                           '<div class="podium-score" style="color:#7CA613;">' + str(p3_pontos) + ' pts</div>'
                         '</div>'
@@ -679,7 +707,6 @@ with tab_ranking:
         if df_r is not None and not df_r.empty:
             res_map = obter_resultado_map(df_r)
             
-            # Mapear os palpites do usuário conectado para mostrar nos cards
             user_bets = {}
             if st.session_state.saved_email and df_p is not None and not df_p.empty:
                 email_col_name = None
@@ -714,7 +741,6 @@ with tab_ranking:
                     status_badge = "🔴 Ao Vivo"
                 
                 with st.container(border=True):
-                    # Topo do Card
                     col_t1, col_t2 = st.columns([3, 1])
                     with col_t1:
                         st.markdown(f"**🏆 Fase de Grupos** • {j['Data']}")
@@ -738,7 +764,6 @@ with tab_ranking:
                         st.image(f"https://flagcdn.com/w160/{j['ISO_V']}.png", width=65)
                         st.markdown(f"<strong style='color:#3C332E; font-size:1.1rem; display:block; margin-top:8px;'>{j['Time_V']}</strong>", unsafe_allow_html=True)
                     
-                    # Palpite do Usuário Conectado - BUG FIX EFETUADO AQUI (CRÍTICO)
                     if jogo_id in user_bets:
                         palpite_u = user_bets[jogo_id]
                         if "Encerrado" in status_real:
