@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS (SEM CARACTERES INVÁLIDOS)
+# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS (CORRIGIDA E CALIBRADA)
 # ==========================================
 JOGOS_CADASTRADOS = [
     # --- 11/06 ---
@@ -64,7 +64,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Tunísia vs Japão (21/06)", "Horário": "00:00", "Data": "21/06 (Domingo)", "Time_M": "Tunísia", "ISO_M": "tn", "Time_V": "Japão", "ISO_V": "jp"},
     {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Espanha vs Arábia Saudita (21/06)", "Horário": "12:00", "Data": "21/06 (Domingo)", "Time_M": "Espanha", "ISO_M": "es", "Time_V": "Arábia Saudita", "ISO_V": "sa"},
     {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Irã (21/06)", "Horário": "15:00", "Data": "21/06 (Domingo)", "Time_M": "Bélgica", "ISO_M": "be", "Time_V": "Irã", "ISO_V": "ir"},
-    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguay vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Cabo Verde", "ISO_V": "cv"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguai vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Cabo Verde", "ISO_V": "cv"},
     {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "21:00", "Data": "21/06 (Domingo)", "Time_M": "Nova Zelândia", "ISO_M": "nz", "Time_V": "Egito", "ISO_V": "eg"},
     # --- 22/06 ---
     {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "13:00", "Data": "22/06 (Segunda)", "Time_M": "Argentina", "ISO_M": "ar", "Time_V": "Áustria", "ISO_V": "at"},
@@ -73,7 +73,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_44", "Jogo": "⚽ Jordânia vs Argélia (22/06)", "Horário": "23:00", "Data": "22/06 (Segunda)", "Time_M": "Jordânia", "ISO_M": "jo", "Time_V": "Argélia", "ISO_V": "dz"},
     # --- 23/06 ---
     {"ID_Jogo": "JOGO_45", "Jogo": "⚽ Portugal vs Uzbequistão (23/06)", "Horário": "13:00", "Data": "23/06 (Terça)", "Time_M": "Portugal", "ISO_M": "pt", "Time_V": "Uzbequistão", "ISO_V": "uz"},
-    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Croácia", "ISO_V": "hr"},
+    {"ID_Jogo": "JOGO_46", "Jogo": "⚽ Inglaterra vs Gana (23/06)", "Horário": "16:00", "Data": "23/06 (Terça)", "Time_M": "Inglaterra", "ISO_M": "gb-eng", "Time_V": "Gana", "ISO_V": "gh"},
     {"ID_Jogo": "JOGO_47", "Jogo": "⚽ Panamá vs Croácia (23/06)", "Horário": "19:00", "Data": "23/06 (Terça)", "Time_M": "Panamá", "ISO_M": "pa", "Time_V": "Croácia", "ISO_V": "hr"},
     {"ID_Jogo": "JOGO_48", "Jogo": "⚽ Colômbia vs RD Congo (23/06)", "Horário": "22:00", "Data": "23/06 (Terça)", "Time_M": "Colômbia", "ISO_M": "co", "Time_V": "RD Congo", "ISO_V": "cd"},
     # --- 24/06 ---
@@ -82,7 +82,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_51", "Jogo": "⚽ Escócia vs Brasil (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Escócia", "ISO_M": "gb-sct", "Time_V": "Brasil", "ISO_V": "br"},
     {"ID_Jogo": "JOGO_52", "Jogo": "⚽ Marrocos vs Haiti (24/06)", "Horário": "18:00", "Data": "24/06 (Quarta)", "Time_M": "Marrocos", "ISO_M": "ma", "Time_V": "Haiti", "ISO_V": "ht"},
     {"ID_Jogo": "JOGO_53", "Jogo": "⚽ Tchéquia vs México (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "Tchéquia", "ISO_M": "cz", "Time_V": "México", "ISO_V": "mx"},
-    {"ID_Jogo": "JOGO_54", "Jogo": "⚽ África do Sul vs Coreia do Sul (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": " África do Sul", "ISO_M": "za", "Time_V": "Coreia do Sul", "ISO_V": "kr"},
+    {"ID_Jogo": "JOGO_54", "Jogo": "⚽ África do Sul vs Coreia do Sul (24/06)", "Horário": "21:00", "Data": "24/06 (Quarta)", "Time_M": "África do Sul", "ISO_M": "za", "Time_V": "Coreia do Sul", "ISO_V": "kr"},
     # --- 25/06 ---
     {"ID_Jogo": "JOGO_55", "Jogo": "⚽ Equador vs Alemanha (25/06)", "Horário": "16:00", "Data": "25/06 (Quinta)", "Time_M": "Equador", "ISO_M": "ec", "Time_V": "Alemanha", "ISO_V": "de"},
     {"ID_Jogo": "JOGO_56", "Jogo": "⚽ Curaçao vs Costa do Marfim (25/06)", "Horário": "16:00", "Data": "25/06 (Quinta)", "Time_M": "Curaçao", "ISO_M": "cw", "Time_V": "Costa do Marfim", "ISO_V": "ci"},
@@ -92,8 +92,8 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_60", "Jogo": "⚽ Paraguai vs Austrália (25/06)", "Horário": "22:00", "Data": "25/06 (Quinta)", "Time_M": "Paraguai", "ISO_M": "py", "Time_V": "Austrália", "ISO_V": "au"},
     # --- 26/06 ---
     {"ID_Jogo": "JOGO_61", "Jogo": "⚽ Noruega vs França (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Noruega", "ISO_M": "no", "Time_V": "França", "ISO_V": "fr"},
-    {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Senegal vs Iraq (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Senegal", "ISO_M": "sn", "Time_V": "Iraque", "ISO_V": "iq"},
-    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Uruguay vs Espanha (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Espanha", "ISO_V": "es"},
+    {"ID_Jogo": "JOGO_62", "Jogo": "⚽ Senegal vs Iraque (26/06)", "Horário": "15:00", "Data": "26/06 (Sexta)", "Time_M": "Senegal", "ISO_M": "sn", "Time_V": "Iraque", "ISO_V": "iq"},
+    {"ID_Jogo": "JOGO_63", "Jogo": "⚽ Uruguai vs Espanha (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Espanha", "ISO_V": "es"},
     {"ID_Jogo": "JOGO_64", "Jogo": "⚽ Cabo Verde vs Arábia Saudita (26/06)", "Horário": "20:00", "Data": "26/06 (Sexta)", "Time_M": "Cabo Verde", "ISO_M": "cv", "Time_V": "Arábia Saudita", "ISO_V": "sa"},
     {"ID_Jogo": "JOGO_65", "Jogo": "⚽ Nova Zelândia vs Bélgica (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Nova Zelândia", "ISO_M": "nz", "Time_V": "Bélgica", "ISO_V": "be"},
     {"ID_Jogo": "JOGO_66", "Jogo": "⚽ Egito vs Irã (26/06)", "Horário": "23:00", "Data": "26/06 (Sexta)", "Time_M": "Egito", "ISO_M": "eg", "Time_V": "Irã", "ISO_V": "ir"},
@@ -662,8 +662,10 @@ with tab_ranking:
                         '<div class="podium-box gold-box">'
                           '<span class="badge-rank" style="border-color:#E05315; color:#E05315; font-weight:800;">Líder 👑</span>'
                           '<div class="avatar-circle" style="border-color:#E05315;">👑</div>'
-                          '<div class="podium-name" style="font-size:1.1rem; font-weight:800; color:#3C332E;">' + p1_nome + '</div>'
-                          '<div class="podium-score" style="font-size:1.45rem; color:#E05315;">' + str(p1_pontos) + ' pts</div>'
+                          '<div class="podium-box gold-box">'
+                            '<div class="podium-name" style="font-size:1.1rem; font-weight:800; color:#3C332E;">' + p1_nome + '</div>'
+                            '<div class="podium-score" style="font-size:1.45rem; color:#E05315;">' + str(p1_pontos) + ' pts</div>'
+                          '</div>'
                         '</div>'
                       '</div>'
                       '<div class="podium-col">'
@@ -730,6 +732,7 @@ with tab_ranking:
         if df_r is not None and not df_r.empty:
             res_map = obter_resultado_map(df_r)
             
+            # Mapear os palpites do usuário conectado para mostrar nos cards
             user_bets = {}
             if st.session_state.saved_email and df_p is not None and not df_p.empty:
                 email_col_name = None
