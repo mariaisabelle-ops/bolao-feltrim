@@ -131,6 +131,14 @@ st.markdown("""
         color: #3C332E !important; /* Grafite-Terra para conforto visual máximo */
     }
     
+    /* Centralização Absoluta do Bloco Principal no Streamlit (Corrige o "tá torto/esquerda") */
+    .block-container, [data-testid="stAppViewBlockContainer"] {
+        max-width: 1050px !important;
+        margin: 0 auto !important;
+        padding-top: 2rem !important;
+        padding-bottom: 4rem !important;
+    }
+    
     /* Configuração da Barra Lateral (Sidebar) Macia e Elegante */
     [data-testid="stSidebar"] {
         background-color: #FFFDF9 !important;
@@ -171,14 +179,16 @@ st.markdown("""
         box-shadow: 0 8px 30px rgba(61, 51, 46, 0.02);
     }
     
-    /* Redesenho Total das Abas Nativas (Floating Pills Premium) - Sem gradiente */
+    /* Redesenho Total das Abas Nativas (Floating Pills Premium) - Sem gradiente e Centralizadas */
     div[data-testid="stTabs"] {
         background: #FFFFFF !important;
         padding: 6px !important;
         border-radius: 40px !important;
         border: 1px solid rgba(224, 83, 21, 0.12) !important;
-        display: inline-flex !important;
-        margin-bottom: 2rem !important;
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 auto 2rem auto !important;
+        max-width: max-content !important;
         box-shadow: 0 4px 15px rgba(224, 83, 21, 0.03) !important;
     }
     
@@ -206,13 +216,16 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(224, 83, 21, 0.18) !important;
     }
     
-    /* Evitar "abas duplas pesadas" ao customizar as sub-abas aninhadas */
+    /* Evitar "abas duplas pesadas" ao customizar as sub-abas aninhadas e centralizá-las */
     div[data-testid="stTabs"] div[data-testid="stTabs"] {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
-        margin-bottom: 1.5rem !important;
+        margin: 0 auto 1.5rem auto !important;
+        display: flex !important;
+        justify-content: center !important;
+        max-width: max-content !important;
     }
     
     div[data-testid="stTabs"] div[data-testid="stTabs"] button[role="tab"] {
@@ -386,7 +399,7 @@ st.markdown("""
         font-weight: 800;
         text-transform: uppercase;
         background-color: #FAF6F0;
-        border: 1.5px solid;
+        border: 1px solid;
     }
     
     /* Tabelas Corporativas Elegantes - Sem gradiente */
