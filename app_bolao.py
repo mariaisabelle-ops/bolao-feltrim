@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import json
+from datetime import datetime, timezone, timedelta
 
 # Configuração de Página Premium do Streamlit
 st.set_page_config(
@@ -12,7 +13,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS (CORRIGIDA E CALIBRADA)
+# 🏆 LISTA OFICIAL DE 72 JOGOS DA FASE DE GRUPOS
 # ==========================================
 JOGOS_CADASTRADOS = [
     # --- 11/06 ---
@@ -64,7 +65,7 @@ JOGOS_CADASTRADOS = [
     {"ID_Jogo": "JOGO_36", "Jogo": "⚽ Tunísia vs Japão (21/06)", "Horário": "00:00", "Data": "21/06 (Domingo)", "Time_M": "Tunísia", "ISO_M": "tn", "Time_V": "Japão", "ISO_V": "jp"},
     {"ID_Jogo": "JOGO_37", "Jogo": "⚽ Espanha vs Arábia Saudita (21/06)", "Horário": "12:00", "Data": "21/06 (Domingo)", "Time_M": "Espanha", "ISO_M": "es", "Time_V": "Arábia Saudita", "ISO_V": "sa"},
     {"ID_Jogo": "JOGO_38", "Jogo": "⚽ Bélgica vs Irã (21/06)", "Horário": "15:00", "Data": "21/06 (Domingo)", "Time_M": "Bélgica", "ISO_M": "be", "Time_V": "Irã", "ISO_V": "ir"},
-    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguai vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Cabo Verde", "ISO_V": "cv"},
+    {"ID_Jogo": "JOGO_39", "Jogo": "⚽ Uruguay vs Cabo Verde (21/06)", "Horário": "18:00", "Data": "21/06 (Domingo)", "Time_M": "Uruguai", "ISO_M": "uy", "Time_V": "Cabo Verde", "ISO_V": "cv"},
     {"ID_Jogo": "JOGO_40", "Jogo": "⚽ Nova Zelândia vs Egito (21/06)", "Horário": "21:00", "Data": "21/06 (Domingo)", "Time_M": "Nova Zelândia", "ISO_M": "nz", "Time_V": "Egito", "ISO_V": "eg"},
     # --- 22/06 ---
     {"ID_Jogo": "JOGO_41", "Jogo": "⚽ Argentina vs Áustria (22/06)", "Horário": "13:00", "Data": "22/06 (Segunda)", "Time_M": "Argentina", "ISO_M": "ar", "Time_V": "Áustria", "ISO_V": "at"},
@@ -117,6 +118,37 @@ if "saved_email" not in st.session_state:
     st.session_state.saved_email = ""
 if "saved_name" not in st.session_state:
     st.session_state.saved_name = ""
+
+# ==========================================
+# 🎯 FUNÇÃO DE VALIDAÇÃO TEMPORAL EM TEMPO REAL (FUSO HORÁRIO BRASÍLIA)
+# ==========================================
+def jogo_ja_passou(data_str, horario_str):
+    """
+    Verifica se o jogo já passou/começou baseado no horário de Brasília (UTC-3).
+    data_str format: "11/06 (Quinta)"
+    horario_str format: "15:00"
+    """
+    try:
+        # Extrai dia e mês da string "11/06 (Quinta)"
+        dia_mes = data_str.split(" ")[0]
+        dia, mes = dia_mes.split("/")
+        hora, minuto = horario_str.split(":")
+        
+        # O ano é 2026
+        ano = 2026
+        
+        # Cria fuso horário UTC-3 (Brasília)
+        br_tz = timezone(timedelta(hours=-3))
+        
+        # Constrói o datetime do jogo localizado em BRT
+        match_dt = datetime(ano, int(mes), int(dia), int(hora), int(minuto), tzinfo=br_tz)
+        
+        # Obtém o tempo atual localizado em BRT
+        now_br = datetime.now(timezone(timedelta(hours=-3)))
+        
+        return now_br >= match_dt
+    except Exception:
+        return False
 
 # ==========================================
 # 🎨 ESTILIZAÇÃO VISUAL PREMIUM E DE ALTO RELEVO (LARANJA, ROSA, VERDE E BEGE)
@@ -179,8 +211,18 @@ st.markdown("""
         box-shadow: 0 8px 30px rgba(61, 51, 46, 0.02);
     }
     
-    /* Redesenho Total das Abas Nativas (Floating Pills Premium) - Sem gradiente e Centralizadas */
+    /* Reset outer stTabs container so it doesn't restrict content width or add weird borders */
     div[data-testid="stTabs"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Redesenho Total das Abas Nativas (Floating Pills Premium) - Sem gradiente e Centralizadas */
+    div[data-testid="stTabs"] [role="tablist"] {
         background: #FFFFFF !important;
         padding: 6px !important;
         border-radius: 40px !important;
@@ -190,6 +232,7 @@ st.markdown("""
         margin: 0 auto 2rem auto !important;
         max-width: max-content !important;
         box-shadow: 0 4px 15px rgba(224, 83, 21, 0.03) !important;
+        border-bottom: none !important;
     }
     
     div[data-testid="stTabs"] button[role="tab"] {
@@ -217,7 +260,7 @@ st.markdown("""
     }
     
     /* Evitar "abas duplas pesadas" ao customizar as sub-abas aninhadas e centralizá-las */
-    div[data-testid="stTabs"] div[data-testid="stTabs"] {
+    div[data-testid="stTabs"] div[data-testid="stTabs"] [role="tablist"] {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
@@ -248,20 +291,14 @@ st.markdown("""
     }
     
     /* ELIMINAÇÃO TOTAL E COMPLETA DE BARRAS DE HIGHLIGHT E BORDAS DO STREAMLIT QUE CORTAM AS ABAS */
-    div[data-testid="stTabs"] [data-baseweb="tab-highlight-bar"] {
+    div[data-testid="stTabs"] [data-baseweb="tab-highlight-bar"],
+    [data-baseweb="tab-highlight-bar"],
+    div[data-testid="stTabs"] [data-baseweb="tab-border"],
+    [data-baseweb="tab-border"] {
         display: none !important;
         background-color: transparent !important;
         height: 0px !important;
-    }
-    
-    div[data-testid="stTabs"] [data-baseweb="tab-border"] {
-        display: none !important;
-        height: 0px !important;
         border: none !important;
-    }
-    
-    div[data-testid="stTabs"] div[role="tablist"] {
-        border-bottom: none !important;
     }
     
     /* Botões em Cápsula do Escritório - Totalmente Sólidos (Sem Gradientes) */
@@ -871,21 +908,42 @@ with tab_palpites:
             if email_col_name:
                 user_row = df_p[df_p[email_col_name].astype(str).str.strip().str.lower() == st.session_state.saved_email]
                 if not user_row.empty:
-                    for juego_item in JOGOS_CADASTRADOS:
-                        nome_jogo = juego_item["Jogo"]
+                    for jogo_item in JOGOS_CADASTRADOS:
+                        nome_jogo = jogo_item["Jogo"]
                         if nome_jogo in df_p.columns:
                             val = str(user_row[nome_jogo].values[0]).strip()
                             if val and val != "nan" and "-" in val:
                                 lista_jogos_betted.add(nome_jogo)
 
-        # Filtragem de partidas disponíveis para o usuário
-        jogos_disponiveis = [j for j in JOGOS_CADASTRADOS if j["Jogo"] not in lista_jogos_betted]
+        # Filtragem de partidas disponíveis para o usuário (FILTRAGEM DE SEGURANÇA AVANÇADA)
+        jogos_disponiveis = []
+        res_map = obter_resultado_map(df_r)
+
+        for j in JOGOS_CADASTRADOS:
+            nome_jogo = j["Jogo"]
+            jogo_id = j["ID_Jogo"]
+            
+            # 1. Se o colaborador já deu palpite neste jogo, pula.
+            if nome_jogo in lista_jogos_betted:
+                continue
+                
+            # 2. Se a hora do jogo já passou no fuso horário BRT, pula.
+            if jogo_ja_passou(j["Data"], j["Horário"]):
+                continue
+                
+            # 3. Se o administrador já fechou o jogo (Status na planilha), pula.
+            info_real = res_map.get(jogo_id, {"status": "Agendado"})
+            status_real = info_real.get("status", "Agendado")
+            if "Encerrado" in status_real or "Ao Vivo" in status_real or "Andamento" in status_real:
+                continue
+                
+            jogos_disponiveis.append(j)
         
         st.markdown("---")
         st.markdown(f"<h4 style='color:#3C332E; font-weight:800;'>🏟️ Seus Palpites Disponíveis ({len(jogos_disponiveis)} jogos restantes)</h4>", unsafe_allow_html=True)
         
         if len(jogos_disponiveis) == 0:
-            st.success("🏆 Espetacular! Você já registrou palpites para todas as 72 partidas da Fase de Grupos!")
+            st.success("🏆 Espetacular! Não há nenhum palpite elegível pendente de envio para o seu perfil!")
         else:
             # Seletor de Data para organizar a tela
             datas_disponiveis = sorted(list(set([j["Data"] for j in jogos_disponiveis])), key=lambda x: x[:5])
