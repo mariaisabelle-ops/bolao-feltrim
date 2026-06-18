@@ -752,7 +752,7 @@ with tab_ranking:
                     
                     with col_team_m:
                         st.markdown(f"""
-                            <div style="text-align: center;">
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100px;">
                                 <img src="https://flagcdn.com/w160/{j['ISO_M']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
                                 <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px;">{j['Time_M']}</div>
                             </div>
@@ -761,20 +761,20 @@ with tab_ranking:
                     with col_score:
                         if "Encerrado" in status_real or "Ao Vivo" in status_real:
                             st.markdown(f"""
-                                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100px; margin-top: 10px;">
+                                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100px;">
                                     <h1 style='text-align:center; margin:0; color:#3C332E; font-weight:800; font-size:2.4rem;'>{info_real['m']} - {info_real['v']}</h1>
                                 </div>
                             """, unsafe_allow_html=True)
                         else:
                             st.markdown(f"""
-                                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100px; margin-top: 10px;">
+                                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100px;">
                                     <div style='text-align:center; padding:8px 16px; background:#FFFAE6; border:1.5px solid #E05315; border-radius:30px; font-weight:800; color:#3C332E; font-size:0.9rem;'>🕒 {j['Horário']}</div>
                                 </div>
                             """, unsafe_allow_html=True)
                     
                     with col_team_v:
                         st.markdown(f"""
-                            <div style="text-align: center;">
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100px;">
                                 <img src="https://flagcdn.com/w160/{j['ISO_V']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
                                 <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px;">{j['Time_V']}</div>
                             </div>
@@ -844,8 +844,8 @@ with tab_palpites:
             if email_col_name:
                 user_row = df_p[df_p[email_col_name].astype(str).str.strip().str.lower() == st.session_state.saved_email]
                 if not user_row.empty:
-                    for jogo_item in JOGOS_CADASTRADOS:
-                        nome_jogo = jogo_item["Jogo"]
+                    for juego_item in JOGOS_CADASTRADOS:
+                        nome_jogo = juego_item["Jogo"]
                         if nome_jogo in df_p.columns:
                             val = str(user_row[nome_jogo].values[0]).strip()
                             if val and val != "nan" and "-" in val:
@@ -885,7 +885,7 @@ with tab_palpites:
                     
                     with col_m:
                         st.markdown(f"""
-                            <div style="text-align: center; margin-bottom: 8px;">
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 120px;">
                                 <img src="https://flagcdn.com/w160/{jogo['ISO_M']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
                                 <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px; margin-bottom: 4px;">{jogo['Time_M']}</div>
                                 <div style="font-size:0.85rem; color:#E05315; font-weight:700;">Gols Mandante</div>
@@ -894,12 +894,11 @@ with tab_palpites:
                         gols_m = st.number_input("Gols Mandante", min_value=0, max_value=20, value=0, key=f"m_{jogo['ID_Jogo']}", step=1, label_visibility="collapsed")
                         
                     with col_vs:
-                        st.markdown("<div style='text-align: center; margin-top: 3.5rem; font-size: 1.8rem; font-weight: 800; color:#3C332E;'>x</div>", unsafe_allow_html=True)
+                        st.markdown("<div style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 165px; font-size: 1.8rem; font-weight: 800; color:#3C332E;'>x</div>", unsafe_allow_html=True)
                         
                     with col_v:
-                        st.image(f"https://flagcdn.com/w160/{jogo['ISO_V']}.png", width=65)
                         st.markdown(f"""
-                            <div style="text-align: center; margin-bottom: 8px;">
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 120px;">
                                 <img src="https://flagcdn.com/w160/{jogo['ISO_V']}.png" style="width:65px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);">
                                 <div style="color:#3C332E; font-size:1.1rem; font-weight:800; margin-top:8px; margin-bottom: 4px;">{jogo['Time_V']}</div>
                                 <div style="font-size:0.85rem; color:#D972CD; font-weight:700;">Gols Visitante</div>
